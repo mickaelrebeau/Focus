@@ -88,5 +88,10 @@ const navItems = [
   { to: '/app/reglages', label: 'Réglages', icon: '◉' },
 ]
 
-const mobileNavItems = navItems.slice(0, 5)
+const mobileNavItems = [
+  { to: '/app', label: 'Aujourd\'hui', icon: '◎' },
+  { to: '/app/objectifs', label: 'Objectifs', icon: '◈' },
+  { to: '/app/agenda', label: 'Agenda', icon: '◷' },
+  { to: '/app/historique', label: 'Historique', icon: '◫' },
+]
 </script>
