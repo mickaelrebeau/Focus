@@ -44,9 +44,11 @@
           >
             Admin
           </NuxtLink>
-          <div v-if="user" class="text-right">
-            <p class="text-xs text-focus-gray-400">Crédits</p>
-            <p class="text-sm font-semibold text-focus-gray-900">{{ user.credits }}</p>
+          <div v-if="user" class="flex items-center gap-2 border border-focus-gray-200 rounded-focus px-2 py-1">
+            <p class="text-sm font-semibold text-focus-gray-900">
+              <span class="text-xs">{{ user.credits }}</span>
+              <span class="ml-2 text-xs">crédits</span>
+            </p>
           </div>
         </div>
       </div>
