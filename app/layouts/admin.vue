@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-dvh bg-focus-gray-50">
     <!-- Desktop sidebar -->
-    <aside class="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-focus-gray-200 bg-focus-gray-900 text-focus-white lg:block">
-      <AdminSidebarNav :items="adminNav" />
+    <aside class="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-focus-gray-200 bg-focus-gray-900 text-focus-white lg:flex">
+      <AdminNavContent :items="adminNav" />
     </aside>
 
     <!-- Mobile drawer -->
@@ -18,7 +18,7 @@
           @click="menuOpen = false"
         />
         <aside class="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-focus-gray-800 bg-focus-gray-900 text-focus-white shadow-focus-lg">
-          <div class="flex h-14 items-center justify-between border-b border-focus-gray-800 px-5">
+          <div class="flex h-14 shrink-0 items-center justify-between border-b border-focus-gray-800 px-5">
             <AppLogo to="/admin" label="Focus Admin" variant="dark" size="sm" />
             <button
               type="button"
@@ -31,7 +31,12 @@
               </svg>
             </button>
           </div>
-          <AdminSidebarNav :items="adminNav" class="flex-1" @navigate="menuOpen = false" />
+          <AdminNavContent
+            :items="adminNav"
+            :show-logo="false"
+            class="min-h-0 flex-1"
+            @navigate="menuOpen = false"
+          />
         </aside>
       </div>
     </Teleport>
@@ -63,6 +68,8 @@
 </template>
 
 <script setup lang="ts">
+import AdminNavContent from '~/components/admin/AdminNavContent.vue'
+
 const { user } = useAuth()
 const route = useRoute()
 const menuOpen = ref(false)
