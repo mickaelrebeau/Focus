@@ -86,11 +86,6 @@ export default defineNuxtConfig({
       navigateFallbackAllowlist: [/^\/$/],
       navigateFallbackDenylist: [/^\/api\//],
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
-      globIgnores: [
-        '**/_payload.json',
-        '_nuxt/builds/**/*.json',
-        '**/node_modules/**/*',
-      ],
     },
     client: {
       installPrompt: true,
