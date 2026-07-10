@@ -34,6 +34,9 @@ cp .env.example .env
 # Créer les tables
 pnpm db:migrate
 
+# Injecter des données factices (admin + utilisateurs démo)
+pnpm db:seed
+
 # Lancer l'app
 pnpm dev
 
@@ -48,7 +51,7 @@ pnpm worker
 | `DATABASE_URL` | PostgreSQL connection string |
 | `REDIS_URL` | Redis connection string |
 | `SESSION_SECRET` | Secret pour les sessions |
-| `ADMIN_EMAIL` | Email admin (défaut: rebeau.mickael@gmail.com) |
+| `ADMIN_EMAIL` | Email admin |
 | `ADMIN_PASSWORD` | Mot de passe initial admin |
 | `APP_URL` | URL publique de l'app |
 

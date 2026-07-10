@@ -9,6 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed-demo.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "worker": "tsx server/workers/deadlines.ts",
