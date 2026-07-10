@@ -60,3 +60,7 @@ export function getTimezoneGroups() {
 export function isValidTimezone(value: string): boolean {
   return TIMEZONE_VALUES.includes(value)
 }
+
+export function getTimezoneLabel(value: string): string {
+  return TIMEZONE_OPTIONS.find(option => option.value === value)?.label ?? value
+}

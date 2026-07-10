@@ -78,6 +78,14 @@ export const updateSettingsSchema = z.object({
   leaderboardOptIn: z.boolean().optional(),
 })
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Mot de passe actuel requis'),
+  newPassword: passwordSchema,
+}).refine(data => data.currentPassword !== data.newPassword, {
+  message: 'Le nouveau mot de passe doit être différent',
+  path: ['newPassword'],
+})
+
 export const adminAdjustSchema = z.object({
   amount: z.number().int(),
   reason: z.string().min(5, 'Motif requis (min 5 caractères)'),
