@@ -34,8 +34,11 @@ cp .env.example .env
 # Créer les tables
 pnpm db:migrate
 
-# Injecter des données factices (admin + utilisateurs démo)
+# Injecter des objectifs factices sur le compte admin (après la 1re connexion)
 pnpm db:seed
+
+# Réinitialiser les objectifs démo de l'admin
+pnpm db:seed --force
 
 # Lancer l'app
 pnpm dev

@@ -1,7 +1,10 @@
 import { eq, and, lte, inArray } from 'drizzle-orm'
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { useDatabase, schema } from '../database'
 import { applyPenalty } from './credits'
 import { acquireLock, releaseLock } from './redis'
+
+type Db = PostgresJsDatabase<typeof schema>
 
 export async function processExpiredOccurrences() {
   const lockKey = 'worker:deadlines'
@@ -62,8 +65,8 @@ export async function processExpiredOccurrences() {
   }
 }
 
-export async function generateUpcomingOccurrences() {
-  const db = useDatabase()
+export async function generateUpcomingOccurrences(dbInstance?: Db) {
+  const db = dbInstance ?? useDatabase()
   const { generateOccurrenceDates, generateMilestoneOccurrences, getDateRange } = await import('./occurrences')
 
   const activeGoals = await db

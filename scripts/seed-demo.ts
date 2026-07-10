@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from '../server/database/schema'
-import { seedDemoData } from '../server/utils/seed-demo'
+import { removeLegacyDemoUsers, seedDemoData } from '../server/utils/seed-demo'
 
 function loadEnv() {
   const envPath = resolve(process.cwd(), '.env')
@@ -38,18 +38,23 @@ const client = postgres(databaseUrl, { max: 1 })
 const db = drizzle(client, { schema })
 
 try {
+  if (force) {
+    const removed = await removeLegacyDemoUsers(db)
+    if (removed > 0) {
+      console.log(`↷ ${removed} utilisateur(s) démo supprimé(s)`)
+    }
+  }
+
   const result = await seedDemoData(db, adminEmail, force)
 
   if (result.skipped) {
     console.log(`↷ ${result.reason}`)
-    console.log('   Relancez avec --force pour réinitialiser les données démo.')
+    console.log('   Relancez avec --force pour réinitialiser les objectifs démo.')
   } else {
-    console.log('✓ Données factices injectées avec succès')
+    console.log('✓ Objectifs factices créés')
     console.log(`  Admin : ${result.adminEmail}`)
     console.log(`  Objectifs : ${result.goals}`)
-    console.log(`  Échéances : ${result.occurrences}`)
-    console.log(`  Utilisateurs démo : ${result.demoUsers}`)
-    console.log('  Comptes démo : mot de passe Demo1234!')
+    console.log(`  Échéances générées : ${result.occurrences}`)
   }
 } catch (error) {
   console.error('Erreur :', (error as Error).message)
