@@ -276,16 +276,16 @@ async function changePassword() {
           <span class="text-base text-focus-gray-400">{{ link.icon }}</span>
           {{ link.label }}
         </NuxtLink>
-        <button
-          v-if="userjotEnabled"
-          type="button"
-          class="flex items-center gap-3 rounded-focus border border-focus-gray-200 px-4 py-3 text-sm font-medium text-focus-gray-700 transition hover:border-focus-gray-300 hover:bg-focus-gray-50"
-          @click="showFeedback"
-        >
-          <span class="text-base text-focus-gray-400">✎</span>
-          Donner un avis
-        </button>
       </div>
+    </UiCard>
+
+    <UiCard v-if="userjotEnabled" title="Aide & feedback" class="mt-6">
+      <p class="text-sm text-focus-gray-500">
+        Partagez vos idées, signalez un bug ou votez pour les prochaines fonctionnalités.
+      </p>
+      <UiButton variant="secondary" class="mt-4" @click="showFeedback">
+        Donner un avis
+      </UiButton>
     </UiCard>
 
     <UiCard title="Compte" class="mt-6">

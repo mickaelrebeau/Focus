@@ -39,20 +39,16 @@ export default defineNuxtPlugin(() => {
   window.uj.init(projectId, {
     widget: true,
     theme: 'auto',
-    position: 'right',
+    trigger: 'custom',
   })
-  window.uj.disableWidget()
 
   const { user } = useAuth()
-  const route = useRoute()
 
   async function syncUserjot() {
-    const isAppArea = route.path.startsWith('/app')
     const currentUser = user.value
 
-    if (!currentUser || !isAppArea) {
+    if (!currentUser) {
       window.uj.identify(null)
-      window.uj.disableWidget()
       return
     }
 
@@ -69,8 +65,7 @@ export default defineNuxtPlugin(() => {
     }
 
     window.uj.identify(toUserjotIdentity(currentUser, signature))
-    window.uj.enableWidget()
   }
 
-  watch([user, () => route.path], syncUserjot, { immediate: true })
+  watch(user, syncUserjot, { immediate: true })
 })
