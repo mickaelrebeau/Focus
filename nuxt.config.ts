@@ -25,8 +25,8 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
-        { rel: 'apple-touch-icon', href: '/logo.svg' },
+        { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+        { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap' },
@@ -58,18 +58,22 @@ export default defineNuxtConfig({
       name: 'Focus',
       short_name: 'Focus',
       description: 'Réalisez vos objectifs avec responsabilité',
+      lang: 'fr',
       theme_color: '#000000',
       background_color: '#ffffff',
       display: 'standalone',
       orientation: 'portrait',
       start_url: '/app',
       icons: [
-        { src: '/logo.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
-        { src: '/logo.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' },
+        { src: '/icons/pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: '/icons/pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: '/icons/pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       ],
     },
     workbox: {
       navigateFallback: '/',
+      navigateFallbackAllowlist: [/^\/$/],
+      navigateFallbackDenylist: [/^\/api\//],
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
       globIgnores: [
         '**/_payload.json',
@@ -91,6 +95,9 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'node-server',
+    prerender: {
+      routes: ['/'],
+    },
   },
 
   typescript: {

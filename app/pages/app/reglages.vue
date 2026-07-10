@@ -5,6 +5,7 @@ import { DEFAULT_TIMEZONE, getTimezoneLabel, isValidTimezone } from '#shared/tim
 
 const { user, fetchUser, logout, isAdmin } = useAuth()
 const { isEnabled: userjotEnabled, showFeedback } = useUserjot()
+const pwa = usePWA()
 const { data: goalsData } = useGoals()
 const { data: walletData } = useWalletHistory()
 
@@ -86,6 +87,10 @@ async function saveProfile() {
   } finally {
     profileLoading.value = false
   }
+}
+
+async function installPwa() {
+  await pwa?.install()
 }
 
 async function changePassword() {
@@ -277,6 +282,15 @@ async function changePassword() {
           {{ link.label }}
         </NuxtLink>
       </div>
+    </UiCard>
+
+    <UiCard v-if="pwa?.showInstallPrompt && !pwa?.isPWAInstalled" title="Application" class="mt-6">
+      <p class="text-sm text-focus-gray-500">
+        Installez Focus sur votre écran d'accueil pour un accès rapide, comme une application native.
+      </p>
+      <UiButton variant="secondary" class="mt-4" @click="installPwa">
+        Installer l'application
+      </UiButton>
     </UiCard>
 
     <UiCard v-if="userjotEnabled" title="Aide & feedback" class="mt-6">
