@@ -1,0 +1,22 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "node .output/server/index.mjs"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+[[services]]
+name = "web"
+source = "."
+
+[services.web]
+startCommand = "node .output/server/index.mjs"
+
+[[services]]
+name = "worker"
+source = "."
+
+[services.worker]
+startCommand = "npx tsx server/workers/deadlines.ts"

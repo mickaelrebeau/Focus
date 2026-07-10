@@ -1,0 +1,11 @@
+# Focus
+
+node_modules/
+.nuxt/
+.output/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log

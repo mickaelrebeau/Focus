@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-focus-white text-focus-gray-700 font-sans;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
+
+  ::selection {
+    @apply bg-focus-black text-focus-white;
+  }
+}
+
+@layer components {
+  .focus-container {
+    @apply mx-auto w-full max-w-6xl px-5 md:px-8;
+  }
+
+  .focus-container-narrow {
+    @apply mx-auto w-full max-w-3xl px-5 md:px-8;
+  }
+
+  .focus-heading-xl {
+    @apply text-4xl font-semibold tracking-tight text-focus-gray-900 md:text-6xl md:leading-[1.05];
+  }
+
+  .focus-heading-lg {
+    @apply text-2xl font-semibold tracking-tight text-focus-gray-900 md:text-3xl;
+  }
+
+  .focus-heading-md {
+    @apply text-xl font-semibold tracking-tight text-focus-gray-900;
+  }
+
+  .focus-body {
+    @apply text-base leading-relaxed text-focus-gray-500;
+  }
+
+  .focus-body-sm {
+    @apply text-sm leading-relaxed text-focus-gray-400;
+  }
+
+  .focus-label {
+    @apply text-xs font-medium uppercase tracking-wider text-focus-gray-400;
+  }
+
+  .focus-card {
+    @apply rounded-focus-lg border border-focus-gray-200 bg-focus-white p-5 shadow-focus md:p-6;
+  }
+
+  .focus-input {
+    @apply w-full rounded-focus border border-focus-gray-200 bg-focus-white px-4 py-3 text-base text-focus-gray-900 outline-none transition placeholder:text-focus-gray-300 focus:border-focus-gray-400 focus:ring-2 focus:ring-focus-gray-100;
+  }
+
+  .focus-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .focus-btn-primary {
+    @apply focus-btn bg-focus-black text-focus-white hover:bg-focus-gray-800;
+  }
+
+  .focus-btn-secondary {
+    @apply focus-btn border border-focus-gray-200 bg-focus-white text-focus-gray-700 hover:border-focus-gray-300 hover:bg-focus-gray-50;
+  }
+
+  .focus-btn-ghost {
+    @apply focus-btn text-focus-gray-500 hover:bg-focus-gray-100 hover:text-focus-gray-900;
+  }
+
+  .focus-btn-accent {
+    @apply focus-btn bg-focus-accent text-focus-white hover:opacity-90;
+  }
+
+  .focus-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .focus-badge-success {
+    @apply focus-badge bg-emerald-50 text-emerald-700;
+  }
+
+  .focus-badge-warning {
+    @apply focus-badge bg-amber-50 text-amber-700;
+  }
+
+  .focus-badge-danger {
+    @apply focus-badge bg-red-50 text-red-700;
+  }
+
+  .focus-badge-neutral {
+    @apply focus-badge bg-focus-gray-100 text-focus-gray-600;
+  }
+
+  .focus-divider {
+    @apply h-px w-full bg-focus-gray-200;
+  }
+
+  .focus-nav-item {
+    @apply flex flex-col items-center gap-1 px-3 py-2 text-xs font-medium text-focus-gray-400 transition;
+  }
+
+  .focus-nav-item-active {
+    @apply text-focus-gray-900;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .pt-safe {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+}
