@@ -4,6 +4,7 @@ definePageMeta({ layout: 'app', middleware: 'auth' })
 import { DEFAULT_TIMEZONE, getTimezoneLabel, isValidTimezone } from '#shared/timezones'
 
 const { user, fetchUser, logout, isAdmin } = useAuth()
+const { isEnabled: userjotEnabled, showFeedback } = useUserjot()
 const { data: goalsData } = useGoals()
 const { data: walletData } = useWalletHistory()
 
@@ -275,6 +276,15 @@ async function changePassword() {
           <span class="text-base text-focus-gray-400">{{ link.icon }}</span>
           {{ link.label }}
         </NuxtLink>
+        <button
+          v-if="userjotEnabled"
+          type="button"
+          class="flex items-center gap-3 rounded-focus border border-focus-gray-200 px-4 py-3 text-sm font-medium text-focus-gray-700 transition hover:border-focus-gray-300 hover:bg-focus-gray-50"
+          @click="showFeedback"
+        >
+          <span class="text-base text-focus-gray-400">✎</span>
+          Donner un avis
+        </button>
       </div>
     </UiCard>
 

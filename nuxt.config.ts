@@ -44,9 +44,11 @@ export default defineNuxtConfig({
     s3Endpoint: process.env.S3_ENDPOINT || '',
     s3AccessKey: process.env.S3_ACCESS_KEY || '',
     s3SecretKey: process.env.S3_SECRET_KEY || '',
+    userjotSecretKey: process.env.USERJOT_SECRET_KEY || '',
     public: {
       appName: 'Focus',
       appUrl: process.env.APP_URL || 'http://localhost:3000',
+      userjotProjectId: process.env.USERJOT_PROJECT_ID || '',
     },
   },
 
