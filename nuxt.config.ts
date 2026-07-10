@@ -69,13 +69,21 @@ export default defineNuxtConfig({
     workbox: {
       navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+      globIgnores: [
+        '**/_payload.json',
+        '_nuxt/builds/**/*.json',
+        '**/node_modules/**/*',
+      ],
     },
     client: {
       installPrompt: true,
     },
     devOptions: {
-      enabled: true,
+      // Désactivé en dev : le SW n'est généré qu'au 1er chargement navigateur,
+      // ce qui provoque ENOENT sur .nuxt/dev-sw-dist/sw.js. Actif en production.
+      enabled: false,
       type: 'module',
+      suppressWarnings: true,
     },
   },
 
