@@ -22,6 +22,13 @@
           <p class="truncate text-sm font-medium text-focus-gray-900">{{ user.displayName }}</p>
           <p class="text-xs text-focus-gray-400">{{ user.credits }} crédits</p>
         </div>
+        <NuxtLink
+          v-if="isAdmin"
+          to="/admin"
+          class="flex items-center gap-2 rounded-focus px-3 py-2 text-sm font-medium text-focus-gray-500 transition hover:bg-focus-gray-50 hover:text-focus-gray-900"
+        >
+          ◆ Administration
+        </NuxtLink>
       </div>
     </aside>
 
@@ -29,9 +36,18 @@
     <header class="sticky top-0 z-30 border-b border-focus-gray-200 bg-focus-white/90 backdrop-blur-xl pt-safe lg:hidden">
       <div class="flex h-14 items-center justify-between px-5">
         <AppLogo to="/app" :show-label="false" size="md" />
-        <div v-if="user" class="text-right">
-          <p class="text-xs text-focus-gray-400">Crédits</p>
-          <p class="text-sm font-semibold text-focus-gray-900">{{ user.credits }}</p>
+        <div class="flex items-center gap-3">
+          <NuxtLink
+            v-if="isAdmin"
+            to="/admin"
+            class="text-xs font-medium text-focus-gray-500"
+          >
+            Admin
+          </NuxtLink>
+          <div v-if="user" class="text-right">
+            <p class="text-xs text-focus-gray-400">Crédits</p>
+            <p class="text-sm font-semibold text-focus-gray-900">{{ user.credits }}</p>
+          </div>
         </div>
       </div>
     </header>
@@ -61,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-const { user, logout } = useAuth()
+const { user, logout, isAdmin } = useAuth()
 
 const navItems = [
   { to: '/app', label: 'Aujourd\'hui', icon: '◎' },

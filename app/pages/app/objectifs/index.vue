@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
-const { goalsQuery } = useGoals()
+const { data: goalsData, isPending: goalsLoading } = useGoals()
 
 const typeLabels: Record<string, string> = {
   one_time: 'Ponctuel',
@@ -19,11 +19,11 @@ const typeLabels: Record<string, string> = {
       </NuxtLink>
     </div>
 
-    <div v-if="goalsQuery.isLoading" class="space-y-4">
+    <div v-if="goalsLoading" class="space-y-4">
       <div v-for="i in 3" :key="i" class="focus-card h-20 animate-pulse bg-focus-gray-50" />
     </div>
 
-    <div v-else-if="!goalsQuery.data?.goals?.length" class="focus-card py-12 text-center">
+    <div v-else-if="!goalsData?.goals?.length" class="focus-card py-12 text-center">
       <p class="text-focus-gray-400">Aucun objectif actif.</p>
       <NuxtLink to="/app/objectifs/nouveau" class="focus-btn-primary mt-4 inline-flex">
         Créer mon premier objectif
@@ -32,7 +32,7 @@ const typeLabels: Record<string, string> = {
 
     <div v-else class="space-y-4">
       <NuxtLink
-        v-for="goal in goalsQuery.data.goals"
+        v-for="goal in goalsData.goals"
         :key="goal.id"
         :to="`/app/objectifs/${goal.id}`"
         class="focus-card block transition hover:border-focus-gray-300"

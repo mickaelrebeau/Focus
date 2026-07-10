@@ -5,7 +5,7 @@ definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const { user } = useAuth()
 const filter = ref('today')
-const { occurrencesQuery, completeOccurrence } = useOccurrences(filter)
+const { data: occurrencesData, isPending: occurrencesLoading, completeOccurrence } = useOccurrences(filter)
 
 const showCompleteModal = ref(false)
 const selectedOccurrenceId = ref('')
@@ -60,11 +60,11 @@ async function submitComplete() {
       </NuxtLink>
     </div>
 
-    <div v-if="occurrencesQuery.isLoading" class="space-y-4">
+    <div v-if="occurrencesLoading" class="space-y-4">
       <div v-for="i in 3" :key="i" class="focus-card h-24 animate-pulse bg-focus-gray-50" />
     </div>
 
-    <div v-else-if="!occurrencesQuery.data?.occurrences?.length" class="focus-card text-center py-12">
+    <div v-else-if="!occurrencesData?.occurrences?.length" class="focus-card text-center py-12">
       <p class="text-focus-gray-400">Aucune échéance pour aujourd'hui.</p>
       <NuxtLink to="/app/objectifs/nouveau" class="focus-btn-secondary mt-4 inline-flex">
         Créer un objectif
@@ -73,7 +73,7 @@ async function submitComplete() {
 
     <div v-else class="space-y-4">
       <OccurrenceCard
-        v-for="occ in occurrencesQuery.data.occurrences"
+        v-for="occ in occurrencesData.occurrences"
         :key="occ.id"
         :occurrence="occ"
         @complete="openComplete"

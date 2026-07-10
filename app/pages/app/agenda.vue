@@ -4,7 +4,7 @@ import OccurrenceCard from '~/components/OccurrenceCard.vue'
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const filter = ref<string | undefined>(undefined)
-const { occurrencesQuery } = useOccurrences(filter)
+const { data: occurrencesData } = useOccurrences(filter)
 </script>
 
 <template>
@@ -28,7 +28,7 @@ const { occurrencesQuery } = useOccurrences(filter)
 
     <div class="mt-6 space-y-4">
       <OccurrenceCard
-        v-for="occ in occurrencesQuery.data?.occurrences ?? []"
+        v-for="occ in occurrencesData?.occurrences ?? []"
         :key="occ.id"
         :occurrence="occ"
       />

@@ -3,7 +3,7 @@ definePageMeta({ layout: 'app', middleware: 'auth' })
 
 import { DEFAULT_TIMEZONE, isValidTimezone } from '#shared/timezones'
 
-const { user, fetchUser, logout } = useAuth()
+const { user, fetchUser, logout, isAdmin } = useAuth()
 const displayName = ref('')
 const timezone = ref(DEFAULT_TIMEZONE)
 const leaderboardOptIn = ref(true)
@@ -44,8 +44,17 @@ async function save() {
       <UiButton type="submit" :loading="loading">Enregistrer</UiButton>
     </form>
 
-    <div class="mt-12">
-      <UiButton variant="ghost" class="text-red-500" @click="logout">Déconnexion</UiButton>
+    <div class="mt-12 space-y-3">
+      <NuxtLink
+        v-if="isAdmin"
+        to="/admin"
+        class="focus-btn-secondary inline-flex"
+      >
+        ◆ Administration
+      </NuxtLink>
+      <div>
+        <UiButton variant="ghost" class="text-red-500" @click="logout">Déconnexion</UiButton>
+      </div>
     </div>
   </div>
 </template>

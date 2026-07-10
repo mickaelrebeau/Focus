@@ -30,5 +30,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (state) {
       hydrate(queryClient, state)
     }
+
+    nuxtApp.hook('app:mounted', () => {
+      queryClient.refetchQueries({ type: 'active', stale: true })
+    })
   }
 })
