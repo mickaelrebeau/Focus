@@ -13,6 +13,16 @@ source = "."
 
 [services.web]
 startCommand = "node .output/server/index.mjs"
+watchPatterns = [
+  "app/**",
+  "server/**",
+  "shared/**",
+  "public/**",
+  "scripts/**",
+  "nuxt.config.ts",
+  "package.json",
+  "pnpm-lock.yaml",
+]
 
 [[services]]
 name = "worker"
@@ -20,3 +30,9 @@ source = "."
 
 [services.worker]
 startCommand = "npx tsx server/workers/deadlines.ts"
+watchPatterns = [
+  "server/workers/**",
+  "server/utils/**",
+  "package.json",
+  "pnpm-lock.yaml",
+]
