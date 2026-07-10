@@ -77,30 +77,6 @@ const useCases = [
       </div>
     </section>
 
-    <!-- How it works -->
-    <section class="border-t border-focus-gray-100 py-20 md:py-28">
-      <div class="focus-container">
-        <h2 class="landing-reveal focus-heading-lg text-center">Comment ça marche</h2>
-        <div class="mt-16 grid gap-8 md:grid-cols-3">
-          <div class="landing-reveal text-center">
-            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-focus-gray-100 text-lg font-semibold">1</div>
-            <h3 class="font-semibold text-focus-gray-900">Définissez</h3>
-            <p class="focus-body-sm mt-2">Créez des objectifs récurrents, ponctuels ou des projets à jalons.</p>
-          </div>
-          <div class="landing-reveal text-center">
-            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-focus-gray-100 text-lg font-semibold">2</div>
-            <h3 class="font-semibold text-focus-gray-900">Réalisez</h3>
-            <p class="focus-body-sm mt-2">Validez chaque échéance avec une note ou une preuve facultative.</p>
-          </div>
-          <div class="landing-reveal text-center">
-            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-focus-gray-100 text-lg font-semibold">3</div>
-            <h3 class="font-semibold text-focus-gray-900">Progressez</h3>
-            <p class="focus-body-sm mt-2">Gagnez +10 crédits par réussite. Échouez, perdez 20 — ou créez une dette.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Use cases -->
     <section class="bg-focus-gray-50 py-20 md:py-28">
       <div class="focus-container">
