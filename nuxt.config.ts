@@ -21,6 +21,7 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Focus vous aide à tenir vos objectifs. Gagnez des crédits en réussissant, engagez-vous avec responsabilité.' },
         { name: 'theme-color', content: '#000000' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       ],
       link: [

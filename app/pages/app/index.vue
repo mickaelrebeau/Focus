@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import OccurrenceCard from '~/components/OccurrenceCard.vue'
+
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const { user } = useAuth()
