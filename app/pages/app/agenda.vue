@@ -10,15 +10,13 @@ definePageMeta({ layout: 'app', middleware: 'auth' })
 type StatusFilter = 'all' | 'pending' | 'overdue' | 'completed' | 'failed'
 
 const statusFilter = ref<StatusFilter>('all')
-const { data: occurrencesData, isPending, completeOccurrence } = useOccurrences()
+const { data: occurrencesData, isPending } = useOccurrences()
 
 const currentMonth = ref(startOfMonth(new Date()))
 const selectedDate = ref(format(new Date(), 'yyyy-MM-dd'))
 
 const showCompleteModal = ref(false)
 const selectedOccurrenceId = ref('')
-const note = ref('')
-const proofUrl = ref('')
 
 const statusFilters: Array<{ value: StatusFilter, label: string }> = [
   { value: 'all', label: 'Tous' },
@@ -95,21 +93,7 @@ const monthOccurrenceCount = computed(() =>
 
 function openComplete(id: string) {
   selectedOccurrenceId.value = id
-  note.value = ''
-  proofUrl.value = ''
   showCompleteModal.value = true
-}
-
-async function submitComplete() {
-  await completeOccurrence.mutateAsync({
-    id: selectedOccurrenceId.value,
-    note: note.value || undefined,
-    proofType: proofUrl.value ? 'url' : undefined,
-    proofUrl: proofUrl.value || undefined,
-  })
-  showCompleteModal.value = false
-  const { fetchUser } = useAuth()
-  await fetchUser()
 }
 </script>
 
@@ -177,33 +161,10 @@ async function submitComplete() {
       </div>
     </template>
 
-    <Teleport to="body">
-      <div
-        v-if="showCompleteModal"
-        class="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
-        @click.self="showCompleteModal = false"
-      >
-        <div class="w-full max-w-md rounded-focus-xl bg-focus-white p-6 shadow-focus-lg">
-          <h3 class="focus-heading-md">Valider l'échéance</h3>
-          <p class="focus-body-sm mt-2">Ajoutez une note ou une preuve (facultatif).</p>
-          <div class="mt-4 space-y-4">
-            <UiInput v-model="note" label="Note" placeholder="Ce que j'ai accompli..." />
-            <UiInput v-model="proofUrl" label="Lien de preuve" type="url" placeholder="https://..." />
-          </div>
-          <div class="mt-6 flex gap-3">
-            <UiButton variant="secondary" class="flex-1" @click="showCompleteModal = false">
-              Annuler
-            </UiButton>
-            <UiButton
-              class="flex-1"
-              :loading="completeOccurrence.isPending"
-              @click="submitComplete"
-            >
-              Valider (+10)
-            </UiButton>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <CompleteOccurrenceModal
+      v-model="showCompleteModal"
+      :occurrence-id="selectedOccurrenceId"
+      :reward-credits="10"
+    />
   </div>
 </template>

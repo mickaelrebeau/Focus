@@ -8,7 +8,6 @@ definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const route = useRoute()
 const id = computed(() => route.params.id as string)
-const { completeOccurrence } = useOccurrences()
 
 const { data, pending, refresh } = useFetch(
   () => `/api/goals/${id.value}`,
@@ -19,8 +18,6 @@ const occurrenceFilter = ref<'all' | 'pending' | 'completed'>('all')
 const showCompleteModal = ref(false)
 const showArchiveConfirm = ref(false)
 const selectedOccurrenceId = ref('')
-const note = ref('')
-const proofUrl = ref('')
 const archiving = ref(false)
 
 const typeLabels: Record<string, string> = {
@@ -172,22 +169,7 @@ function formatOccurrenceDate(value: string, dueAt: string) {
 
 function openComplete(occurrenceId: string) {
   selectedOccurrenceId.value = occurrenceId
-  note.value = ''
-  proofUrl.value = ''
   showCompleteModal.value = true
-}
-
-async function submitComplete() {
-  await completeOccurrence.mutateAsync({
-    id: selectedOccurrenceId.value,
-    note: note.value || undefined,
-    proofType: proofUrl.value ? 'url' : undefined,
-    proofUrl: proofUrl.value || undefined,
-  })
-  showCompleteModal.value = false
-  const { fetchUser } = useAuth()
-  await fetchUser()
-  await refresh()
 }
 
 async function archiveGoal() {
@@ -394,30 +376,12 @@ async function archiveGoal() {
         </div>
       </section>
 
-      <Teleport to="body">
-        <div
-          v-if="showCompleteModal"
-          class="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
-          @click.self="showCompleteModal = false"
-        >
-          <div class="w-full max-w-md rounded-focus-xl bg-focus-white p-6 shadow-focus-lg">
-            <h3 class="focus-heading-md">Valider l'échéance</h3>
-            <p class="focus-body-sm mt-2">Ajoutez une note ou une preuve (facultatif).</p>
-            <div class="mt-4 space-y-4">
-              <UiInput v-model="note" label="Note" placeholder="Ce que j'ai accompli..." />
-              <UiInput v-model="proofUrl" label="Lien de preuve" type="url" placeholder="https://..." />
-            </div>
-            <div class="mt-6 flex gap-3">
-              <UiButton variant="secondary" class="flex-1" @click="showCompleteModal = false">
-                Annuler
-              </UiButton>
-              <UiButton class="flex-1" :loading="completeOccurrence.isPending" @click="submitComplete">
-                Valider (+{{ goal.rewardCredits }})
-              </UiButton>
-            </div>
-          </div>
-        </div>
-      </Teleport>
+      <CompleteOccurrenceModal
+        v-model="showCompleteModal"
+        :occurrence-id="selectedOccurrenceId"
+        :reward-credits="goal.rewardCredits"
+        @success="refresh"
+      />
 
       <Teleport to="body">
         <div

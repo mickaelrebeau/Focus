@@ -65,11 +65,22 @@ export const createGoalSchema = z.discriminatedUnion('type', [
   }),
 ])
 
+function normalizeOptionalUrl(value: unknown) {
+  if (typeof value !== 'string') return value
+  const trimmed = value.trim()
+  if (!trimmed) return undefined
+  if (!/^https?:\/\//i.test(trimmed)) return `https://${trimmed}`
+  return trimmed
+}
+
 export const completeOccurrenceSchema = z.object({
   note: z.string().max(1000).optional(),
   proofType: z.enum(['text', 'url', 'image']).optional(),
   proofContent: z.string().max(5000).optional(),
-  proofUrl: z.string().url().optional(),
+  proofUrl: z.preprocess(
+    normalizeOptionalUrl,
+    z.string().url('URL de preuve invalide').optional(),
+  ),
 })
 
 export const updateSettingsSchema = z.object({

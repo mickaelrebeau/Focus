@@ -27,8 +27,25 @@ async function review(id: string, status: 'approved' | 'rejected') {
           <div>
             <p class="font-medium">{{ v.user.displayName }} — {{ v.goal.title }}</p>
             <p v-if="v.note" class="focus-body-sm mt-2">{{ v.note }}</p>
-            <a v-if="v.proofUrl" :href="v.proofUrl" target="_blank" class="text-sm text-focus-accent hover:underline">
+            <a
+              v-if="v.proofUrl && v.proofType !== 'image'"
+              :href="v.proofUrl"
+              target="_blank"
+              class="text-sm text-focus-accent hover:underline"
+            >
               Voir la preuve
+            </a>
+            <a
+              v-if="v.proofUrl && v.proofType === 'image'"
+              :href="v.proofUrl"
+              target="_blank"
+              class="mt-2 inline-block"
+            >
+              <img
+                :src="v.proofUrl"
+                alt="Preuve soumise"
+                class="max-h-48 rounded-focus border border-focus-gray-200 object-cover"
+              >
             </a>
           </div>
           <div class="flex gap-2">
