@@ -67,10 +67,12 @@ export function useOccurrences(filter?: Ref<string | undefined>) {
 
   const completeOccurrence = useMutation({
     mutationFn: ({ id, ...body }: { id: string; note?: string; proofType?: string; proofContent?: string; proofUrl?: string }) =>
-      apiFetch(`/api/occurrences/${id}/complete`, { method: 'POST', body, ...fetchOptions }),
+      apiFetch<{ success: boolean; creditsEarned: number; streak: any }>(`/api/occurrences/${id}/complete`, { method: 'POST', body, ...fetchOptions }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['occurrences'] })
       queryClient.invalidateQueries({ queryKey: ['auth'] })
+      queryClient.invalidateQueries({ queryKey: ['streak'] })
+      queryClient.invalidateQueries({ queryKey: ['leaderboard'] })
     },
   })
 
@@ -82,7 +84,17 @@ export function useLeaderboard() {
   const apiFetch = createApiFetch()
   const { user } = useAuth()
 
-  const queryFn = () => apiFetch<{ leaderboard: any[] }>('/api/leaderboard', fetchOptions)
+  const queryFn = () => apiFetch<{
+    leaderboard: any[]
+    weeklyProgress: {
+      weekKey: string
+      daysQualified: number
+      daysRequired: number
+      isEligible: boolean
+      projectedRank: number | null
+    }
+    weekKey: string
+  }>('/api/leaderboard', fetchOptions)
 
   onServerPrefetch(async () => {
     if (user.value) {
@@ -92,6 +104,32 @@ export function useLeaderboard() {
 
   return useQuery({
     queryKey: ['leaderboard'],
+    queryFn,
+    staleTime: 60_000,
+  })
+}
+
+export function useStreak() {
+  const queryClient = useQueryClient()
+  const apiFetch = createApiFetch()
+  const { user } = useAuth()
+
+  const queryFn = () => apiFetch<{ streak: {
+    currentStreak: number
+    longestStreak: number
+    lastSuccessDate: string | null
+    nextMilestone: number
+    progressToNext: number
+  } }>('/api/streak', fetchOptions)
+
+  onServerPrefetch(async () => {
+    if (user.value) {
+      await queryClient.prefetchQuery({ queryKey: ['streak'], queryFn })
+    }
+  })
+
+  return useQuery({
+    queryKey: ['streak'],
     queryFn,
     staleTime: 60_000,
   })

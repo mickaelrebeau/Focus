@@ -1,5 +1,7 @@
 import { Queue, Worker } from 'bullmq'
 import { processExpiredOccurrences, generateUpcomingOccurrences } from '../utils/goals-service'
+import { processStreaksAfterExpiration } from '../utils/streaks'
+import { runLeaderboardJobs } from '../utils/leaderboard'
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
 
@@ -11,7 +13,9 @@ async function runTick() {
   console.log('[Worker] Processing deadlines...')
   const expired = await processExpiredOccurrences()
   const generated = await generateUpcomingOccurrences()
-  console.log('[Worker] Done:', { expired, generated })
+  const streaks = await processStreaksAfterExpiration()
+  const leaderboard = await runLeaderboardJobs()
+  console.log('[Worker] Done:', { expired, generated, streaks, leaderboard })
 }
 
 const worker = new Worker('focus-deadlines', async () => {

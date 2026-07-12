@@ -13,17 +13,14 @@ const { data: occurrencesData, isPending: occurrencesLoading } = useOccurrences(
 
 const showCompleteModal = ref(false)
 const selectedOccurrenceId = ref('')
+const showCelebration = ref(false)
+const celebrationData = ref<import('~/components/StreakCelebrationModal.vue').StreakCelebrationData | null>(null)
+
+const { data: streakData } = useStreak()
 
 const todayLabel = computed(() =>
   format(new Date(), "EEEE d MMMM", { locale: fr }),
 )
-
-const quickLinks = [
-  { to: '/app/objectifs', label: 'Objectifs', icon: '◈', hint: 'Gérer' },
-  { to: '/app/agenda', label: 'Agenda', icon: '◷', hint: 'Calendrier' },
-  { to: '/app/classement', label: 'Classement', icon: '▲', hint: 'Rang' },
-  { to: '/app/historique', label: 'Historique', icon: '◫', hint: 'Crédits' },
-]
 
 const todayOccurrences = computed(() => occurrencesData.value?.occurrences ?? [])
 
@@ -73,6 +70,26 @@ function openComplete(id: string) {
   selectedOccurrenceId.value = id
   showCompleteModal.value = true
 }
+
+function onOccurrenceComplete(payload: { streak: any }) {
+  if (payload.streak?.dailyPerfect) {
+    celebrationData.value = {
+      dailyPerfect: payload.streak.dailyPerfect,
+      currentStreak: payload.streak.streak.currentStreak,
+      longestStreak: payload.streak.streak.longestStreak,
+      nextMilestone: payload.streak.streak.nextMilestone,
+      progressToNext: payload.streak.streak.progressToNext,
+      bonusAwarded: payload.streak.bonusAwarded,
+      milestoneReached: payload.streak.milestoneReached,
+    }
+    showCelebration.value = true
+  }
+}
+
+const streakProgressPercent = computed(() => {
+  const progress = streakData.value?.streak?.progressToNext ?? 0
+  return Math.round((progress / 7) * 100)
+})
 </script>
 
 <template>
@@ -146,18 +163,26 @@ function openComplete(id: string) {
       </UiCard>
 
       <UiCard>
-        <p class="focus-label mb-3">Accès rapide</p>
-        <div class="grid grid-cols-2 gap-2">
-          <NuxtLink
-            v-for="link in quickLinks"
-            :key="link.to"
-            :to="link.to"
-            class="rounded-focus border border-focus-gray-200 px-3 py-3 text-center transition hover:border-focus-gray-300 hover:bg-focus-gray-50"
-          >
-            <span class="block text-lg text-focus-gray-400">{{ link.icon }}</span>
-            <span class="mt-1 block text-xs font-medium text-focus-gray-900">{{ link.label }}</span>
-            <span class="block text-[10px] text-focus-gray-400">{{ link.hint }}</span>
-          </NuxtLink>
+        <p class="focus-label mb-1">Série en cours</p>
+        <p class="text-3xl font-semibold text-focus-gray-900">
+          {{ streakData?.streak?.currentStreak ?? 0 }}
+          <span class="text-base font-normal text-focus-gray-400">jour{{ (streakData?.streak?.currentStreak ?? 0) > 1 ? 's' : '' }}</span>
+        </p>
+        <p class="mt-1 text-xs text-focus-gray-400">
+          Record : {{ streakData?.streak?.longestStreak ?? 0 }} jour{{ (streakData?.streak?.longestStreak ?? 0) > 1 ? 's' : '' }}
+        </p>
+        <div class="mt-4">
+          <div class="mb-1 flex justify-between text-xs text-focus-gray-400">
+            <span>Prochain bonus</span>
+            <span>{{ streakData?.streak?.progressToNext ?? 0 }}/7</span>
+          </div>
+          <div class="h-2 overflow-hidden rounded-full bg-focus-gray-100">
+            <div
+              class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500"
+              :style="{ width: `${streakProgressPercent}%` }"
+            />
+          </div>
+          <p class="mt-2 text-xs text-focus-gray-400">+10 crédits tous les 7 jours réussis</p>
         </div>
       </UiCard>
     </section>
@@ -204,6 +229,12 @@ function openComplete(id: string) {
       v-model="showCompleteModal"
       :occurrence-id="selectedOccurrenceId"
       :reward-credits="10"
+      @success="onOccurrenceComplete"
+    />
+
+    <StreakCelebrationModal
+      v-model="showCelebration"
+      :data="celebrationData"
     />
   </div>
 </template>

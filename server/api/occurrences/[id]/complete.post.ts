@@ -3,6 +3,7 @@ import { getUserFromEvent, requireAuth } from '../../../utils/auth'
 import { useDatabase, schema } from '../../../database'
 import { completeOccurrenceSchema, parseBody } from '../../../utils/validation'
 import { rewardCompletion } from '../../../utils/credits'
+import { syncTodayStreak } from '../../../utils/streaks'
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(await getUserFromEvent(event))
@@ -50,5 +51,12 @@ export default defineEventHandler(async (event) => {
 
   await rewardCompletion(user.id, row.goal.rewardCredits, id, row.goal.id)
 
-  return { success: true, creditsEarned: row.goal.rewardCredits }
+  const timezone = user.timezone ?? 'Europe/Paris'
+  const streakResult = await syncTodayStreak(user.id, timezone)
+
+  return {
+    success: true,
+    creditsEarned: row.goal.rewardCredits,
+    streak: streakResult.dailyPerfect ? streakResult : null,
+  }
 })

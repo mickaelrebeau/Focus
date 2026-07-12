@@ -19,6 +19,24 @@ const showCompleteModal = ref(false)
 const showArchiveConfirm = ref(false)
 const selectedOccurrenceId = ref('')
 const archiving = ref(false)
+const showCelebration = ref(false)
+const celebrationData = ref<any>(null)
+
+function onOccurrenceComplete(payload: { streak: any }) {
+  if (payload.streak?.dailyPerfect) {
+    celebrationData.value = {
+      dailyPerfect: payload.streak.dailyPerfect,
+      currentStreak: payload.streak.streak.currentStreak,
+      longestStreak: payload.streak.streak.longestStreak,
+      nextMilestone: payload.streak.streak.nextMilestone,
+      progressToNext: payload.streak.streak.progressToNext,
+      bonusAwarded: payload.streak.bonusAwarded,
+      milestoneReached: payload.streak.milestoneReached,
+    }
+    showCelebration.value = true
+  }
+  refresh()
+}
 
 const typeLabels: Record<string, string> = {
   one_time: 'Ponctuel',
@@ -380,7 +398,12 @@ async function archiveGoal() {
         v-model="showCompleteModal"
         :occurrence-id="selectedOccurrenceId"
         :reward-credits="goal.rewardCredits"
-        @success="refresh"
+        @success="onOccurrenceComplete"
+      />
+
+      <StreakCelebrationModal
+        v-model="showCelebration"
+        :data="celebrationData"
       />
 
       <Teleport to="body">

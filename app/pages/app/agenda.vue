@@ -17,6 +17,8 @@ const selectedDate = ref(format(new Date(), 'yyyy-MM-dd'))
 
 const showCompleteModal = ref(false)
 const selectedOccurrenceId = ref('')
+const showCelebration = ref(false)
+const celebrationData = ref<any>(null)
 
 const statusFilters: Array<{ value: StatusFilter, label: string }> = [
   { value: 'all', label: 'Tous' },
@@ -90,6 +92,21 @@ const monthOccurrenceCount = computed(() =>
       && date.getMonth() === currentMonth.value.getMonth()
   }).length,
 )
+
+function onOccurrenceComplete(payload: { streak: any }) {
+  if (payload.streak?.dailyPerfect) {
+    celebrationData.value = {
+      dailyPerfect: payload.streak.dailyPerfect,
+      currentStreak: payload.streak.streak.currentStreak,
+      longestStreak: payload.streak.streak.longestStreak,
+      nextMilestone: payload.streak.streak.nextMilestone,
+      progressToNext: payload.streak.streak.progressToNext,
+      bonusAwarded: payload.streak.bonusAwarded,
+      milestoneReached: payload.streak.milestoneReached,
+    }
+    showCelebration.value = true
+  }
+}
 
 function openComplete(id: string) {
   selectedOccurrenceId.value = id
@@ -165,6 +182,12 @@ function openComplete(id: string) {
       v-model="showCompleteModal"
       :occurrence-id="selectedOccurrenceId"
       :reward-credits="10"
+      @success="onOccurrenceComplete"
+    />
+
+    <StreakCelebrationModal
+      v-model="showCelebration"
+      :data="celebrationData"
     />
   </div>
 </template>

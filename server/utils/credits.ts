@@ -36,6 +36,8 @@ export async function applyCreditOperation(op: CreditOperation) {
     switch (op.type) {
       case 'task_reward':
       case 'signup_bonus':
+      case 'streak_bonus':
+      case 'leaderboard_reward':
       case 'admin_adjustment': {
         let remaining = absAmount
         if (debt > 0) {
@@ -152,5 +154,34 @@ export async function adminAdjustCredits(
     amount,
     adminId,
     reason,
+  })
+}
+
+export async function awardStreakBonus(
+  userId: string,
+  amount: number,
+  milestone: number,
+) {
+  return applyCreditOperation({
+    userId,
+    type: 'streak_bonus',
+    amount,
+    reason: `Bonus streak ${milestone} jours`,
+    metadata: { milestone, rewardType: 'streak_milestone' },
+  })
+}
+
+export async function awardLeaderboardReward(
+  userId: string,
+  amount: number,
+  weekKey: string,
+  rank: number,
+) {
+  return applyCreditOperation({
+    userId,
+    type: 'leaderboard_reward',
+    amount,
+    reason: `Bonus Top ${rank} semaine ${weekKey}`,
+    metadata: { weekKey, rank, rewardType: 'weekly_top3_streak' },
   })
 }

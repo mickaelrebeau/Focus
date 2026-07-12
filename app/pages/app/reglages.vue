@@ -37,6 +37,8 @@ const walletTypeLabels: Record<string, string> = {
   debt_repayment: 'Remboursement dette',
   admin_adjustment: 'Ajustement admin',
   signup_bonus: 'Bonus inscription',
+  streak_bonus: 'Bonus streak',
+  leaderboard_reward: 'Bonus classement',
 }
 
 const initials = computed(() => {

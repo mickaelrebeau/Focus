@@ -4,6 +4,7 @@ import { useDatabase, schema } from '../../../../database'
 import { adminReviewSchema, parseBody } from '../../../../utils/validation'
 import { applyPenalty } from '../../../../utils/credits'
 import { logAudit } from '../../../../utils/audit'
+import { reevaluateUserDay } from '../../../../utils/streaks'
 
 export default defineEventHandler(async (event) => {
   const admin = requireAdmin(requireAuth(await getUserFromEvent(event)))
@@ -20,14 +21,20 @@ export default defineEventHandler(async (event) => {
       validation: schema.validations,
       occurrence: schema.occurrences,
       goal: schema.goals,
+      user: schema.users,
     })
     .from(schema.validations)
     .innerJoin(schema.occurrences, eq(schema.validations.occurrenceId, schema.occurrences.id))
     .innerJoin(schema.goals, eq(schema.occurrences.goalId, schema.goals.id))
+    .innerJoin(schema.users, eq(schema.occurrences.userId, schema.users.id))
     .where(eq(schema.validations.id, id))
     .limit(1)
 
   if (!row) throw createError({ statusCode: 404, message: 'Validation introuvable' })
+
+  if (row.validation.status !== 'pending_review') {
+    throw createError({ statusCode: 400, message: 'Cette validation a déjà été traitée' })
+  }
 
   await db
     .update(schema.validations)
@@ -53,6 +60,12 @@ export default defineEventHandler(async (event) => {
         row.goal.id,
       )
     })
+
+    await reevaluateUserDay(
+      row.occurrence.userId,
+      row.occurrence.dueDate,
+      row.user.timezone,
+    )
   }
 
   await logAudit(admin.id, 'validation.review', 'validation', id, data, getRequestIP(event) ?? undefined)

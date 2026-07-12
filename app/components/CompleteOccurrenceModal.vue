@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  success: []
+  success: [payload: { streak: any }]
 }>()
 
 const { completeOccurrence } = useOccurrences()
@@ -91,7 +91,7 @@ async function submit() {
 
     const normalizedUrl = normalizeProofUrl(proofUrl.value)
 
-    await completeOccurrence.mutateAsync({
+    const result = await completeOccurrence.mutateAsync({
       id: props.occurrenceId,
       note: note.value.trim() || undefined,
       proofType: imageProofUrl ? 'image' : normalizedUrl ? 'url' : undefined,
@@ -101,7 +101,7 @@ async function submit() {
     const { fetchUser } = useAuth()
     await fetchUser()
     close()
-    emit('success')
+    emit('success', { streak: result.streak ?? null })
   } catch (e: any) {
     error.value = e?.data?.message ?? e?.message ?? 'Impossible de valider l\'échéance'
   } finally {

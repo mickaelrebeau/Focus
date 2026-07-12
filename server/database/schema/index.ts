@@ -34,6 +34,14 @@ export const creditEntryTypeEnum = pgEnum('credit_entry_type', [
   'debt_repayment',
   'admin_adjustment',
   'signup_bonus',
+  'streak_bonus',
+  'leaderboard_reward',
+])
+
+export const dailyResultStatusEnum = pgEnum('daily_result_status', [
+  'neutral',
+  'success',
+  'failed',
 ])
 export const proofTypeEnum = pgEnum('proof_type', ['text', 'url', 'image'])
 
@@ -174,6 +182,68 @@ export const validations = pgTable('validations', {
   index('validations_user_id_idx').on(table.userId),
 ])
 
+export const userDailyResults = pgTable('user_daily_results', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  dateKey: date('date_key').notNull(),
+  status: dailyResultStatusEnum('status').notNull(),
+  totalOccurrences: integer('total_occurrences').notNull().default(0),
+  completedOccurrences: integer('completed_occurrences').notNull().default(0),
+  failedOccurrences: integer('failed_occurrences').notNull().default(0),
+  evaluatedAt: timestamp('evaluated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('user_daily_results_user_date_unique').on(table.userId, table.dateKey),
+  index('user_daily_results_date_key_idx').on(table.dateKey),
+])
+
+export const userStreaks = pgTable('user_streaks', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  currentStreak: integer('current_streak').notNull().default(0),
+  longestStreak: integer('longest_streak').notNull().default(0),
+  lastSuccessDate: date('last_success_date'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const streakRewards = pgTable('streak_rewards', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  milestone: integer('milestone').notNull(),
+  amount: integer('amount').notNull(),
+  creditLedgerId: uuid('credit_ledger_id').references(() => creditLedger.id),
+  awardedAt: timestamp('awarded_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('streak_rewards_user_milestone_unique').on(table.userId, table.milestone),
+])
+
+export const leaderboardDailySnapshots = pgTable('leaderboard_daily_snapshots', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  weekKey: text('week_key').notNull(),
+  snapshotDate: date('snapshot_date').notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  rank: integer('rank').notNull(),
+  netScore: integer('net_score').notNull(),
+  balance: integer('balance').notNull(),
+  debt: integer('debt').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('leaderboard_snapshots_date_user_unique').on(table.snapshotDate, table.userId),
+  index('leaderboard_snapshots_week_key_idx').on(table.weekKey),
+  index('leaderboard_snapshots_week_user_idx').on(table.weekKey, table.userId),
+])
+
+export const leaderboardWeeklyRewards = pgTable('leaderboard_weekly_rewards', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  weekKey: text('week_key').notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  finalRank: integer('final_rank').notNull(),
+  rewardAmount: integer('reward_amount').notNull(),
+  daysQualified: integer('days_qualified').notNull(),
+  creditLedgerId: uuid('credit_ledger_id').references(() => creditLedger.id),
+  settledAt: timestamp('settled_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('leaderboard_weekly_rewards_week_user_unique').on(table.weekKey, table.userId),
+])
+
 export const auditLogs = pgTable('audit_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
   actorId: uuid('actor_id').references(() => users.id),
@@ -194,6 +264,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   goals: many(goals),
   occurrences: many(occurrences),
   creditEntries: many(creditLedger),
+  streak: one(userStreaks),
+  dailyResults: many(userDailyResults),
 }))
 
 export const goalsRelations = relations(goals, ({ one, many }) => ({
@@ -220,3 +292,8 @@ export type Validation = typeof validations.$inferSelect
 export type Wallet = typeof wallets.$inferSelect
 export type CreditLedgerEntry = typeof creditLedger.$inferSelect
 export type ProjectMilestone = typeof projectMilestones.$inferSelect
+export type UserDailyResult = typeof userDailyResults.$inferSelect
+export type UserStreak = typeof userStreaks.$inferSelect
+export type StreakReward = typeof streakRewards.$inferSelect
+export type LeaderboardDailySnapshot = typeof leaderboardDailySnapshots.$inferSelect
+export type LeaderboardWeeklyReward = typeof leaderboardWeeklyRewards.$inferSelect
