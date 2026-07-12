@@ -105,18 +105,23 @@ async function changePassword() {
   passwordLoading.value = true
 
   try {
+    const body = user.value?.hasPassword === false
+      ? { newPassword: newPassword.value }
+      : {
+          currentPassword: currentPassword.value,
+          newPassword: newPassword.value,
+        }
+
     await $fetch('/api/user/change-password', {
       method: 'POST',
-      body: {
-        currentPassword: currentPassword.value,
-        newPassword: newPassword.value,
-      },
+      body,
       credentials: 'include',
     })
     currentPassword.value = ''
     newPassword.value = ''
     confirmPassword.value = ''
     passwordSaved.value = true
+    await fetchUser()
   } catch (error: any) {
     passwordError.value = error?.data?.message ?? 'Impossible de changer le mot de passe'
   } finally {
@@ -209,7 +214,11 @@ async function changePassword() {
 
     <UiCard title="Sécurité" class="mt-6">
       <form class="max-w-lg space-y-5" @submit.prevent="changePassword">
+        <p v-if="user?.hasPassword === false" class="text-sm text-focus-gray-500">
+          Votre compte utilise la connexion Google. Vous pouvez définir un mot de passe pour vous connecter aussi par email.
+        </p>
         <UiInput
+          v-if="user?.hasPassword !== false"
           v-model="currentPassword"
           label="Mot de passe actuel"
           type="password"
@@ -218,7 +227,7 @@ async function changePassword() {
         />
         <UiInput
           v-model="newPassword"
-          label="Nouveau mot de passe"
+          :label="user?.hasPassword === false ? 'Mot de passe' : 'Nouveau mot de passe'"
           type="password"
           autocomplete="new-password"
           placeholder="Minimum 8 caractères"
@@ -232,7 +241,7 @@ async function changePassword() {
         />
         <div class="flex flex-wrap items-center gap-3">
           <UiButton type="submit" variant="secondary" :loading="passwordLoading">
-            Changer le mot de passe
+            {{ user?.hasPassword === false ? 'Définir un mot de passe' : 'Changer le mot de passe' }}
           </UiButton>
           <p v-if="passwordSaved" class="text-sm text-emerald-600">Mot de passe mis à jour.</p>
           <p v-if="passwordError" class="text-sm text-red-500">{{ passwordError }}</p>

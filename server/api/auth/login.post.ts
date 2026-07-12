@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.users.email, data.email.toLowerCase()))
     .limit(1)
 
-  if (!user || !(await verifyPassword(data.password, user.user.passwordHash))) {
+  if (!user || !user.user.passwordHash || !(await verifyPassword(data.password, user.user.passwordHash))) {
     throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
   }
 
@@ -50,6 +50,7 @@ export default defineEventHandler(async (event) => {
       netScore: (user.wallet?.balance ?? 0) - (user.wallet?.debt ?? 0),
       onboardingCompleted: user.user.onboardingCompleted,
       leaderboardOptIn: user.user.leaderboardOptIn,
+      hasPassword: !!user.user.passwordHash,
     },
   }
 })

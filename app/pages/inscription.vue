@@ -31,7 +31,20 @@ async function handleRegister() {
       <h1 class="focus-heading-lg text-center">Créer un compte</h1>
       <p class="focus-body mt-2 text-center">Commencez avec 50 crédits offerts</p>
 
-      <form class="mt-8 space-y-5" @submit.prevent="handleRegister">
+      <div class="mt-8">
+        <GoogleAuthButton />
+      </div>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-focus-gray-200" />
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="bg-white px-3 text-focus-gray-400">ou</span>
+        </div>
+      </div>
+
+      <form class="space-y-5" @submit.prevent="handleRegister">
         <UiInput v-model="displayName" label="Nom d'affichage" required placeholder="Votre prénom" />
         <UiInput v-model="email" label="Email" type="email" required placeholder="vous@email.com" />
         <UiInput v-model="password" label="Mot de passe" type="password" required placeholder="8 caractères minimum" />

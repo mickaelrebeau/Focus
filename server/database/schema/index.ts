@@ -40,7 +40,8 @@ export const proofTypeEnum = pgEnum('proof_type', ['text', 'url', 'image'])
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull().unique(),
-  passwordHash: text('password_hash').notNull(),
+  passwordHash: text('password_hash'),
+  googleId: text('google_id').unique(),
   displayName: text('display_name').notNull(),
   role: userRoleEnum('role').notNull().default('user'),
   timezone: text('timezone').notNull().default('Europe/Paris'),

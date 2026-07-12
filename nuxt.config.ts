@@ -52,6 +52,8 @@ export default defineNuxtConfig({
     sessionSecret: process.env.SESSION_SECRET || 'dev-secret-change-me',
     adminEmail: process.env.ADMIN_EMAIL || 'rebeau.mickael@gmail.com',
     adminPassword: process.env.ADMIN_PASSWORD || '',
+    googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     s3Bucket: process.env.S3_BUCKET || '',
     s3Endpoint: process.env.S3_ENDPOINT || '',
     s3AccessKey: process.env.S3_ACCESS_KEY || '',

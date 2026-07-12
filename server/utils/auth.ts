@@ -61,6 +61,7 @@ export async function getUserFromEvent(event: H3Event) {
     timezone: session.user.timezone,
     onboardingCompleted: session.user.onboardingCompleted,
     leaderboardOptIn: session.user.leaderboardOptIn,
+    hasPassword: !!session.user.passwordHash,
     credits: session.wallet?.balance ?? 0,
     debt: session.wallet?.debt ?? 0,
     netScore: (session.wallet?.balance ?? 0) - (session.wallet?.debt ?? 0),

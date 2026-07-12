@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
       debt: 0,
       netScore: 50,
       onboardingCompleted: false,
+      hasPassword: true,
     },
   }
 })

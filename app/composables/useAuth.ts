@@ -9,6 +9,7 @@ export interface AuthUser {
   netScore: number
   onboardingCompleted: boolean
   leaderboardOptIn?: boolean
+  hasPassword?: boolean
 }
 
 const fetchOptions = { credentials: 'include' as const }
@@ -54,6 +55,10 @@ export function useAuth() {
     await navigateTo('/connexion')
   }
 
+  function loginWithGoogle() {
+    window.location.href = '/api/auth/google'
+  }
+
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
 
@@ -65,5 +70,6 @@ export function useAuth() {
     login,
     register,
     logout,
+    loginWithGoogle,
   }
 }
