@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const service = process.env.RAILWAY_SERVICE_NAME
 
-if (service === 'worker') {
+if (service === 'worker' || service === 'consequences') {
   console.log('[build] Service worker — build Nuxt ignoré')
   process.exit(0)
 }

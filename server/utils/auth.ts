@@ -65,6 +65,11 @@ export async function getUserFromEvent(event: H3Event) {
     credits: session.wallet?.balance ?? 0,
     debt: session.wallet?.debt ?? 0,
     netScore: (session.wallet?.balance ?? 0) - (session.wallet?.debt ?? 0),
+    hasPaymentMethod: Boolean(session.user.stripePaymentMethodId),
+    paymentMethodBrand: session.user.stripePaymentMethodBrand ?? undefined,
+    paymentMethodLast4: session.user.stripePaymentMethodLast4 ?? undefined,
+    paymentMethodExpMonth: session.user.stripePaymentMethodExpMonth ?? undefined,
+    paymentMethodExpYear: session.user.stripePaymentMethodExpYear ?? undefined,
   }
 }
 

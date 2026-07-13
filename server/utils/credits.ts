@@ -4,6 +4,12 @@ import type { creditEntryTypeEnum } from '../database/schema'
 
 type CreditEntryType = typeof creditEntryTypeEnum.enumValues[number]
 
+export const CREDITS_PER_EURO = 10
+
+export function euroCentsToCredits(amountCents: number): number {
+  return Math.max(1, Math.round((amountCents / 100) * CREDITS_PER_EURO))
+}
+
 interface CreditOperation {
   userId: string
   type: CreditEntryType
@@ -38,6 +44,7 @@ export async function applyCreditOperation(op: CreditOperation) {
       case 'signup_bonus':
       case 'streak_bonus':
       case 'leaderboard_reward':
+      case 'transfer_received':
       case 'admin_adjustment': {
         let remaining = absAmount
         if (debt > 0) {
@@ -183,5 +190,25 @@ export async function awardLeaderboardReward(
     amount,
     reason: `Bonus Top ${rank} semaine ${weekKey}`,
     metadata: { weekKey, rank, rewardType: 'weekly_top3_streak' },
+  })
+}
+
+export async function awardTransferReceived(
+  userId: string,
+  credits: number,
+  fromUserId: string,
+  amountCents: number,
+  transferId: string,
+) {
+  return applyCreditOperation({
+    userId,
+    type: 'transfer_received',
+    amount: credits,
+    reason: `Transfert reçu (${amountCents / 100} €)`,
+    metadata: {
+      fromUserId,
+      amountCents,
+      transferId,
+    },
   })
 }

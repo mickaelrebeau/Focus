@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import { getUserFromEvent, requireAuth, requireAdmin } from '../../../../utils/auth'
 import { useDatabase, schema } from '../../../../database'
 import { adminReviewSchema, parseBody } from '../../../../utils/validation'
-import { applyPenalty } from '../../../../utils/credits'
+import { triggerConsequencesOnFailure } from '../../../../utils/consequences-service'
 import { logAudit } from '../../../../utils/audit'
 import { reevaluateUserDay } from '../../../../utils/streaks'
 
@@ -52,13 +52,12 @@ export default defineEventHandler(async (event) => {
         .update(schema.occurrences)
         .set({ status: 'failed', processedAt: now })
         .where(eq(schema.occurrences.id, row.occurrence.id))
+    })
 
-      await applyPenalty(
-        row.occurrence.userId,
-        row.goal.penaltyCredits,
-        row.occurrence.id,
-        row.goal.id,
-      )
+    await triggerConsequencesOnFailure({
+      userId: row.occurrence.userId,
+      goalId: row.goal.id,
+      occurrenceId: row.occurrence.id,
     })
 
     await reevaluateUserDay(

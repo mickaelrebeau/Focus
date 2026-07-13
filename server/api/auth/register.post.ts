@@ -53,6 +53,9 @@ export default defineEventHandler(async (event) => {
     reason: 'Bonus de bienvenue',
   })
 
+  const { ensureDefaultCreditsConsequence } = await import('../../utils/default-consequences')
+  await ensureDefaultCreditsConsequence(user.id, db)
+
   const session = await createSession(user.id)
   setSessionCookie(event, session.token)
 

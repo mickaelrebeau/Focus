@@ -12,6 +12,7 @@ const typeLabels: Record<string, string> = {
   signup_bonus: 'Bonus inscription',
   streak_bonus: 'Bonus streak',
   leaderboard_reward: 'Bonus classement',
+  transfer_received: 'Transfert reçu',
 }
 </script>
 

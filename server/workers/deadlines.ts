@@ -1,3 +1,7 @@
+import { loadEnvFile } from '../utils/load-env'
+
+loadEnvFile()
+
 import { Queue, Worker } from 'bullmq'
 import { processExpiredOccurrences, generateUpcomingOccurrences } from '../utils/goals-service'
 import { processStreaksAfterExpiration } from '../utils/streaks'
