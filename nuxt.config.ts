@@ -68,6 +68,7 @@ export default defineNuxtConfig({
 
   pwa: {
     registerType: 'autoUpdate',
+    registerWebManifestInRouteRules: true,
     manifest: {
       name: 'Focus',
       short_name: 'Focus',
@@ -85,8 +86,8 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      navigateFallback: '/',
-      navigateFallbackAllowlist: [/^\/$/],
+      navigateFallback: '/app',
+      navigateFallbackAllowlist: [/^\/app(\/|$)/],
       navigateFallbackDenylist: [/^\/api\//],
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
     },
