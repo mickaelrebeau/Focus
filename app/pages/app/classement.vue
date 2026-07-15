@@ -15,6 +15,19 @@ const rest = computed(() => leaderboard.value.slice(3))
     <h1 class="focus-heading-lg">Classement</h1>
     <p class="focus-body mt-2">Score net = crédits − dette</p>
 
+    <UiCard class="mt-6">
+      <p class="focus-label">Cagnottes associatives</p>
+      <p class="mt-1 text-sm text-focus-gray-600">
+        Les dons issus des conséquences sont cumulés par association et reversés manuellement chaque mois.
+      </p>
+      <NuxtLink
+        to="/cagnottes"
+        class="mt-3 inline-flex text-sm font-medium text-focus-accent hover:opacity-80"
+      >
+        Voir les cagnottes publiques →
+      </NuxtLink>
+    </UiCard>
+
     <UiCard v-if="weeklyProgress" class="mt-6">
       <p class="focus-label">Bonus Top 3 hebdomadaire</p>
       <p class="mt-1 text-sm text-focus-gray-600">

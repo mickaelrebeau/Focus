@@ -161,6 +161,9 @@ export async function findOrCreateGoogleUser(profile: GoogleProfile) {
     reason: 'Bonus de bienvenue',
   })
 
+  const { ensureDefaultCreditsConsequence } = await import('./default-consequences')
+  await ensureDefaultCreditsConsequence(user.id, db)
+
   return {
     user,
     wallet: { balance: 50, debt: 0 },

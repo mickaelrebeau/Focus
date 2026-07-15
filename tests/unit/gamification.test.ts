@@ -55,16 +55,23 @@ describe('streaks', () => {
     expect(result.status).toBe('failed')
   })
 
-  it('calculates consecutive streaks from dates', () => {
+  it('breaks current streak after a failed day in history', () => {
     const result = calculateStreaksFromDates([
+      '2026-07-08',
+      '2026-07-09',
+      '2026-07-10',
+    ])
+    expect(result.current).toBe(3)
+
+    // Un jour manqué (11) puis un succès isolé : le streak courant repart à 1
+    const afterFailure = calculateStreaksFromDates([
       '2026-07-08',
       '2026-07-09',
       '2026-07-10',
       '2026-07-12',
     ])
-    expect(result.longest).toBe(3)
-    expect(result.current).toBe(1)
-    expect(result.lastDate).toBe('2026-07-12')
+    expect(afterFailure.current).toBe(1)
+    expect(afterFailure.longest).toBe(3)
   })
 
   it('uses 7-day milestone interval', () => {

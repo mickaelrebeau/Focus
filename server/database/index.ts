@@ -5,13 +5,27 @@ import * as schema from './schema'
 let client: ReturnType<typeof postgres> | null = null
 let db: ReturnType<typeof drizzle<typeof schema>> | null = null
 
+function getDatabaseUrl(): string {
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL
+  }
+
+  try {
+    const config = useRuntimeConfig()
+    if (config.databaseUrl) {
+      return config.databaseUrl
+    }
+  } catch {
+    // Hors contexte Nitro (workers standalone)
+  }
+
+  throw new Error('DATABASE_URL non configurée')
+}
+
 export function useDatabase() {
   if (!db) {
-    const config = useRuntimeConfig()
-    if (!config.databaseUrl) {
-      throw createError({ statusCode: 500, message: 'DATABASE_URL non configurée' })
-    }
-    client = postgres(config.databaseUrl, { max: 10 })
+    const databaseUrl = getDatabaseUrl()
+    client = postgres(databaseUrl, { max: 10 })
     db = drizzle(client, { schema })
   }
   return db

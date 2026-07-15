@@ -117,6 +117,7 @@ const navItems = [
   { to: '/app/objectifs', label: 'Objectifs', icon: '◈' },
   { to: '/app/agenda', label: 'Agenda', icon: '◷' },
   { to: '/app/classement', label: 'Classement', icon: '▲' },
+  { to: '/cagnottes', label: 'Cagnottes', icon: '♥' },
   { to: '/app/historique', label: 'Historique', icon: '◫' },
   { to: '/app/reglages', label: 'Réglages', icon: '◉' },
 ]

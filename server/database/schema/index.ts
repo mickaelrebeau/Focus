@@ -36,6 +36,8 @@ export const creditEntryTypeEnum = pgEnum('credit_entry_type', [
   'signup_bonus',
   'streak_bonus',
   'leaderboard_reward',
+  'transfer_received',
+  'transfer_sent',
 ])
 
 export const dailyResultStatusEnum = pgEnum('daily_result_status', [
@@ -44,6 +46,14 @@ export const dailyResultStatusEnum = pgEnum('daily_result_status', [
   'failed',
 ])
 export const proofTypeEnum = pgEnum('proof_type', ['text', 'url', 'image'])
+
+export const consequenceHistoryStatusEnum = pgEnum('consequence_history_status', [
+  'pending',
+  'processing',
+  'completed',
+  'failed',
+  'cancelled',
+])
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -56,6 +66,12 @@ export const users = pgTable('users', {
   isBlocked: boolean('is_blocked').notNull().default(false),
   leaderboardOptIn: boolean('leaderboard_opt_in').notNull().default(true),
   onboardingCompleted: boolean('onboarding_completed').notNull().default(false),
+  stripeCustomerId: text('stripe_customer_id').unique(),
+  stripePaymentMethodId: text('stripe_payment_method_id'),
+  stripePaymentMethodBrand: text('stripe_payment_method_brand'),
+  stripePaymentMethodLast4: text('stripe_payment_method_last4'),
+  stripePaymentMethodExpMonth: integer('stripe_payment_method_exp_month'),
+  stripePaymentMethodExpYear: integer('stripe_payment_method_exp_year'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
@@ -244,6 +260,185 @@ export const leaderboardWeeklyRewards = pgTable('leaderboard_weekly_rewards', {
   uniqueIndex('leaderboard_weekly_rewards_week_user_unique').on(table.weekKey, table.userId),
 ])
 
+export const consequenceTypes = pgTable('consequence_types', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  key: text('key').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  icon: text('icon').notNull(),
+  enabled: boolean('enabled').notNull().default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const userConsequences = pgTable('user_consequences', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(),
+  enabled: boolean('enabled').notNull().default(true),
+  amount: integer('amount').notNull().default(0),
+  priority: integer('priority').notNull().default(0),
+  config: jsonb('config').$type<Record<string, unknown>>().notNull().default({}),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('user_consequences_user_id_idx').on(table.userId),
+  index('user_consequences_user_priority_idx').on(table.userId, table.priority),
+  uniqueIndex('user_consequences_user_type_unique').on(table.userId, table.type),
+])
+
+export const consequenceHistory = pgTable('consequence_history', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  goalId: uuid('goal_id').notNull().references(() => goals.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userConsequenceId: uuid('user_consequence_id').notNull().references(() => userConsequences.id, { onDelete: 'cascade' }),
+  occurrenceId: uuid('occurrence_id').notNull().references(() => occurrences.id, { onDelete: 'cascade' }),
+  provider: text('provider').notNull(),
+  status: consequenceHistoryStatusEnum('status').notNull().default('pending'),
+  amount: integer('amount').notNull().default(0),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  executedAt: timestamp('executed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('consequence_history_user_id_idx').on(table.userId),
+  index('consequence_history_goal_id_idx').on(table.goalId),
+  index('consequence_history_status_idx').on(table.status),
+  uniqueIndex('consequence_history_occurrence_user_consequence_unique').on(table.occurrenceId, table.userConsequenceId),
+])
+
+export const communityPotTransactions = pgTable('community_pot_transactions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  amount: integer('amount').notNull(),
+  currency: text('currency').notNull().default('EUR'),
+  consequenceHistoryId: uuid('consequence_history_id').references(() => consequenceHistory.id, { onDelete: 'set null' }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('community_pot_transactions_user_id_idx').on(table.userId),
+  index('community_pot_transactions_created_at_idx').on(table.createdAt),
+])
+
+export const communityPotSettings = pgTable('community_pot_settings', {
+  id: text('id').primaryKey().default('default'),
+  monthlyGoalCents: integer('monthly_goal_cents').notNull().default(50000),
+  targetAssociation: text('target_association').notNull().default('msf'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const communityPotPayouts = pgTable('community_pot_payouts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  period: text('period').notNull(),
+  association: text('association').notNull(),
+  amount: integer('amount').notNull(),
+  currency: text('currency').notNull().default('EUR'),
+  adminId: uuid('admin_id').references(() => users.id, { onDelete: 'set null' }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('community_pot_payouts_period_idx').on(table.period),
+])
+
+export const associations = pgTable('associations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description'),
+  logoUrl: text('logo_url'),
+  enabled: boolean('enabled').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('associations_enabled_sort_idx').on(table.enabled, table.sortOrder),
+])
+
+export const associationPotPayouts = pgTable('association_pot_payouts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationSlug: text('association_slug').notNull().references(() => associations.slug, { onDelete: 'restrict' }),
+  period: text('period').notNull(),
+  amount: integer('amount').notNull(),
+  currency: text('currency').notNull().default('EUR'),
+  adminId: uuid('admin_id').references(() => users.id, { onDelete: 'set null' }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('association_pot_payouts_slug_idx').on(table.associationSlug),
+  index('association_pot_payouts_period_idx').on(table.period),
+])
+
+export const donationExecutions = pgTable('donation_executions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  association: text('association').notNull(),
+  amount: integer('amount').notNull(),
+  currency: text('currency').notNull().default('EUR'),
+  consequenceHistoryId: uuid('consequence_history_id').references(() => consequenceHistory.id, { onDelete: 'set null' }),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  stripeTransferId: text('stripe_transfer_id'),
+  status: text('status').notNull().default('accumulated'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('donation_executions_user_id_idx').on(table.userId),
+  index('donation_executions_association_idx').on(table.association),
+  index('donation_executions_status_idx').on(table.status),
+  uniqueIndex('donation_executions_history_unique').on(table.consequenceHistoryId),
+])
+
+export const proofRequirements = pgTable('proof_requirements', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  goalId: uuid('goal_id').notNull().references(() => goals.id, { onDelete: 'cascade' }),
+  consequenceHistoryId: uuid('consequence_history_id').references(() => consequenceHistory.id, { onDelete: 'set null' }).unique(),
+  consumedAt: timestamp('consumed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('proof_requirements_user_goal_pending_idx').on(table.userId, table.goalId),
+])
+
+export const internalTransfers = pgTable('internal_transfers', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  fromUserId: uuid('from_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  toUserId: uuid('to_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  amount: integer('amount').notNull(),
+  currency: text('currency').notNull().default('EUR'),
+  consequenceHistoryId: uuid('consequence_history_id').references(() => consequenceHistory.id, { onDelete: 'set null' }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('internal_transfers_from_user_id_idx').on(table.fromUserId),
+  index('internal_transfers_to_user_id_idx').on(table.toUserId),
+])
+
+export const notifications = pgTable('notifications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  message: text('message').notNull(),
+  read: boolean('read').notNull().default(false),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('notifications_user_id_idx').on(table.userId),
+  index('notifications_user_read_idx').on(table.userId, table.read),
+])
+
+export const stripePayments = pgTable('stripe_payments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  consequenceHistoryId: uuid('consequence_history_id').references(() => consequenceHistory.id, { onDelete: 'set null' }),
+  paymentIntentId: text('payment_intent_id').notNull().unique(),
+  amount: integer('amount').notNull(),
+  currency: text('currency').notNull().default('EUR'),
+  status: text('status').notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('stripe_payments_user_id_idx').on(table.userId),
+  index('stripe_payments_status_idx').on(table.status),
+])
+
 export const auditLogs = pgTable('audit_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
   actorId: uuid('actor_id').references(() => users.id),
@@ -266,6 +461,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   creditEntries: many(creditLedger),
   streak: one(userStreaks),
   dailyResults: many(userDailyResults),
+  consequences: many(userConsequences),
+  notifications: many(notifications),
 }))
 
 export const goalsRelations = relations(goals, ({ one, many }) => ({
@@ -297,3 +494,16 @@ export type UserStreak = typeof userStreaks.$inferSelect
 export type StreakReward = typeof streakRewards.$inferSelect
 export type LeaderboardDailySnapshot = typeof leaderboardDailySnapshots.$inferSelect
 export type LeaderboardWeeklyReward = typeof leaderboardWeeklyRewards.$inferSelect
+export type ConsequenceType = typeof consequenceTypes.$inferSelect
+export type UserConsequence = typeof userConsequences.$inferSelect
+export type ConsequenceHistory = typeof consequenceHistory.$inferSelect
+export type CommunityPotTransaction = typeof communityPotTransactions.$inferSelect
+export type CommunityPotSettings = typeof communityPotSettings.$inferSelect
+export type CommunityPotPayout = typeof communityPotPayouts.$inferSelect
+export type Association = typeof associations.$inferSelect
+export type AssociationPotPayout = typeof associationPotPayouts.$inferSelect
+export type DonationExecution = typeof donationExecutions.$inferSelect
+export type ProofRequirement = typeof proofRequirements.$inferSelect
+export type InternalTransfer = typeof internalTransfers.$inferSelect
+export type Notification = typeof notifications.$inferSelect
+export type StripePayment = typeof stripePayments.$inferSelect

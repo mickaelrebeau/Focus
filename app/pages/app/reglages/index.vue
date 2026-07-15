@@ -3,11 +3,15 @@ definePageMeta({ layout: 'app', middleware: 'auth' })
 
 import { DEFAULT_TIMEZONE, getTimezoneLabel, isValidTimezone } from '#shared/timezones'
 
+import StripePaymentSetup from '~/components/consequences/StripePaymentSetup.vue'
+import { formatEuroFromCents, useConsequenceStats } from '~/composables/useConsequences'
+
 const { user, fetchUser, logout, isAdmin } = useAuth()
 const { isEnabled: userjotEnabled, showFeedback } = useUserjot()
 const pwa = usePWA()
 const { data: goalsData } = useGoals()
 const { data: walletData } = useWalletHistory()
+const { data: consequenceStatsData } = useConsequenceStats()
 
 const displayName = ref('')
 const timezone = ref(DEFAULT_TIMEZONE)
@@ -28,6 +32,7 @@ const quickLinks = [
   { to: '/app/agenda', label: 'Agenda', icon: '◷' },
   { to: '/app/historique', label: 'Historique crédits', icon: '◫' },
   { to: '/app/classement', label: 'Classement', icon: '▲' },
+  { to: '/app/reglages/consequences', label: 'Conséquences', icon: '⚡' },
 ]
 
 const walletTypeLabels: Record<string, string> = {
@@ -39,6 +44,7 @@ const walletTypeLabels: Record<string, string> = {
   signup_bonus: 'Bonus inscription',
   streak_bonus: 'Bonus streak',
   leaderboard_reward: 'Bonus classement',
+  transfer_received: 'Transfert reçu',
 }
 
 const initials = computed(() => {
@@ -55,6 +61,16 @@ const timezoneLabel = computed(() => getTimezoneLabel(timezone.value))
 const activeGoalsCount = computed(() => goalsData.value?.goals?.length ?? 0)
 
 const recentEntries = computed(() => (walletData.value?.entries ?? []).slice(0, 3))
+
+const consequenceStats = computed(() => consequenceStatsData.value?.stats)
+
+const paymentSaved = ref(false)
+
+async function onPaymentMethodSaved() {
+  paymentSaved.value = false
+  await fetchUser()
+  paymentSaved.value = true
+}
 
 function syncFormFromUser() {
   if (!user.value) return
@@ -180,6 +196,58 @@ async function changePassword() {
         </NuxtLink>
       </UiCard>
     </div>
+
+    <UiCard v-if="consequenceStats" title="Conséquences" class="mt-6">
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div>
+          <p class="text-2xl font-semibold text-focus-gray-900">{{ consequenceStats.totalConfigured }}</p>
+          <p class="text-xs text-focus-gray-400">Configurées</p>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold text-focus-gray-900">{{ consequenceStats.totalExecuted }}</p>
+          <p class="text-xs text-focus-gray-400">Exécutées</p>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold text-focus-gray-900">
+            {{ formatEuroFromCents(consequenceStats.moneyCommittedCents) }}
+          </p>
+          <p class="text-xs text-focus-gray-400">Argent engagé</p>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold text-focus-gray-900">
+            {{ formatEuroFromCents(consequenceStats.moneyDonatedCents) }}
+          </p>
+          <p class="text-xs text-focus-gray-400">Argent donné</p>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold text-red-500">{{ consequenceStats.creditsLost }}</p>
+          <p class="text-xs text-focus-gray-400">Crédits perdus</p>
+        </div>
+      </div>
+      <NuxtLink
+        to="/app/reglages/consequences"
+        class="mt-4 inline-flex text-sm font-medium text-focus-accent hover:opacity-80"
+      >
+        Configurer les conséquences →
+      </NuxtLink>
+    </UiCard>
+
+    <UiCard id="paiement" title="Paiement" class="mt-6">
+      <p class="mb-4 text-sm text-focus-gray-500">
+        Enregistrez une carte bancaire pour activer les conséquences monétaires :
+        cagnotte commune, don, utilisateur aléatoire et prélèvement Stripe.
+      </p>
+      <ClientOnly>
+        <StripePaymentSetup
+          :payment-method-last4="user?.paymentMethodLast4"
+          :payment-method-brand="user?.paymentMethodBrand"
+          @saved="onPaymentMethodSaved"
+        />
+      </ClientOnly>
+      <p v-if="paymentSaved" class="mt-3 text-sm text-emerald-600">
+        Carte enregistrée.
+      </p>
+    </UiCard>
 
     <form class="mt-6 space-y-6" @submit.prevent="saveProfile">
       <UiCard title="Profil">

@@ -10,6 +10,11 @@ export interface AuthUser {
   onboardingCompleted: boolean
   leaderboardOptIn?: boolean
   hasPassword?: boolean
+  hasPaymentMethod?: boolean
+  paymentMethodBrand?: string
+  paymentMethodLast4?: string
+  paymentMethodExpMonth?: number
+  paymentMethodExpYear?: number
 }
 
 const fetchOptions = { credentials: 'include' as const }

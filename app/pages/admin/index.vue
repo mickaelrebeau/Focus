@@ -74,6 +74,13 @@ const actions = [
     highlight: computed(() => false),
   },
   {
+    to: '/admin/cagnotte',
+    label: 'Cagnotte commune',
+    description: 'Suivre la cagnotte et enregistrer les reversements mensuels',
+    icon: '◎',
+    highlight: computed(() => false),
+  },
+  {
     to: '/admin/echeances',
     label: 'Échéances',
     description: 'Suivre les occurrences et leur statut',

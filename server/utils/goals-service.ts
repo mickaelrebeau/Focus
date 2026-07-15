@@ -1,7 +1,7 @@
 import { eq, and, lte, inArray } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { useDatabase, schema } from '../database'
-import { applyPenalty } from './credits'
+import { triggerConsequencesOnFailure } from './consequences-service'
 import { reevaluateUserDay } from './streaks'
 import { acquireLock, releaseLock } from './redis'
 
@@ -51,18 +51,16 @@ export async function processExpiredOccurrences() {
           .set({ status: 'failed', processedAt: now })
           .where(eq(schema.occurrences.id, occurrence.id))
 
-        await applyPenalty(
-          occurrence.userId,
-          goal.penaltyCredits,
-          occurrence.id,
-          goal.id,
-        )
-
         failed = true
         processed++
       })
 
       if (failed) {
+        await triggerConsequencesOnFailure({
+          userId: occurrence.userId,
+          goalId: goal.id,
+          occurrenceId: occurrence.id,
+        })
         const [user] = await db
           .select({ timezone: schema.users.timezone })
           .from(schema.users)

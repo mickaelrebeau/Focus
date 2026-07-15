@@ -36,3 +36,17 @@ watchPatterns = [
   "package.json",
   "pnpm-lock.yaml",
 ]
+
+[[services]]
+name = "consequences"
+source = "."
+
+[services.consequences]
+startCommand = "npx tsx server/workers/consequences.ts"
+watchPatterns = [
+  "server/workers/**",
+  "server/utils/**",
+  "server/consequences/**",
+  "package.json",
+  "pnpm-lock.yaml",
+]

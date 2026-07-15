@@ -4,6 +4,19 @@ import { useDatabase, schema } from '../../../database'
 import { completeOccurrenceSchema, parseBody } from '../../../utils/validation'
 import { rewardCompletion } from '../../../utils/credits'
 import { syncTodayStreak } from '../../../utils/streaks'
+import { consumeProofRequirement, getPendingProofRequirement } from '../../../consequences/providers/mandatory-proof'
+
+function hasProofPayload(data: {
+  proofType?: 'text' | 'url' | 'image'
+  proofContent?: string
+  proofUrl?: string
+}) {
+  if (!data.proofType) return false
+  if (data.proofType === 'text') return Boolean(data.proofContent?.trim())
+  if (data.proofType === 'url') return Boolean(data.proofUrl?.trim())
+  if (data.proofType === 'image') return Boolean(data.proofUrl?.trim())
+  return false
+}
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(await getUserFromEvent(event))
@@ -30,6 +43,14 @@ export default defineEventHandler(async (event) => {
 
   if (!row) throw createError({ statusCode: 404, message: 'Échéance introuvable ou déjà traitée' })
 
+  const proofRequirement = await getPendingProofRequirement(user.id, row.goal.id)
+  if (proofRequirement && !hasProofPayload(data)) {
+    throw createError({
+      statusCode: 400,
+      message: 'Une preuve est obligatoire pour valider cette réussite',
+    })
+  }
+
   const now = new Date()
 
   await db.transaction(async (tx) => {
@@ -49,6 +70,10 @@ export default defineEventHandler(async (event) => {
     })
   })
 
+  if (proofRequirement) {
+    await consumeProofRequirement(proofRequirement.id)
+  }
+
   await rewardCompletion(user.id, row.goal.rewardCredits, id, row.goal.id)
 
   const timezone = user.timezone ?? 'Europe/Paris'
@@ -58,5 +83,6 @@ export default defineEventHandler(async (event) => {
     success: true,
     creditsEarned: row.goal.rewardCredits,
     streak: streakResult.dailyPerfect ? streakResult : null,
+    proofRequired: Boolean(proofRequirement),
   }
 })
