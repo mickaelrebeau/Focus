@@ -197,18 +197,17 @@ export async function awardTransferReceived(
   userId: string,
   credits: number,
   fromUserId: string,
-  amountCents: number,
   transferId: string,
 ) {
   return applyCreditOperation({
     userId,
     type: 'transfer_received',
     amount: credits,
-    reason: `Transfert reçu (${amountCents / 100} €)`,
+    reason: `Transfert reçu (${credits} crédits)`,
     metadata: {
       fromUserId,
-      amountCents,
       transferId,
+      credits,
     },
   })
 }

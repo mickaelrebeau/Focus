@@ -1,13 +1,11 @@
 import { and, eq, ne, sql } from 'drizzle-orm'
 import { useDatabase, schema } from '../../database'
-import { chargeUserForConsequence } from '../../utils/consequence-payment'
-import { awardTransferReceived, euroCentsToCredits } from '../../utils/credits'
+import { applyPenalty, awardTransferReceived } from '../../utils/credits'
 import { createNotification } from '../../utils/notifications'
 import {
   randomUserConfigSchema,
   type ConsequenceProvider,
   type RandomUserConfig,
-  formatEuroAmount,
 } from '../types'
 
 export const randomUserProvider: ConsequenceProvider<RandomUserConfig> = {
@@ -19,18 +17,22 @@ export const randomUserProvider: ConsequenceProvider<RandomUserConfig> = {
 
   async estimate(config: RandomUserConfig, amount: number) {
     const scoreLabel = config.minimumScore > 0
-      ? ` (score net minimum : ${config.minimumScore})`
+      ? ` (score net minimum du destinataire : ${config.minimumScore})`
       : ''
     return {
-      label: `Transfert de ${formatEuroAmount(amount)}`,
-      description: `Un prélèvement de ${formatEuroAmount(amount)} sera effectué et crédité automatiquement à un utilisateur actif aléatoire${scoreLabel}.`,
+      label: `Transfert de ${amount} crédits`,
+      description: `${amount} crédits seront retirés de votre portefeuille et crédités à un utilisateur actif au hasard${scoreLabel}.`,
     }
   },
 
   async execute(payload) {
-    const payment = await chargeUserForConsequence('random-user', payload)
+    if (payload.amount <= 0) {
+      return { skipped: true, reason: 'Montant nul' }
+    }
+
     const db = useDatabase()
     const minimumScore = payload.config.minimumScore ?? 0
+    const credits = payload.amount
 
     const eligibleUsers = await db
       .select({
@@ -52,53 +54,55 @@ export const randomUserProvider: ConsequenceProvider<RandomUserConfig> = {
     }
 
     const recipient = eligibleUsers[Math.floor(Math.random() * eligibleUsers.length)]!
-    const creditsAwarded = euroCentsToCredits(payload.amount)
 
     const [transfer] = await db.insert(schema.internalTransfers).values({
       fromUserId: payload.userId,
       toUserId: recipient.id,
-      amount: payload.amount,
-      currency: 'EUR',
+      amount: credits,
+      currency: 'CREDITS',
       consequenceHistoryId: payload.historyId,
       metadata: {
         recipientDisplayName: recipient.displayName,
         minimumScore,
         goalId: payload.goalId,
         occurrenceId: payload.occurrenceId,
-        paymentIntentId: payment.paymentIntentId,
-        creditsAwarded,
+        credits,
       },
     }).returning()
 
+    const senderResult = await applyPenalty(
+      payload.userId,
+      credits,
+      payload.occurrenceId,
+      payload.goalId,
+    )
+
     const creditResult = await awardTransferReceived(
       recipient.id,
-      creditsAwarded,
+      credits,
       payload.userId,
-      payload.amount,
       transfer.id,
     )
 
     await createNotification({
       userId: recipient.id,
       title: 'Transfert reçu',
-      message: `Vous avez reçu ${creditsAwarded} crédits suite à un transfert aléatoire.`,
+      message: `Vous avez reçu ${credits} crédits suite à un transfert aléatoire.`,
       metadata: {
         transferId: transfer.id,
         fromUserId: payload.userId,
-        amountCents: payload.amount,
-        creditsAwarded,
+        credits,
       },
     })
 
     await createNotification({
       userId: payload.userId,
       title: 'Transfert effectué',
-      message: `${formatEuroAmount(payload.amount)} ont été prélevés et transférés à ${recipient.displayName} (${creditsAwarded} crédits).`,
+      message: `${credits} crédits ont été transférés à ${recipient.displayName}.`,
       metadata: {
         transferId: transfer.id,
         recipientId: recipient.id,
-        amountCents: payload.amount,
-        creditsAwarded,
+        credits,
       },
     })
 
@@ -106,12 +110,11 @@ export const randomUserProvider: ConsequenceProvider<RandomUserConfig> = {
       transferId: transfer.id,
       recipientId: recipient.id,
       recipientDisplayName: recipient.displayName,
-      amountCents: payload.amount,
-      creditsAwarded,
+      creditsTransferred: credits,
+      senderBalanceAfter: senderResult.wallet.balance,
+      senderDebtAfter: senderResult.wallet.debt,
       recipientBalanceAfter: creditResult.wallet.balance,
-      currency: 'EUR',
-      paymentIntentId: payment.paymentIntentId,
-      recordId: payment.recordId,
+      recipientDebtAfter: creditResult.wallet.debt,
     }
   },
 }

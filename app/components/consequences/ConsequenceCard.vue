@@ -5,6 +5,7 @@ import {
   eurosToCents,
   formatEuroFromCents,
   isMonetaryConsequenceType,
+  isCreditsConsequenceType,
   isBehaviorConsequenceType,
 } from '~/composables/useConsequences'
 
@@ -71,7 +72,7 @@ watch(() => props.consequence, (value) => {
 }, { deep: true })
 
 const amountLabel = computed(() => {
-  if (props.consequence.type === 'credits') return 'Crédits'
+  if (isCreditsConsequenceType(props.consequence.type)) return 'Crédits'
   if (props.consequence.type === 'custom') return 'Montant'
   return 'Montant (€)'
 })
@@ -81,7 +82,7 @@ const showAmount = computed(() =>
 )
 
 const amountDisplay = computed(() => {
-  if (props.consequence.type === 'credits') {
+  if (isCreditsConsequenceType(props.consequence.type)) {
     return `${props.consequence.amount} crédits`
   }
   if (isMonetaryConsequenceType(props.consequence.type)) {
@@ -208,8 +209,8 @@ function onToggle(value: boolean) {
         v-model.number="amountEuros"
         :label="amountLabel"
         type="number"
-        :min="consequence.type === 'credits' ? 1 : 1"
-        :step="consequence.type === 'credits' ? 1 : 0.5"
+        :min="isCreditsConsequenceType(consequence.type) ? 1 : 1"
+        :step="isCreditsConsequenceType(consequence.type) ? 1 : 0.5"
       />
 
       <div v-if="consequence.type === 'donation'" class="space-y-3">

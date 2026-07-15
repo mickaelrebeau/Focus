@@ -4,6 +4,7 @@ import { donationProvider } from '../../server/consequences/providers/donation'
 import { customProvider } from '../../server/consequences/providers/custom'
 import { stripeProvider } from '../../server/consequences/providers/stripe'
 import { mandatoryProofProvider } from '../../server/consequences/providers/mandatory-proof'
+import { randomUserProvider } from '../../server/consequences/providers/random-user'
 
 vi.mock('../../server/utils/credits', () => ({
   applyPenalty: vi.fn(async () => ({
@@ -55,7 +56,7 @@ vi.mock('../../server/database', () => ({
   },
 }))
 
-import { applyPenalty } from '../../server/utils/credits'
+import { applyPenalty, awardTransferReceived } from '../../server/utils/credits'
 import { chargeUserForConsequence } from '../../server/utils/consequence-payment'
 import { useDatabase } from '../../server/database'
 
@@ -159,6 +160,43 @@ describe('consequences execution', () => {
       status: 'succeeded',
       paymentIntentId: 'pi_test',
       amountCents: 500,
+    })
+  })
+
+  it('executes random-user provider with credit transfer', async () => {
+    const transferReturning = vi.fn().mockResolvedValue([{ id: 'transfer-1' }])
+    const transferValues = vi.fn().mockReturnValue({ returning: transferReturning })
+    const insert = vi.fn().mockReturnValue({ values: transferValues })
+    const where = vi.fn().mockResolvedValue([{
+      id: 'user-2',
+      displayName: 'Alice',
+      balance: 100,
+      debt: 0,
+    }])
+    const innerJoin = vi.fn().mockReturnValue({ where })
+    const from = vi.fn().mockReturnValue({ innerJoin })
+    const select = vi.fn().mockReturnValue({ from })
+
+    vi.mocked(useDatabase).mockReturnValue({
+      insert,
+      select,
+    } as never)
+
+    const result = await randomUserProvider.execute({
+      historyId: 'history-1',
+      userId: 'user-1',
+      goalId: 'goal-1',
+      occurrenceId: 'occ-1',
+      amount: 20,
+      config: { minimumScore: 0 },
+    })
+
+    expect(chargeUserForConsequence).not.toHaveBeenCalled()
+    expect(applyPenalty).toHaveBeenCalledWith('user-1', 20, 'occ-1', 'goal-1')
+    expect(result).toMatchObject({
+      transferId: 'transfer-1',
+      recipientId: 'user-2',
+      creditsTransferred: 20,
     })
   })
 

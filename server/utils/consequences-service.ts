@@ -2,7 +2,7 @@ import { ConsequenceError, toHttpError } from '../consequences/errors'
 import { and, asc, eq } from 'drizzle-orm'
 import { useDatabase, schema } from '../database'
 import { getConsequenceProvider } from '../consequences/registry'
-import { isMonetaryProvider, isNonMonetaryBehaviorProvider, type ConsequenceProviderKey } from '../consequences/types'
+import { isMonetaryProvider, isCreditsProvider, isNonMonetaryBehaviorProvider, type ConsequenceProviderKey } from '../consequences/types'
 import { enqueueConsequenceJob } from './consequences-queue'
 
 interface FailureContext {
@@ -13,7 +13,7 @@ interface FailureContext {
 
 export function validateConsequenceAmount(type: ConsequenceProviderKey, amount: number): void {
   if (type === 'custom' || isNonMonetaryBehaviorProvider(type)) return
-  if (type === 'credits' && amount < 1) {
+  if (isCreditsProvider(type) && amount < 1) {
     throw new ConsequenceError('Le montant en crédits doit être au moins 1')
   }
   if (isMonetaryProvider(type) && amount < 100) {

@@ -82,6 +82,10 @@ export function formatEuroAmount(cents: number): string {
 export function isMonetaryProvider(type: ConsequenceProviderKey): boolean {
   return type === 'donation'
     || type === 'stripe'
+}
+
+export function isCreditsProvider(type: ConsequenceProviderKey): boolean {
+  return type === 'credits'
     || type === 'random-user'
 }
 

@@ -47,6 +47,10 @@ export interface ConsequenceStats {
 export function isMonetaryConsequenceType(type: string): boolean {
   return type === 'donation'
     || type === 'stripe'
+}
+
+export function isCreditsConsequenceType(type: string): boolean {
+  return type === 'credits'
     || type === 'random-user'
 }
 

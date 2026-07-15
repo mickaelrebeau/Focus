@@ -38,7 +38,7 @@ const configuredTypes = computed(() => consequences.value.map(item => item.type)
 const isLoading = computed(() => typesLoading.value || consequencesLoading.value)
 
 function defaultAmount(type: string): number {
-  if (type === 'credits') return 20
+  if (type === 'credits' || type === 'random-user') return 20
   if (type === 'custom') return 0
   return eurosToCents(5)
 }
