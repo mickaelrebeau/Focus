@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { ConsequenceType } from '~/composables/useConsequences'
-import { isMonetaryConsequenceType } from '~/composables/useConsequences'
+import {
+  isBehaviorConsequenceType,
+  isCreditsConsequenceType,
+  isMonetaryConsequenceType,
+} from '~/composables/useConsequences'
 
 const props = defineProps<{
   types: ConsequenceType[]
@@ -20,8 +24,9 @@ function addType(type: ConsequenceType) {
 }
 
 function formatDefaultAmount(type: string): string {
-  if (type === 'credits') return '20 crédits'
+  if (isCreditsConsequenceType(type)) return '20 crédits'
   if (type === 'custom') return 'Rappel personnalisé'
+  if (isBehaviorConsequenceType(type)) return 'Preuve à la prochaine réussite'
   if (isMonetaryConsequenceType(type)) return '5 €'
   return ''
 }
