@@ -9,9 +9,9 @@ describe('consequences registry', () => {
       'credits',
       'donation',
       'stripe',
-      'community-pot',
       'random-user',
       'custom',
+      'mandatory-proof',
     ])
   })
 
@@ -22,10 +22,14 @@ describe('consequences registry', () => {
 
   it('recognizes known provider types', () => {
     expect(isKnownProviderType('donation')).toBe(true)
+    expect(isKnownProviderType('mandatory-proof')).toBe(true)
+    expect(isKnownProviderType('streak-reset')).toBe(false)
+    expect(isKnownProviderType('community-pot')).toBe(false)
     expect(isKnownProviderType('unknown')).toBe(false)
   })
 
   it('throws for unknown provider', () => {
     expect(() => getConsequenceProvider('unknown')).toThrow('Provider de conséquence inconnu')
+    expect(() => getConsequenceProvider('streak-reset')).toThrow('Provider de conséquence inconnu')
   })
 })

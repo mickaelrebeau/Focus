@@ -339,6 +339,34 @@ export const communityPotPayouts = pgTable('community_pot_payouts', {
   index('community_pot_payouts_period_idx').on(table.period),
 ])
 
+export const associations = pgTable('associations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description'),
+  logoUrl: text('logo_url'),
+  enabled: boolean('enabled').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('associations_enabled_sort_idx').on(table.enabled, table.sortOrder),
+])
+
+export const associationPotPayouts = pgTable('association_pot_payouts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationSlug: text('association_slug').notNull().references(() => associations.slug, { onDelete: 'restrict' }),
+  period: text('period').notNull(),
+  amount: integer('amount').notNull(),
+  currency: text('currency').notNull().default('EUR'),
+  adminId: uuid('admin_id').references(() => users.id, { onDelete: 'set null' }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('association_pot_payouts_slug_idx').on(table.associationSlug),
+  index('association_pot_payouts_period_idx').on(table.period),
+])
+
 export const donationExecutions = pgTable('donation_executions', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -348,13 +376,25 @@ export const donationExecutions = pgTable('donation_executions', {
   consequenceHistoryId: uuid('consequence_history_id').references(() => consequenceHistory.id, { onDelete: 'set null' }),
   stripePaymentIntentId: text('stripe_payment_intent_id'),
   stripeTransferId: text('stripe_transfer_id'),
-  status: text('status').notNull().default('recorded'),
+  status: text('status').notNull().default('accumulated'),
   metadata: jsonb('metadata').$type<Record<string, unknown>>(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   index('donation_executions_user_id_idx').on(table.userId),
   index('donation_executions_association_idx').on(table.association),
   index('donation_executions_status_idx').on(table.status),
+  uniqueIndex('donation_executions_history_unique').on(table.consequenceHistoryId),
+])
+
+export const proofRequirements = pgTable('proof_requirements', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  goalId: uuid('goal_id').notNull().references(() => goals.id, { onDelete: 'cascade' }),
+  consequenceHistoryId: uuid('consequence_history_id').references(() => consequenceHistory.id, { onDelete: 'set null' }).unique(),
+  consumedAt: timestamp('consumed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('proof_requirements_user_goal_pending_idx').on(table.userId, table.goalId),
 ])
 
 export const internalTransfers = pgTable('internal_transfers', {
@@ -460,7 +500,10 @@ export type ConsequenceHistory = typeof consequenceHistory.$inferSelect
 export type CommunityPotTransaction = typeof communityPotTransactions.$inferSelect
 export type CommunityPotSettings = typeof communityPotSettings.$inferSelect
 export type CommunityPotPayout = typeof communityPotPayouts.$inferSelect
+export type Association = typeof associations.$inferSelect
+export type AssociationPotPayout = typeof associationPotPayouts.$inferSelect
 export type DonationExecution = typeof donationExecutions.$inferSelect
+export type ProofRequirement = typeof proofRequirements.$inferSelect
 export type InternalTransfer = typeof internalTransfers.$inferSelect
 export type Notification = typeof notifications.$inferSelect
 export type StripePayment = typeof stripePayments.$inferSelect

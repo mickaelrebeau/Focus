@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ConsequenceType, UserConsequence } from '~/composables/useConsequences'
-import { DONATION_ASSOCIATIONS } from '#shared/donation-associations'
 import {
   centsToEuros,
   eurosToCents,
   formatEuroFromCents,
   isMonetaryConsequenceType,
+  isBehaviorConsequenceType,
 } from '~/composables/useConsequences'
 
 const props = defineProps<{
@@ -29,6 +29,11 @@ const emit = defineEmits<{
 }>()
 
 const { user } = useAuth()
+const { data: associationsData } = await useFetch('/api/associations', {
+  credentials: 'include',
+})
+
+const donationAssociations = computed(() => associationsData.value?.associations ?? [])
 
 const enabled = ref(props.consequence.enabled)
 const amountEuros = ref(
@@ -36,22 +41,31 @@ const amountEuros = ref(
     ? centsToEuros(props.consequence.amount)
     : props.consequence.amount,
 )
-const association = ref(String(props.consequence.config.association ?? 'wwf'))
+const association = ref(String(props.consequence.config.association ?? donationAssociations.value[0]?.value ?? ''))
 const minimumScore = ref(Number(props.consequence.config.minimumScore ?? 0))
 const customMessage = ref(String(props.consequence.config.message ?? ''))
 const paymentError = ref('')
 
+const selectedAssociation = computed(() =>
+  donationAssociations.value.find(item => item.value === association.value),
+)
 const hasPaymentMethod = computed(() => Boolean(user.value?.hasPaymentMethod))
 const requiresPaymentMethod = computed(() =>
   isMonetaryConsequenceType(props.consequence.type),
 )
+
+watch(donationAssociations, (items) => {
+  if (props.consequence.type === 'donation' && !association.value && items[0]) {
+    association.value = items[0].value
+  }
+}, { immediate: true })
 
 watch(() => props.consequence, (value) => {
   enabled.value = value.enabled
   amountEuros.value = isMonetaryConsequenceType(value.type)
     ? centsToEuros(value.amount)
     : value.amount
-  association.value = String(value.config.association ?? 'wwf')
+  association.value = String(value.config.association ?? donationAssociations.value[0]?.value ?? '')
   minimumScore.value = Number(value.config.minimumScore ?? 0)
   customMessage.value = String(value.config.message ?? '')
 }, { deep: true })
@@ -62,7 +76,9 @@ const amountLabel = computed(() => {
   return 'Montant (€)'
 })
 
-const showAmount = computed(() => props.consequence.type !== 'custom')
+const showAmount = computed(() =>
+  !isBehaviorConsequenceType(props.consequence.type) && props.consequence.type !== 'custom',
+)
 
 const amountDisplay = computed(() => {
   if (props.consequence.type === 'credits') {
@@ -196,19 +212,40 @@ function onToggle(value: boolean) {
         :step="consequence.type === 'credits' ? 1 : 0.5"
       />
 
-      <UiSelect
-        v-if="consequence.type === 'donation'"
-        v-model="association"
-        label="Association"
-      >
-        <option
-          v-for="item in DONATION_ASSOCIATIONS"
-          :key="item.value"
-          :value="item.value"
+      <div v-if="consequence.type === 'donation'" class="space-y-3">
+        <UiSelect
+          v-model="association"
+          label="Association"
         >
-          {{ item.label }}
-        </option>
-      </UiSelect>
+          <option
+            v-for="item in donationAssociations"
+            :key="item.value"
+            :value="item.value"
+          >
+            {{ item.label }}
+          </option>
+        </UiSelect>
+
+        <div
+          v-if="selectedAssociation"
+          class="flex items-center gap-3 rounded-focus border border-focus-gray-100 bg-focus-gray-50 px-3 py-2"
+        >
+          <AssociationLogo
+            :name="selectedAssociation.label"
+            :logo-url="selectedAssociation.logoUrl"
+            size="sm"
+          />
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-focus-gray-900">{{ selectedAssociation.label }}</p>
+            <p
+              v-if="selectedAssociation.description"
+              class="truncate text-xs text-focus-gray-500"
+            >
+              {{ selectedAssociation.description }}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <UiInput
         v-if="consequence.type === 'random-user'"

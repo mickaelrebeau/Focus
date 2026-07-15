@@ -94,15 +94,6 @@ export function useLeaderboard() {
       projectedRank: number | null
     }
     weekKey: string
-    communityPot: {
-      balanceCents: number
-      monthCents: number
-      monthlyGoalCents: number
-      targetAssociation: string
-      targetAssociationLabel: string
-      progressPercent: number
-      transactionCount: number
-    }
   }>('/api/leaderboard', fetchOptions)
 
   onServerPrefetch(async () => {

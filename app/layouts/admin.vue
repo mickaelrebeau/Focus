@@ -78,7 +78,7 @@ const adminNav = [
   { to: '/admin', label: 'Tableau de bord' },
   { to: '/admin/utilisateurs', label: 'Utilisateurs' },
   { to: '/admin/moderation', label: 'Modération' },
-  { to: '/admin/cagnotte', label: 'Cagnotte' },
+  { to: '/admin/cagnotte', label: 'Cagnottes' },
   { to: '/admin/echeances', label: 'Échéances' },
   { to: '/admin/audit', label: 'Journal d\'audit' },
 ]

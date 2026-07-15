@@ -1,14 +1,11 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
-import { formatEuroFromCents } from '~/composables/useConsequences'
-
 const { data, isLoading } = useLeaderboard()
 const { user } = useAuth()
 
 const leaderboard = computed(() => data.value?.leaderboard ?? [])
 const weeklyProgress = computed(() => data.value?.weeklyProgress)
-const communityPot = computed(() => data.value?.communityPot)
 const top3 = computed(() => leaderboard.value.slice(0, 3))
 const rest = computed(() => leaderboard.value.slice(3))
 </script>
@@ -18,35 +15,17 @@ const rest = computed(() => leaderboard.value.slice(3))
     <h1 class="focus-heading-lg">Classement</h1>
     <p class="focus-body mt-2">Score net = crédits − dette</p>
 
-    <UiCard v-if="communityPot" class="mt-6">
-      <div class="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p class="focus-label">Cagnotte commune</p>
-          <p class="mt-2 text-3xl font-semibold text-focus-gray-900">
-            {{ formatEuroFromCents(communityPot.balanceCents) }}
-          </p>
-          <p class="mt-1 text-sm text-focus-gray-500">
-            Objectif du mois : {{ formatEuroFromCents(communityPot.monthlyGoalCents) }}
-            vers {{ communityPot.targetAssociationLabel }}
-          </p>
-        </div>
-        <div class="text-right">
-          <p class="text-sm text-focus-gray-500">Ce mois-ci</p>
-          <p class="text-xl font-semibold text-focus-accent">
-            {{ formatEuroFromCents(communityPot.monthCents) }}
-          </p>
-        </div>
-      </div>
-      <div class="mt-4 h-2 overflow-hidden rounded-full bg-focus-gray-100">
-        <div
-          class="h-full rounded-full bg-focus-accent transition-all duration-500"
-          :style="{ width: `${communityPot.progressPercent}%` }"
-        />
-      </div>
-      <p class="mt-2 text-xs text-focus-gray-400">
-        {{ communityPot.progressPercent }}% de l'objectif mensuel atteint.
-        En fin de mois, la cagnotte est reversée manuellement à l'association choisie.
+    <UiCard class="mt-6">
+      <p class="focus-label">Cagnottes associatives</p>
+      <p class="mt-1 text-sm text-focus-gray-600">
+        Les dons issus des conséquences sont cumulés par association et reversés manuellement chaque mois.
       </p>
+      <NuxtLink
+        to="/cagnottes"
+        class="mt-3 inline-flex text-sm font-medium text-focus-accent hover:opacity-80"
+      >
+        Voir les cagnottes publiques →
+      </NuxtLink>
     </UiCard>
 
     <UiCard v-if="weeklyProgress" class="mt-6">

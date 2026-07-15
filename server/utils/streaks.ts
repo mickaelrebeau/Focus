@@ -252,6 +252,9 @@ export async function updateStreakForDate(
   dateKey: string,
   timezone: string,
 ): Promise<StreakUpdateResult> {
+  // La perte de streak est automatique : un jour « failed » n'entre pas dans l'historique
+  // des succès, donc recalculateStreakFromHistory remet le streak courant à zéro si la
+  // continuité est rompue (échéance manquée, validation rejetée, jour clôturé en échec).
   const db = useDatabase()
   await getOrCreateUserStreak(userId)
 

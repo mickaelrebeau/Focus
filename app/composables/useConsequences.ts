@@ -47,8 +47,11 @@ export interface ConsequenceStats {
 export function isMonetaryConsequenceType(type: string): boolean {
   return type === 'donation'
     || type === 'stripe'
-    || type === 'community-pot'
     || type === 'random-user'
+}
+
+export function isBehaviorConsequenceType(type: string): boolean {
+  return type === 'mandatory-proof'
 }
 
 export function formatEuroFromCents(cents: number): string {

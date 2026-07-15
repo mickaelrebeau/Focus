@@ -1,6 +1,6 @@
-import { DONATION_ASSOCIATIONS, getDonationAssociationConnectAccountId } from '#shared/donation-associations'
+import { eq } from 'drizzle-orm'
 import { useDatabase, schema } from '../database'
-import { getStripe } from './stripe-client'
+import { getActiveAssociationBySlug } from './associations'
 import { createNotification } from './notifications'
 import { formatEuroAmount } from '../consequences/types'
 
@@ -11,71 +11,75 @@ export async function processDonationExecution(input: {
   historyId: string
   paymentIntentId: string
 }) {
-  const associationInfo = DONATION_ASSOCIATIONS.find(item => item.value === input.association)
-  const associationLabel = associationInfo?.label ?? input.association
-  const connectAccountId = getDonationAssociationConnectAccountId(input.association)
-
-  let status = 'recorded'
-  let stripeTransferId: string | null = null
-
-  if (connectAccountId) {
-    try {
-      const stripe = getStripe()
-      const transfer = await stripe.transfers.create({
-        amount: input.amountCents,
-        currency: 'eur',
-        destination: connectAccountId,
-        transfer_group: input.paymentIntentId,
-        metadata: {
-          userId: input.userId,
-          association: input.association,
-          historyId: input.historyId,
-        },
-      }, {
-        idempotencyKey: `donation-${input.historyId}`,
-      })
-
-      status = 'transferred'
-      stripeTransferId = transfer.id
-    } catch (error) {
-      status = 'transfer_failed'
-      console.error('[Donation] Transfert Stripe Connect échoué:', error)
-    }
+  const association = await getActiveAssociationBySlug(input.association)
+  if (!association) {
+    throw new Error('Association invalide ou inactive')
   }
 
   const db = useDatabase()
+
+  const [existing] = await db
+    .select()
+    .from(schema.donationExecutions)
+    .where(eq(schema.donationExecutions.consequenceHistoryId, input.historyId))
+    .limit(1)
+
+  if (existing) {
+    return {
+      executionId: existing.id,
+      status: existing.status,
+      associationLabel: association.name,
+      alreadyProcessed: true,
+    }
+  }
+
   const [execution] = await db.insert(schema.donationExecutions).values({
     userId: input.userId,
     association: input.association,
     amount: input.amountCents,
     consequenceHistoryId: input.historyId,
     stripePaymentIntentId: input.paymentIntentId,
-    stripeTransferId,
-    status,
+    status: 'accumulated',
     metadata: {
-      associationLabel,
-      connectAccountConfigured: Boolean(connectAccountId),
+      associationLabel: association.name,
     },
-  }).returning()
+  }).onConflictDoNothing().returning()
+
+  if (!execution) {
+    const [retryExisting] = await db
+      .select()
+      .from(schema.donationExecutions)
+      .where(eq(schema.donationExecutions.consequenceHistoryId, input.historyId))
+      .limit(1)
+
+    if (!retryExisting) {
+      throw new Error('Impossible d\'enregistrer la contribution')
+    }
+
+    return {
+      executionId: retryExisting.id,
+      status: retryExisting.status,
+      associationLabel: association.name,
+      alreadyProcessed: true,
+    }
+  }
 
   await createNotification({
     userId: input.userId,
-    title: 'Don effectué',
-    message: status === 'transferred'
-      ? `Votre don de ${formatEuroAmount(input.amountCents)} à ${associationLabel} a été versé automatiquement.`
-      : `Votre don de ${formatEuroAmount(input.amountCents)} à ${associationLabel} a été enregistré et sera reversé par la plateforme.`,
+    title: 'Don enregistré',
+    message: `Votre don de ${formatEuroAmount(input.amountCents)} a été ajouté à la cagnotte de ${association.name}.`,
     metadata: {
       donationExecutionId: execution.id,
       association: input.association,
       amountCents: input.amountCents,
-      status,
+      status: 'accumulated',
     },
   })
 
   return {
     executionId: execution.id,
-    status,
-    stripeTransferId,
-    associationLabel,
+    status: 'accumulated' as const,
+    associationLabel: association.name,
+    alreadyProcessed: false,
   }
 }

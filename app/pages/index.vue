@@ -113,6 +113,51 @@ const useCases = [
       </div>
     </section>
 
+    <!-- Cagnottes associatives -->
+    <section class="bg-focus-gray-50 py-20 md:py-28">
+      <div class="focus-container">
+        <div class="mx-auto max-w-3xl text-center">
+          <p class="landing-reveal focus-label">Transparence</p>
+          <h2 class="landing-reveal focus-heading-lg mt-3">Des cagnottes pour les associations</h2>
+          <p class="landing-reveal focus-body mt-4">
+            Vous pouvez configurer une conséquence « Don à une association » : en cas d'échec,
+            le montant est prélevé sur votre carte et cumulé dans la cagnotte de l'association choisie.
+            Chaque euro collecté est visible publiquement, puis reversé manuellement chaque mois.
+          </p>
+          <NuxtLink
+            to="/cagnottes"
+            class="landing-reveal focus-btn-secondary mt-8 inline-flex"
+          >
+            Voir les cagnottes en direct
+          </NuxtLink>
+        </div>
+
+        <div class="landing-reveal mt-14 grid gap-6 md:grid-cols-3">
+          <div class="focus-card text-center">
+            <span class="text-2xl">♥</span>
+            <h3 class="mt-3 font-semibold text-focus-gray-900">Une cagnotte par association</h3>
+            <p class="focus-body-sm mt-2">
+              WWF, MSF, Croix-Rouge, Restos du Cœur… Chaque association dispose de son propre suivi.
+            </p>
+          </div>
+          <div class="focus-card text-center">
+            <span class="text-2xl">◎</span>
+            <h3 class="mt-3 font-semibold text-focus-gray-900">Suivi public en temps réel</h3>
+            <p class="focus-body-sm mt-2">
+              Montants collectés, soldes disponibles et reversements mensuels sont accessibles à tous sur la page Cagnottes.
+            </p>
+          </div>
+          <div class="focus-card text-center">
+            <span class="text-2xl">◈</span>
+            <h3 class="mt-3 font-semibold text-focus-gray-900">Reversements vérifiés</h3>
+            <p class="focus-body-sm mt-2">
+              En fin de mois, Focus reverse manuellement les fonds à l'association, avec un historique consultable.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- CTA -->
     <section class="border-t border-focus-gray-100 py-20 md:py-28">
       <div class="focus-container text-center">

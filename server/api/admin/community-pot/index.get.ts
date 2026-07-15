@@ -1,9 +1,8 @@
 import { eq, desc } from 'drizzle-orm'
 import { getUserFromEvent, requireAuth, requireAdmin } from '../../../utils/auth'
-import { parseBody } from '../../utils/validation'
 import { useDatabase, schema } from '../../../database'
 import { getCommunityPotStats, getCommunityPotSettings } from '../../../utils/community-pot'
-import { DONATION_ASSOCIATIONS } from '../../../consequences/types'
+import { listActiveAssociations } from '../../../utils/associations'
 
 export default defineEventHandler(async (event) => {
   requireAdmin(requireAuth(await getUserFromEvent(event)))
@@ -31,10 +30,12 @@ export default defineEventHandler(async (event) => {
     .orderBy(desc(schema.communityPotTransactions.createdAt))
     .limit(20)
 
+  const associations = await listActiveAssociations()
+
   return {
     stats,
     settings,
-    associations: DONATION_ASSOCIATIONS,
+    associations: associations.map(item => ({ value: item.slug, label: item.name })),
     payouts,
     recentTransactions,
   }

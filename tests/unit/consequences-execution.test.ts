@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { creditsProvider } from '../../server/consequences/providers/credits'
 import { donationProvider } from '../../server/consequences/providers/donation'
-import { communityPotProvider } from '../../server/consequences/providers/community-pot'
 import { customProvider } from '../../server/consequences/providers/custom'
 import { stripeProvider } from '../../server/consequences/providers/stripe'
+import { mandatoryProofProvider } from '../../server/consequences/providers/mandatory-proof'
 
 vi.mock('../../server/utils/credits', () => ({
   applyPenalty: vi.fn(async () => ({
@@ -28,9 +28,9 @@ vi.mock('../../server/utils/consequence-payment', () => ({
 vi.mock('../../server/utils/donation-service', () => ({
   processDonationExecution: vi.fn(async () => ({
     executionId: 'donation-1',
-    status: 'transferred',
-    stripeTransferId: 'tr_test',
+    status: 'accumulated',
     associationLabel: 'WWF',
+    alreadyProcessed: false,
   })),
 }))
 
@@ -38,14 +38,20 @@ vi.mock('../../server/utils/notifications', () => ({
   createNotification: vi.fn(async () => ({ id: 'notif-1' })),
 }))
 
+vi.mock('../../server/utils/associations', () => ({
+  getActiveAssociationBySlug: vi.fn(async (slug: string) => (
+    slug === 'wwf' ? { slug: 'wwf', name: 'WWF' } : null
+  )),
+}))
+
 vi.mock('../../server/database', () => ({
   useDatabase: vi.fn(),
   schema: {
     notifications: { id: 'notifications.id' },
-    communityPotTransactions: { id: 'community_pot_transactions.id' },
     internalTransfers: { id: 'internal_transfers.id' },
     users: { id: 'users.id', isBlocked: 'users.is_blocked' },
     wallets: { userId: 'wallets.user_id', balance: 'wallets.balance', debt: 'wallets.debt' },
+    proofRequirements: { id: 'proof_requirements.id', consequenceHistoryId: 'proof_requirements.consequence_history_id' },
   },
 }))
 
@@ -92,7 +98,7 @@ describe('consequences execution', () => {
     expect(result).toEqual({ skipped: true, reason: 'Montant nul' })
   })
 
-  it('executes donation provider with card charge', async () => {
+  it('executes donation provider with card charge and accumulation', async () => {
     const result = await donationProvider.execute({
       historyId: 'history-1',
       userId: 'user-1',
@@ -107,35 +113,9 @@ describe('consequences execution', () => {
       amount: 500,
     }))
     expect(result).toMatchObject({
-      status: 'transferred',
+      status: 'accumulated',
       association: 'wwf',
       amountCents: 500,
-      paymentIntentId: 'pi_test',
-    })
-  })
-
-  it('executes community-pot provider with card charge', async () => {
-    const returning = vi.fn().mockResolvedValue([{ id: 'pot-1' }])
-    const values = vi.fn().mockReturnValue({ returning })
-    const insert = vi.fn().mockReturnValue({ values })
-
-    vi.mocked(useDatabase).mockReturnValue({
-      insert,
-    } as never)
-
-    const result = await communityPotProvider.execute({
-      historyId: 'history-1',
-      userId: 'user-1',
-      goalId: 'goal-1',
-      occurrenceId: 'occ-1',
-      amount: 500,
-      config: {},
-    })
-
-    expect(chargeUserForConsequence).toHaveBeenCalledWith('community-pot', expect.any(Object))
-    expect(insert).toHaveBeenCalled()
-    expect(result).toMatchObject({
-      transactionId: 'pot-1',
       paymentIntentId: 'pi_test',
     })
   })
@@ -179,6 +159,36 @@ describe('consequences execution', () => {
       status: 'succeeded',
       paymentIntentId: 'pi_test',
       amountCents: 500,
+    })
+  })
+
+  it('executes mandatory-proof provider', async () => {
+    const returning = vi.fn().mockResolvedValue([{ id: 'proof-1', goalId: 'goal-1' }])
+    const onConflictDoNothing = vi.fn().mockReturnValue({ returning })
+    const values = vi.fn().mockReturnValue({ onConflictDoNothing })
+    const insert = vi.fn().mockReturnValue({ values })
+    const limit = vi.fn().mockResolvedValue([])
+    const where = vi.fn().mockReturnValue({ limit })
+    const select = vi.fn().mockReturnValue({ from: vi.fn().mockReturnValue({ where }) })
+
+    vi.mocked(useDatabase).mockReturnValue({
+      insert,
+      select,
+    } as never)
+
+    const result = await mandatoryProofProvider.execute({
+      historyId: 'history-1',
+      userId: 'user-1',
+      goalId: 'goal-1',
+      occurrenceId: 'occ-1',
+      amount: 0,
+      config: {},
+    })
+
+    expect(result).toMatchObject({
+      proofRequirementId: 'proof-1',
+      goalId: 'goal-1',
+      alreadyProcessed: false,
     })
   })
 })

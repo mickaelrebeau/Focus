@@ -30,7 +30,7 @@ describe('consequences priority', () => {
       { id: '1', type: 'donation', enabled: true, priority: 2 },
       { id: '2', type: 'credits', enabled: true, priority: 0 },
       { id: '3', type: 'custom', enabled: false, priority: 1 },
-      { id: '4', type: 'community-pot', enabled: true, priority: 1 },
+      { id: '4', type: 'mandatory-proof', enabled: true, priority: 1 },
     ])
 
     expect(sorted.map(item => item.id)).toEqual(['2', '4', '1'])

@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { getUserFromEvent, requireAuth, requireAdmin } from '../../../utils/auth'
 import { parseBody } from '../../../utils/validation'
 import { useDatabase, schema } from '../../../database'
-import { DONATION_ASSOCIATIONS } from '../../../consequences/types'
+import { isValidActiveAssociationSlug } from '../../../utils/associations'
 
 const payoutSchema = z.object({
   period: z.string().regex(/^\d{4}-\d{2}$/),
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const data = parseBody(payoutSchema, body)
 
-  const validAssociation = DONATION_ASSOCIATIONS.some(item => item.value === data.association)
+  const validAssociation = await isValidActiveAssociationSlug(data.association)
   if (!validAssociation) {
     throw createError({ statusCode: 400, message: 'Association invalide' })
   }

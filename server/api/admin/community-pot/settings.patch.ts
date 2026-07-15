@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm'
 import { getUserFromEvent, requireAuth, requireAdmin } from '../../../utils/auth'
 import { parseBody } from '../../../utils/validation'
 import { useDatabase, schema } from '../../../database'
-import { DONATION_ASSOCIATIONS } from '../../../consequences/types'
+import { isValidActiveAssociationSlug } from '../../../utils/associations'
 
 const settingsSchema = z.object({
   monthlyGoalCents: z.number().int().min(100),
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const data = parseBody(settingsSchema, body)
 
-  const validAssociation = DONATION_ASSOCIATIONS.some(item => item.value === data.targetAssociation)
+  const validAssociation = await isValidActiveAssociationSlug(data.targetAssociation)
   if (!validAssociation) {
     throw createError({ statusCode: 400, message: 'Association invalide' })
   }

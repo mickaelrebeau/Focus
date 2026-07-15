@@ -69,9 +69,11 @@ export async function getConsequenceStatsForUser(userId: string): Promise<Conseq
 
     if (isMonetaryProvider(provider)) {
       moneyCommittedCents += entry.amount
+    }
 
+    if (provider === 'donation') {
       const result = entry.metadata?.result as Record<string, unknown> | undefined
-      if (result?.paymentIntentId) {
+      if (result?.donationExecutionId || result?.status === 'accumulated') {
         moneyDonatedCents += entry.amount
       }
     }

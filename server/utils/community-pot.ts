@@ -1,6 +1,6 @@
 import { gte, sql } from 'drizzle-orm'
 import { useDatabase, schema } from '../database'
-import { DONATION_ASSOCIATIONS } from '#shared/donation-associations'
+import { listActiveAssociations } from './associations'
 
 export interface CommunityPotStats {
   balanceCents: number
@@ -17,8 +17,11 @@ function getMonthStart(): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
 }
 
-function getAssociationLabel(value: string): string {
-  return DONATION_ASSOCIATIONS.find(item => item.value === value)?.label ?? value
+function getAssociationLabel(
+  value: string,
+  associations: Array<{ slug: string, name: string }>,
+): string {
+  return associations.find(item => item.slug === value)?.name ?? value
 }
 
 export async function getCommunityPotSettings() {
@@ -47,7 +50,7 @@ export async function getCommunityPotStats(): Promise<CommunityPotStats> {
     monthCents: 0,
     monthlyGoalCents: 50000,
     targetAssociation: 'msf',
-    targetAssociationLabel: getAssociationLabel('msf'),
+    targetAssociationLabel: getAssociationLabel('msf', [{ slug: 'msf', name: 'Médecins Sans Frontières' }]),
     progressPercent: 0,
     transactionCount: 0,
   }
@@ -55,6 +58,7 @@ export async function getCommunityPotStats(): Promise<CommunityPotStats> {
   try {
     const db = useDatabase()
     const settings = await getCommunityPotSettings()
+    const associations = await listActiveAssociations()
     const monthStart = getMonthStart()
 
     const [totals] = await db
@@ -89,7 +93,7 @@ export async function getCommunityPotStats(): Promise<CommunityPotStats> {
       monthCents,
       monthlyGoalCents,
       targetAssociation: settings.targetAssociation,
-      targetAssociationLabel: getAssociationLabel(settings.targetAssociation),
+      targetAssociationLabel: getAssociationLabel(settings.targetAssociation, associations),
       progressPercent,
       transactionCount: totals?.transactionCount ?? 0,
     }

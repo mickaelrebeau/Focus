@@ -7,6 +7,7 @@ export const CONSEQUENCE_PROVIDER_KEYS = [
   'community-pot',
   'random-user',
   'custom',
+  'mandatory-proof',
 ] as const
 
 export type ConsequenceProviderKey = typeof CONSEQUENCE_PROVIDER_KEYS[number]
@@ -51,12 +52,15 @@ export const customConfigSchema = z.object({
   message: z.string().min(1, 'Message requis').max(500),
 })
 
+export const mandatoryProofConfigSchema = z.object({}).strict()
+
 export type CreditsConfig = z.infer<typeof creditsConfigSchema>
 export type DonationConfig = z.infer<typeof donationConfigSchema>
 export type StripeConfig = z.infer<typeof stripeConfigSchema>
 export type CommunityPotConfig = z.infer<typeof communityPotConfigSchema>
 export type RandomUserConfig = z.infer<typeof randomUserConfigSchema>
 export type CustomConfig = z.infer<typeof customConfigSchema>
+export type MandatoryProofConfig = z.infer<typeof mandatoryProofConfigSchema>
 
 export type ProviderConfigMap = {
   credits: CreditsConfig
@@ -65,9 +69,8 @@ export type ProviderConfigMap = {
   'community-pot': CommunityPotConfig
   'random-user': RandomUserConfig
   custom: CustomConfig
+  'mandatory-proof': MandatoryProofConfig
 }
-
-export { DONATION_ASSOCIATIONS } from '#shared/donation-associations'
 
 export function formatEuroAmount(cents: number): string {
   return new Intl.NumberFormat('fr-FR', {
@@ -79,6 +82,10 @@ export function formatEuroAmount(cents: number): string {
 export function isMonetaryProvider(type: ConsequenceProviderKey): boolean {
   return type === 'donation'
     || type === 'stripe'
-    || type === 'community-pot'
     || type === 'random-user'
+}
+
+export function isNonMonetaryBehaviorProvider(type: ConsequenceProviderKey): boolean {
+  return type === 'custom'
+    || type === 'mandatory-proof'
 }

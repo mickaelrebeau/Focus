@@ -1,11 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getConsequenceProvider } from '../../server/consequences/registry'
 import {
   creditsConfigSchema,
   customConfigSchema,
   donationConfigSchema,
+  mandatoryProofConfigSchema,
   randomUserConfigSchema,
 } from '../../server/consequences/types'
+
+vi.mock('../../server/utils/associations', () => ({
+  getActiveAssociationBySlug: vi.fn(async (slug: string) => (
+    slug === 'wwf' ? { slug: 'wwf', name: 'WWF' } : null
+  )),
+}))
 
 describe('consequences validation schemas', () => {
   it('accepts empty credits config', () => {
@@ -38,5 +45,9 @@ describe('consequences validation schemas', () => {
       message: 'Faire 100 pompes',
     })
     expect(() => customConfigSchema.parse({ message: '' })).toThrow()
+  })
+
+  it('accepts empty mandatory-proof config', () => {
+    expect(mandatoryProofConfigSchema.parse({})).toEqual({})
   })
 })

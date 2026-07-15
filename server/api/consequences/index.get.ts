@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
   const types = await db
     .select()
     .from(schema.consequenceTypes)
+    .where(eq(schema.consequenceTypes.enabled, true))
     .orderBy(asc(schema.consequenceTypes.key))
 
   return { types }
