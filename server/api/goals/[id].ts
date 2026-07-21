@@ -1,6 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { getUserFromEvent, requireAuth } from '../../utils/auth'
 import { useDatabase, schema } from '../../database'
+import { syncUserDeadlines } from '../../utils/goals-service'
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(await getUserFromEvent(event))
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
   if (!goal) throw createError({ statusCode: 404, message: 'Objectif introuvable' })
 
   if (event.method === 'GET') {
+    await syncUserDeadlines(user.id, user.timezone)
     const milestones = goal.type === 'project'
       ? await db.select().from(schema.projectMilestones).where(eq(schema.projectMilestones.goalId, goal.id))
       : []

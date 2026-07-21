@@ -25,9 +25,9 @@ const podiumOrder = computed(() => {
 
 const rankStyles: Record<number, { border: string, bg: string, badge: string, label: string }> = {
   1: {
-    border: 'ring-2 ring-app-blue/25',
+    border: 'ring-2 ring-app-ink/15',
     bg: 'bg-app-mist',
-    badge: 'bg-app-blue text-white',
+    badge: 'bg-app-ink text-white',
     label: 'Or',
   },
   2: {
@@ -66,7 +66,7 @@ function cardHeight(rank: number) {
           rankStyles[entry.rank]?.border,
           rankStyles[entry.rank]?.bg,
           cardHeight(entry.rank),
-          entry.isCurrentUser ? 'ring-2 ring-app-blue' : '',
+          entry.isCurrentUser ? 'ring-2 ring-app-ink' : '',
           entry.rank === 1 ? 'md:scale-105' : '',
         ]"
       >
@@ -77,7 +77,7 @@ function cardHeight(rank: number) {
           {{ entry.rank }}
         </span>
         <p class="truncate text-sm font-semibold text-app-ink sm:text-base">{{ entry.displayName }}</p>
-        <p v-if="entry.isCurrentUser" class="text-[10px] font-semibold text-app-blue sm:text-xs">Vous</p>
+        <p v-if="entry.isCurrentUser" class="text-[10px] font-semibold text-app-ink sm:text-xs">Vous</p>
         <p class="mt-0.5 text-lg font-semibold text-app-ink sm:mt-1 sm:text-xl md:text-2xl">{{ entry.netScore }}</p>
         <p class="text-[10px] text-app-secondary sm:text-xs">{{ entry.balance }} cr · {{ entry.debt }} dette</p>
         <p class="mt-1 text-xs text-app-secondary sm:text-xs">

@@ -3,6 +3,7 @@ import {
   buildStreakState,
   evaluateDayFromStatuses,
   calculateStreaksFromDates,
+  resolveStreakFromDailyResults,
   STREAK_MILESTONE_DAYS,
 } from '../../server/utils/streaks'
 import { getWeekDates, getLeaderboardWeekKey, TOP3_WEEKLY_REWARDS } from '../../server/utils/leaderboard'
@@ -79,6 +80,30 @@ describe('streaks', () => {
     expect(state.nextMilestone).toBe(7)
     expect(state.progressToNext).toBe(0)
     expect(STREAK_MILESTONE_DAYS).toBe(7)
+  })
+
+  it('resets current streak to 0 when the latest closed day failed', () => {
+    const result = resolveStreakFromDailyResults([
+      { dateKey: '2026-07-08', status: 'success' },
+      { dateKey: '2026-07-09', status: 'success' },
+      { dateKey: '2026-07-10', status: 'failed' },
+    ])
+
+    expect(result.currentStreak).toBe(0)
+    expect(result.longestStreak).toBe(2)
+    expect(result.lastSuccessDate).toBe('2026-07-09')
+  })
+
+  it('starts a new streak at 1 after recovering from a failed day', () => {
+    const result = resolveStreakFromDailyResults([
+      { dateKey: '2026-07-08', status: 'success' },
+      { dateKey: '2026-07-09', status: 'failed' },
+      { dateKey: '2026-07-10', status: 'success' },
+    ])
+
+    expect(result.currentStreak).toBe(1)
+    expect(result.longestStreak).toBe(1)
+    expect(result.lastSuccessDate).toBe('2026-07-10')
   })
 })
 

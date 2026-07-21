@@ -1,6 +1,6 @@
 import { gsap } from 'gsap'
 
-const COLORS = ['#315CFF', '#fbbf24', '#34d399', '#f97316', '#ffffff', '#111827']
+const COLORS = ['#111827', '#fbbf24', '#34d399', '#f97316', '#ffffff', '#86868B']
 
 export function useCelebration() {
   const container = ref<HTMLElement | null>(null)

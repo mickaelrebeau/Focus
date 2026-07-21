@@ -31,8 +31,8 @@ const emit = defineEmits<{
       :aria-label="label"
       :aria-checked="modelValue"
       :disabled="disabled"
-      class="relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-app-mist"
-      :class="modelValue ? 'bg-app-blue' : 'bg-slate-300'"
+      class="relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-200"
+      :class="modelValue ? 'bg-app-ink' : 'bg-slate-300'"
       @click="emit('update:modelValue', !modelValue)"
     >
       <span

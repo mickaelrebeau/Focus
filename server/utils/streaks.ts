@@ -1,6 +1,5 @@
-import { eq, and } from 'drizzle-orm'
-import { addDays, format, parseISO } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz'
+import { eq, and, lt } from 'drizzle-orm'
+import { parseISO } from 'date-fns'
 import { useDatabase, schema } from '../database'
 import { awardStreakBonus } from './credits'
 import { getTodayInTimezone } from './occurrences'
@@ -169,27 +168,63 @@ export function calculateStreaksFromDates(dates: string[]): {
   }
 }
 
+export function resolveStreakFromDailyResults(
+  dailyResults: Array<{ dateKey: string, status: DailyResultStatus }>,
+): {
+  currentStreak: number
+  longestStreak: number
+  lastSuccessDate: string | null
+} {
+  const successDays = dailyResults
+    .filter(d => d.status === 'success')
+    .map(d => d.dateKey)
+    .sort()
+
+  const closedDays = dailyResults
+    .filter(d => d.status === 'success' || d.status === 'failed')
+    .sort((a, b) => a.dateKey.localeCompare(b.dateKey))
+
+  const latestClosed = closedDays.at(-1) ?? null
+  const longestFromSuccess = successDays.length
+    ? calculateStreaksFromDates(successDays).longest
+    : 0
+
+  if (!latestClosed || latestClosed.status === 'failed') {
+    return {
+      currentStreak: 0,
+      longestStreak: longestFromSuccess,
+      lastSuccessDate: successDays.at(-1) ?? null,
+    }
+  }
+
+  const successesUpToLatest = successDays.filter(dateKey => dateKey <= latestClosed.dateKey)
+  const { current, longest, lastDate } = calculateStreaksFromDates(successesUpToLatest)
+
+  return {
+    currentStreak: current,
+    longestStreak: Math.max(longestFromSuccess, longest),
+    lastSuccessDate: lastDate,
+  }
+}
+
 async function recalculateStreakFromHistory(userId: string) {
   const db = useDatabase()
 
-  const successDays = await db
-    .select({ dateKey: schema.userDailyResults.dateKey })
+  const dailyResults = await db
+    .select({
+      dateKey: schema.userDailyResults.dateKey,
+      status: schema.userDailyResults.status,
+    })
     .from(schema.userDailyResults)
-    .where(and(
-      eq(schema.userDailyResults.userId, userId),
-      eq(schema.userDailyResults.status, 'success'),
-    ))
+    .where(eq(schema.userDailyResults.userId, userId))
     .orderBy(schema.userDailyResults.dateKey)
 
-  if (!successDays.length) {
-    await db.update(schema.userStreaks)
-      .set({ currentStreak: 0, lastSuccessDate: null, updatedAt: new Date() })
-      .where(eq(schema.userStreaks.userId, userId))
-    return buildStreakState(0, 0, null)
-  }
-
-  const dates = successDays.map(d => d.dateKey)
-  const { current: currentStreak, longest: longestStreak, lastDate } = calculateStreaksFromDates(dates)
+  const resolved = resolveStreakFromDailyResults(
+    dailyResults.map(row => ({
+      dateKey: row.dateKey,
+      status: row.status as DailyResultStatus,
+    })),
+  )
 
   const [streakRow] = await db
     .select()
@@ -197,18 +232,18 @@ async function recalculateStreakFromHistory(userId: string) {
     .where(eq(schema.userStreaks.userId, userId))
     .limit(1)
 
-  const longest = Math.max(streakRow?.longestStreak ?? 0, longestStreak)
+  const longestStreak = Math.max(streakRow?.longestStreak ?? 0, resolved.longestStreak)
 
   await db.update(schema.userStreaks)
     .set({
-      currentStreak,
-      longestStreak: longest,
-      lastSuccessDate: lastDate,
+      currentStreak: resolved.currentStreak,
+      longestStreak,
+      lastSuccessDate: resolved.lastSuccessDate,
       updatedAt: new Date(),
     })
     .where(eq(schema.userStreaks.userId, userId))
 
-  return buildStreakState(currentStreak, longest, lastDate)
+  return buildStreakState(resolved.currentStreak, longestStreak, resolved.lastSuccessDate)
 }
 
 async function awardMilestoneIfNeeded(userId: string, currentStreak: number): Promise<{
@@ -317,6 +352,47 @@ export async function getStreakForUser(userId: string): Promise<StreakState> {
   return buildStreakState(row.currentStreak, row.longestStreak, row.lastSuccessDate)
 }
 
+export async function processStreaksForUser(userId: string, timezone: string) {
+  const db = useDatabase()
+  const userToday = getTodayInTimezone(timezone)
+  let processed = 0
+
+  const datesWithOccurrences = await db
+    .selectDistinct({ dueDate: schema.occurrences.dueDate })
+    .from(schema.occurrences)
+    .where(and(
+      eq(schema.occurrences.userId, userId),
+      lt(schema.occurrences.dueDate, userToday),
+    ))
+    .orderBy(schema.occurrences.dueDate)
+
+  for (const { dueDate } of datesWithOccurrences) {
+    const evaluation = await evaluateDayForUser(userId, dueDate)
+    if (evaluation.totalOccurrences === 0) continue
+
+    const [existing] = await db
+      .select()
+      .from(schema.userDailyResults)
+      .where(and(
+        eq(schema.userDailyResults.userId, userId),
+        eq(schema.userDailyResults.dateKey, dueDate),
+      ))
+      .limit(1)
+
+    if (existing?.status === 'success' || existing?.status === 'failed') continue
+
+    if (evaluation.status === 'neutral') {
+      await closePendingDayAsFailed(userId, dueDate, timezone)
+    } else {
+      await updateStreakForDate(userId, dueDate, timezone)
+    }
+
+    processed++
+  }
+
+  return processed
+}
+
 export async function processStreaksAfterExpiration() {
   const db = useDatabase()
 
@@ -328,30 +404,7 @@ export async function processStreaksAfterExpiration() {
   let processed = 0
 
   for (const user of users) {
-    const userToday = getTodayInTimezone(user.timezone)
-    const userYesterday = format(addDays(parseISO(userToday), -1), 'yyyy-MM-dd')
-
-    const evaluation = await evaluateDayForUser(user.id, userYesterday)
-    if (evaluation.totalOccurrences === 0) continue
-
-    const [existing] = await db
-      .select()
-      .from(schema.userDailyResults)
-      .where(and(
-        eq(schema.userDailyResults.userId, user.id),
-        eq(schema.userDailyResults.dateKey, userYesterday),
-      ))
-      .limit(1)
-
-    if (existing?.status === 'success' || existing?.status === 'failed') continue
-
-    if (evaluation.status === 'neutral') {
-      await closePendingDayAsFailed(user.id, userYesterday, user.timezone)
-    } else {
-      await updateStreakForDate(user.id, userYesterday, user.timezone)
-    }
-
-    processed++
+    processed += await processStreaksForUser(user.id, user.timezone)
   }
 
   return processed
@@ -402,10 +455,21 @@ export async function closePendingDayAsFailed(userId: string, dateKey: string, t
       target: [schema.userDailyResults.userId, schema.userDailyResults.dateKey],
       set: {
         status: 'failed',
+        totalOccurrences: failedEvaluation.totalOccurrences,
+        completedOccurrences: failedEvaluation.completedOccurrences,
         failedOccurrences: failedEvaluation.failedOccurrences,
         evaluatedAt: new Date(),
       },
     })
 
-  return updateStreakForDate(userId, dateKey, timezone)
+  const streak = await recalculateStreakFromHistory(userId)
+
+  return {
+    dailyPerfect: false,
+    dayStatus: 'failed' as const,
+    dateKey,
+    streak,
+    bonusAwarded: null,
+    milestoneReached: null,
+  }
 }

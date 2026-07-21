@@ -1,11 +1,131 @@
-import { eq, and, lte, inArray } from 'drizzle-orm'
+import { eq, and, lte } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { useDatabase, schema } from '../database'
 import { triggerConsequencesOnFailure } from './consequences-service'
-import { reevaluateUserDay } from './streaks'
+import { processStreaksForUser, reevaluateUserDay } from './streaks'
 import { acquireLock, releaseLock } from './redis'
 
 type Db = PostgresJsDatabase<typeof schema>
+
+type ExpiredOccurrenceRow = {
+  occurrence: typeof schema.occurrences.$inferSelect
+  goal: typeof schema.goals.$inferSelect
+}
+
+async function fetchExpiredOccurrences(db: Db, userId?: string, now = new Date()) {
+  const conditions = [
+    eq(schema.occurrences.status, 'pending'),
+    lte(schema.occurrences.dueAt, now),
+    eq(schema.goals.isActive, true),
+  ]
+
+  if (userId) {
+    conditions.push(eq(schema.occurrences.userId, userId))
+  }
+
+  return db
+    .select({
+      occurrence: schema.occurrences,
+      goal: schema.goals,
+    })
+    .from(schema.occurrences)
+    .innerJoin(schema.goals, eq(schema.occurrences.goalId, schema.goals.id))
+    .where(and(...conditions))
+}
+
+async function markExpiredOccurrencesAsFailed(
+  db: Db,
+  expired: ExpiredOccurrenceRow[],
+  timezoneByUserId = new Map<string, string>(),
+) {
+  const now = new Date()
+  let processed = 0
+
+  for (const { occurrence, goal } of expired) {
+    let failed = false
+
+    await db.transaction(async (tx) => {
+      const [current] = await tx
+        .select()
+        .from(schema.occurrences)
+        .where(and(
+          eq(schema.occurrences.id, occurrence.id),
+          eq(schema.occurrences.status, 'pending'),
+        ))
+        .for('update')
+
+      if (!current) return
+
+      await tx
+        .update(schema.occurrences)
+        .set({ status: 'failed', processedAt: now })
+        .where(eq(schema.occurrences.id, occurrence.id))
+
+      failed = true
+      processed++
+    })
+
+    if (!failed) continue
+
+    await triggerConsequencesOnFailure({
+      userId: occurrence.userId,
+      goalId: goal.id,
+      occurrenceId: occurrence.id,
+    })
+
+    let timezone = timezoneByUserId.get(occurrence.userId)
+    if (!timezone) {
+      const [user] = await db
+        .select({ timezone: schema.users.timezone })
+        .from(schema.users)
+        .where(eq(schema.users.id, occurrence.userId))
+        .limit(1)
+      timezone = user?.timezone
+      if (timezone) {
+        timezoneByUserId.set(occurrence.userId, timezone)
+      }
+    }
+
+    if (timezone) {
+      await reevaluateUserDay(occurrence.userId, occurrence.dueDate, timezone)
+    }
+  }
+
+  return processed
+}
+
+export async function processExpiredOccurrencesForUser(userId: string) {
+  const db = useDatabase()
+  const [user] = await db
+    .select({ timezone: schema.users.timezone })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .limit(1)
+
+  const timezoneByUserId = new Map<string, string>()
+  if (user?.timezone) {
+    timezoneByUserId.set(userId, user.timezone)
+  }
+
+  const expired = await fetchExpiredOccurrences(db, userId)
+  const processed = await markExpiredOccurrencesAsFailed(db, expired, timezoneByUserId)
+
+  return { processed, skipped: false }
+}
+
+export async function syncUserDeadlines(userId: string, timezone: string) {
+  try {
+    const expired = await processExpiredOccurrencesForUser(userId)
+    const streaks = await processStreaksForUser(userId, timezone)
+    return { expired, streaks }
+  } catch (error) {
+    console.error('[syncUserDeadlines] Failed:', error)
+    return {
+      expired: { processed: 0, skipped: true },
+      streaks: 0,
+    }
+  }
+}
 
 export async function processExpiredOccurrences() {
   const lockKey = 'worker:deadlines'
@@ -14,65 +134,8 @@ export async function processExpiredOccurrences() {
 
   try {
     const db = useDatabase()
-    const now = new Date()
-
-    const expired = await db
-      .select({
-        occurrence: schema.occurrences,
-        goal: schema.goals,
-      })
-      .from(schema.occurrences)
-      .innerJoin(schema.goals, eq(schema.occurrences.goalId, schema.goals.id))
-      .where(and(
-        eq(schema.occurrences.status, 'pending'),
-        lte(schema.occurrences.dueAt, now),
-        eq(schema.goals.isActive, true),
-      ))
-
-    let processed = 0
-
-    for (const { occurrence, goal } of expired) {
-      let failed = false
-
-      await db.transaction(async (tx) => {
-        const [current] = await tx
-          .select()
-          .from(schema.occurrences)
-          .where(and(
-            eq(schema.occurrences.id, occurrence.id),
-            eq(schema.occurrences.status, 'pending'),
-          ))
-          .for('update')
-
-        if (!current) return
-
-        await tx
-          .update(schema.occurrences)
-          .set({ status: 'failed', processedAt: now })
-          .where(eq(schema.occurrences.id, occurrence.id))
-
-        failed = true
-        processed++
-      })
-
-      if (failed) {
-        await triggerConsequencesOnFailure({
-          userId: occurrence.userId,
-          goalId: goal.id,
-          occurrenceId: occurrence.id,
-        })
-        const [user] = await db
-          .select({ timezone: schema.users.timezone })
-          .from(schema.users)
-          .where(eq(schema.users.id, occurrence.userId))
-          .limit(1)
-
-        if (user) {
-          await reevaluateUserDay(occurrence.userId, occurrence.dueDate, user.timezone)
-        }
-      }
-    }
-
+    const expired = await fetchExpiredOccurrences(db)
+    const processed = await markExpiredOccurrencesAsFailed(db, expired)
     return { processed, skipped: false }
   } finally {
     await releaseLock(lockKey)

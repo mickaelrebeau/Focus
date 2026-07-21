@@ -43,7 +43,7 @@ const statusClass = computed(() => {
   switch (props.occurrence.status) {
     case 'completed': return 'text-emerald-600'
     case 'failed': return 'text-red-500'
-    case 'pending': return isOverdue.value ? 'text-amber-600' : 'text-app-blue'
+    case 'pending': return isOverdue.value ? 'text-amber-600' : 'text-app-secondary'
     default: return 'text-app-secondary'
   }
 })
@@ -67,7 +67,7 @@ const dueLabel = computed(() =>
     <button
       v-if="occurrence.status === 'pending'"
       type="button"
-      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-app-muted text-app-blue transition hover:border-app-blue hover:bg-app-mist focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-app-mist active:scale-95"
+      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-app-line text-app-ink transition hover:border-app-ink hover:bg-app-mist focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-200 active:scale-95"
       :aria-label="`Valider ${occurrence.goal.title}`"
       @click="emit('complete', occurrence.id)"
     >

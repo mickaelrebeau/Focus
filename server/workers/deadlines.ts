@@ -15,15 +15,24 @@ const queue = new Queue('focus-deadlines', { connection })
 
 async function runTick() {
   console.log('[Worker] Processing deadlines...')
-  const expired = await processExpiredOccurrences()
-  const generated = await generateUpcomingOccurrences()
-  const streaks = await processStreaksAfterExpiration()
-  const leaderboard = await runLeaderboardJobs()
-  console.log('[Worker] Done:', { expired, generated, streaks, leaderboard })
+  try {
+    const expired = await processExpiredOccurrences()
+    const generated = await generateUpcomingOccurrences()
+    const streaks = await processStreaksAfterExpiration()
+    const leaderboard = await runLeaderboardJobs()
+    console.log('[Worker] Done:', { expired, generated, streaks, leaderboard })
+  } catch (error) {
+    console.error('[Worker] Tick failed:', error)
+    throw error
+  }
 }
 
 const worker = new Worker('focus-deadlines', async () => {
-  await runTick()
+  try {
+    await runTick()
+  } catch (error) {
+    console.error('[Worker] Job error:', error)
+  }
 }, { connection })
 
 worker.on('completed', (job) => {
