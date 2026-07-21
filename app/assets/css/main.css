@@ -137,7 +137,7 @@
 
   .app-sheet {
     @apply rounded-app-card border border-app-line/70 bg-app-surface;
-    box-shadow: 0 12px 40px rgba(38, 59, 116, 0.055);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.055);
   }
 
   .app-card {
@@ -157,7 +157,7 @@
   }
 
   .app-input {
-    @apply w-full rounded-app-control border border-app-line bg-white px-4 py-3.5 text-base text-app-ink outline-none transition placeholder:text-slate-300 focus:border-app-muted focus:ring-4 focus:ring-app-mist disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400;
+    @apply w-full rounded-app-control border border-app-line bg-white px-4 py-3.5 text-base text-app-ink outline-none transition placeholder:text-slate-300 focus:border-app-ink focus:ring-4 focus:ring-slate-200 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400;
   }
 
   .app-button {
@@ -218,7 +218,7 @@
 
   .app-nav-item-active {
     @apply bg-app-blue text-white;
-    box-shadow: 0 4px 14px rgba(49, 92, 255, 0.28);
+    box-shadow: 0 4px 14px rgba(17, 24, 39, 0.22);
   }
 
   .app-nav-shell {
@@ -230,10 +230,10 @@
     background: rgba(255, 255, 255, 0.52);
     border: 1px solid rgba(255, 255, 255, 0.72);
     box-shadow:
-      0 12px 36px rgba(30, 55, 115, 0.14),
-      0 2px 8px rgba(30, 55, 115, 0.06),
+      0 12px 36px rgba(0, 0, 0, 0.12),
+      0 2px 8px rgba(0, 0, 0, 0.05),
       inset 0 1px 0 rgba(255, 255, 255, 0.88),
-      inset 0 -0.5px 0 rgba(49, 92, 255, 0.04);
+      inset 0 -0.5px 0 rgba(0, 0, 0, 0.04);
     -webkit-backdrop-filter: saturate(180%) blur(28px);
     backdrop-filter: saturate(180%) blur(28px);
   }
@@ -277,7 +277,7 @@
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .app-nav-glass {
     background: rgba(255, 255, 255, 0.92);
-    border-color: rgba(228, 233, 244, 0.9);
+    border-color: rgba(232, 232, 237, 0.9);
   }
 }
 

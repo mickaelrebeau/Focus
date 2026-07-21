@@ -149,7 +149,7 @@ onUnmounted(() => {
 
 useHead({
   meta: [
-    { name: 'theme-color', content: '#F5F7FC' },
+    { name: 'theme-color', content: '#FAFAFA' },
     { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
   ],
 })

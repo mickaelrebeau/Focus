@@ -2,9 +2,11 @@ import { eq, and, gte, lte, desc } from 'drizzle-orm'
 import { getUserFromEvent, requireAuth } from '../../utils/auth'
 import { useDatabase, schema } from '../../database'
 import { getTodayInTimezone } from '../../utils/occurrences'
+import { syncUserDeadlines } from '../../utils/goals-service'
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(await getUserFromEvent(event))
+  await syncUserDeadlines(user.id, user.timezone)
   const query = getQuery(event)
   const db = useDatabase()
 

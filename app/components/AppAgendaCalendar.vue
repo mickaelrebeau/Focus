@@ -86,7 +86,7 @@ function dayDots(summary?: CalendarDaySummary) {
 }
 
 const dotClass: Record<string, string> = {
-  pending: 'bg-app-muted',
+  pending: 'bg-slate-400',
   overdue: 'bg-amber-500',
   completed: 'bg-emerald-500',
   failed: 'bg-red-500',
@@ -111,7 +111,7 @@ const dotClass: Record<string, string> = {
         </p>
         <button
           type="button"
-          class="mt-1 text-xs font-semibold text-app-blue"
+          class="mt-1 text-xs font-semibold text-app-ink"
           @click="goToToday"
         >
           Aujourd'hui
@@ -149,10 +149,10 @@ const dotClass: Record<string, string> = {
             ? 'text-app-ink hover:bg-app-mist/55'
             : 'text-slate-300 hover:bg-app-mist/30',
           isSameDay(day, selectedDateObj) && isSameMonth(day, month)
-            ? '!bg-app-blue !text-white hover:!brightness-105'
+            ? '!bg-app-ink !text-white hover:!brightness-105'
             : '',
           isToday(day) && !isSameDay(day, selectedDateObj)
-            ? 'ring-1 ring-inset ring-app-blue/50'
+            ? 'ring-1 ring-inset ring-app-ink/35'
             : '',
         ]"
         @click="selectDay(day)"
@@ -182,7 +182,7 @@ const dotClass: Record<string, string> = {
 
     <div class="flex flex-wrap items-center justify-center gap-4 px-4 py-3 text-[11px] text-app-secondary">
       <span class="inline-flex items-center gap-1.5">
-        <span class="h-1.5 w-1.5 rounded-full bg-app-muted" /> À faire
+        <span class="h-1.5 w-1.5 rounded-full bg-slate-400" /> À faire
       </span>
       <span class="inline-flex items-center gap-1.5">
         <span class="h-1.5 w-1.5 rounded-full bg-amber-500" /> En retard

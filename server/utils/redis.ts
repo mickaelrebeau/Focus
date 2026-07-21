@@ -2,11 +2,26 @@ import Redis from 'ioredis'
 
 let redis: Redis | null = null
 
+export function resolveRedisUrl(): string {
+  if (process.env.REDIS_URL) {
+    return process.env.REDIS_URL
+  }
+
+  try {
+    const config = useRuntimeConfig()
+    if (config.redisUrl) {
+      return config.redisUrl
+    }
+  } catch {
+    // Hors contexte Nitro (workers standalone)
+  }
+
+  return 'redis://localhost:6379'
+}
+
 export function useRedis() {
   if (!redis) {
-    const config = useRuntimeConfig()
-    const url = config.redisUrl || 'redis://localhost:6379'
-    redis = new Redis(url, {
+    redis = new Redis(resolveRedisUrl(), {
       maxRetriesPerRequest: null,
       lazyConnect: true,
     })
@@ -43,11 +58,20 @@ export async function redisDel(key: string): Promise<void> {
 }
 
 export async function acquireLock(key: string, ttlMs = 30000): Promise<boolean> {
-  const r = useRedis()
-  const result = await r.set(`lock:${key}`, '1', 'PX', ttlMs, 'NX')
-  return result === 'OK'
+  try {
+    const r = useRedis()
+    const result = await r.set(`lock:${key}`, '1', 'PX', ttlMs, 'NX')
+    return result === 'OK'
+  } catch (error) {
+    console.error('[redis] acquireLock failed:', error)
+    return false
+  }
 }
 
 export async function releaseLock(key: string): Promise<void> {
-  await redisDel(`lock:${key}`)
+  try {
+    await redisDel(`lock:${key}`)
+  } catch (error) {
+    console.error('[redis] releaseLock failed:', error)
+  }
 }
