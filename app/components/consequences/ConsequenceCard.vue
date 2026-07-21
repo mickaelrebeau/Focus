@@ -133,11 +133,11 @@ function onToggle(value: boolean) {
 </script>
 
 <template>
-  <div class="rounded-focus border border-focus-gray-200 bg-white">
-    <div class="flex items-start gap-3 border-b border-focus-gray-100 p-4">
+  <div class="app-sheet overflow-hidden">
+    <div class="flex items-start gap-3 border-b border-app-line/60 p-4">
       <button
         type="button"
-        class="drag-handle mt-1 cursor-grab touch-none text-lg text-focus-gray-300 active:cursor-grabbing"
+        class="drag-handle mt-1 cursor-grab touch-none text-lg text-slate-300 active:cursor-grabbing"
         aria-label="Réordonner"
       >
         ⋮⋮
@@ -145,15 +145,17 @@ function onToggle(value: boolean) {
 
       <div class="min-w-0 flex-1">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-lg">{{ typeInfo?.icon ?? '◈' }}</span>
-          <h3 class="text-sm font-semibold text-focus-gray-900">
+          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-app-mist text-sm text-app-blue">
+            {{ typeInfo?.icon ?? '◈' }}
+          </span>
+          <h3 class="text-sm font-semibold text-app-ink">
             {{ typeInfo?.name ?? consequence.type }}
           </h3>
-          <UiBadge :variant="consequence.enabled ? 'success' : 'neutral'">
+          <AppUiBadge :variant="consequence.enabled ? 'success' : 'neutral'">
             {{ consequence.enabled ? 'Active' : 'Inactive' }}
-          </UiBadge>
+          </AppUiBadge>
         </div>
-        <p class="mt-1 text-xs text-focus-gray-400">
+        <p class="mt-1 text-xs text-app-secondary">
           {{ typeInfo?.description }}
         </p>
       </div>
@@ -161,7 +163,7 @@ function onToggle(value: boolean) {
       <div class="flex shrink-0 flex-col gap-1 sm:flex-row">
         <button
           type="button"
-          class="rounded-focus px-2 py-1 text-xs text-focus-gray-400 hover:bg-focus-gray-50 hover:text-focus-gray-700 disabled:opacity-30"
+          class="flex h-9 w-9 items-center justify-center rounded-full text-app-secondary hover:bg-app-mist hover:text-app-ink disabled:opacity-30"
           :disabled="isFirst"
           aria-label="Monter"
           @click="emit('moveUp')"
@@ -170,7 +172,7 @@ function onToggle(value: boolean) {
         </button>
         <button
           type="button"
-          class="rounded-focus px-2 py-1 text-xs text-focus-gray-400 hover:bg-focus-gray-50 hover:text-focus-gray-700 disabled:opacity-30"
+          class="flex h-9 w-9 items-center justify-center rounded-full text-app-secondary hover:bg-app-mist hover:text-app-ink disabled:opacity-30"
           :disabled="isLast"
           aria-label="Descendre"
           @click="emit('moveDown')"
@@ -183,28 +185,28 @@ function onToggle(value: boolean) {
     <div class="space-y-4 p-4">
       <div
         v-if="requiresPaymentMethod && !hasPaymentMethod"
-        class="rounded-focus border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        class="rounded-app-control bg-app-mist px-4 py-3 text-sm"
       >
-        <p class="font-medium">Carte bancaire requise</p>
-        <p class="mt-1 text-xs text-amber-800">
+        <p class="font-semibold text-app-blue">Carte bancaire requise</p>
+        <p class="mt-1 text-xs text-app-secondary">
           Cette conséquence nécessite une carte enregistrée dans vos réglages.
         </p>
         <NuxtLink
           to="/app/reglages#paiement"
-          class="mt-2 inline-flex text-xs font-medium text-focus-accent hover:opacity-80"
+          class="mt-2 inline-flex text-xs font-semibold text-app-blue"
         >
           Configurer ma carte →
         </NuxtLink>
       </div>
 
-      <UiToggle
+      <AppUiToggle
         :model-value="enabled"
         label="Activer cette conséquence"
         :description="`Priorité ${consequence.priority + 1}`"
         @update:model-value="onToggle"
       />
 
-      <UiInput
+      <AppUiInput
         v-if="showAmount"
         v-model.number="amountEuros"
         :label="amountLabel"
@@ -214,7 +216,7 @@ function onToggle(value: boolean) {
       />
 
       <div v-if="consequence.type === 'donation'" class="space-y-3">
-        <UiSelect
+        <AppUiSelect
           v-model="association"
           label="Association"
         >
@@ -225,11 +227,11 @@ function onToggle(value: boolean) {
           >
             {{ item.label }}
           </option>
-        </UiSelect>
+        </AppUiSelect>
 
         <div
           v-if="selectedAssociation"
-          class="flex items-center gap-3 rounded-focus border border-focus-gray-100 bg-focus-gray-50 px-3 py-2"
+          class="flex items-center gap-3 rounded-app-control bg-app-canvas px-3 py-2"
         >
           <AssociationLogo
             :name="selectedAssociation.label"
@@ -237,10 +239,10 @@ function onToggle(value: boolean) {
             size="sm"
           />
           <div class="min-w-0">
-            <p class="text-sm font-medium text-focus-gray-900">{{ selectedAssociation.label }}</p>
+            <p class="text-sm font-semibold text-app-ink">{{ selectedAssociation.label }}</p>
             <p
               v-if="selectedAssociation.description"
-              class="truncate text-xs text-focus-gray-500"
+              class="truncate text-xs text-app-secondary"
             >
               {{ selectedAssociation.description }}
             </p>
@@ -248,7 +250,7 @@ function onToggle(value: boolean) {
         </div>
       </div>
 
-      <UiInput
+      <AppUiInput
         v-if="consequence.type === 'random-user'"
         v-model.number="minimumScore"
         label="Score net minimum du destinataire"
@@ -257,7 +259,7 @@ function onToggle(value: boolean) {
         :step="1"
       />
 
-      <UiInput
+      <AppUiInput
         v-if="consequence.type === 'custom'"
         v-model="customMessage"
         label="Message d'engagement"
@@ -268,29 +270,29 @@ function onToggle(value: boolean) {
 
       <div
         v-if="estimate"
-        class="rounded-focus bg-focus-gray-50 px-4 py-3 text-sm"
+        class="rounded-app-control bg-app-canvas px-4 py-3 text-sm"
       >
-        <p class="font-medium text-focus-gray-900">{{ estimate.label }}</p>
-        <p class="mt-1 text-xs text-focus-gray-500">{{ estimate.description }}</p>
+        <p class="font-semibold text-app-ink">{{ estimate.label }}</p>
+        <p class="mt-1 text-xs text-app-secondary">{{ estimate.description }}</p>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
-        <UiButton
+        <AppUiButton
           variant="secondary"
           :loading="saving"
           @click="saveChanges"
         >
           Enregistrer
-        </UiButton>
-        <UiButton
+        </AppUiButton>
+        <AppUiButton
           v-if="consequence.type !== 'credits'"
           variant="ghost"
           class="text-red-500"
           @click="emit('remove')"
         >
           Supprimer
-        </UiButton>
-        <span class="text-xs text-focus-gray-400">
+        </AppUiButton>
+        <span class="text-xs text-app-secondary">
           Actuel : {{ amountDisplay }}
         </span>
       </div>

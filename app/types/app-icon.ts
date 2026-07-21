@@ -1,0 +1,13 @@
+export type AppIconName =
+  | 'today'
+  | 'goals'
+  | 'agenda'
+  | 'history'
+  | 'ranking'
+  | 'heart'
+  | 'settings'
+  | 'bolt'
+  | 'plus'
+  | 'check'
+  | 'close'
+  | 'menu'
