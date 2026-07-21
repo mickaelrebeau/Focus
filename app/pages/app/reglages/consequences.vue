@@ -145,45 +145,45 @@ async function handleReorder(orderedIds: string[]) {
 </script>
 
 <template>
-  <div class="p-5 md:p-8">
+  <div class="app-page animate-fade-in">
     <div class="mb-6">
       <NuxtLink
         to="/app/reglages"
-        class="mb-3 inline-flex text-sm text-focus-gray-400 hover:text-focus-gray-700"
+        class="mb-3 inline-flex text-sm font-medium text-app-secondary hover:text-app-blue"
       >
-        ← Retour aux réglages
+        ← Réglages
       </NuxtLink>
-      <h1 class="focus-heading-lg">Conséquences</h1>
-      <p class="focus-body-sm mt-1">
-        Configurez ce qui se passe automatiquement lorsqu'un objectif échoue.
+      <p class="app-eyebrow">Automatisations</p>
+      <h1 class="app-heading mt-1">Conséquences</h1>
+      <p class="mt-1 text-sm text-app-secondary">
+        Ce qui se passe automatiquement lorsqu'un objectif échoue.
       </p>
     </div>
 
-    <UiCard class="mb-6">
-      <p class="text-sm text-focus-gray-500">
-        Les conséquences actives sont exécutées dans l'ordre de priorité.
-        Faites glisser les cartes ou utilisez les flèches pour réorganiser.
+    <div class="app-sheet mb-4 p-5">
+      <p class="text-sm text-app-secondary">
+        Les conséquences actives s'exécutent dans l'ordre de priorité.
+        Utilisez les flèches pour réorganiser.
       </p>
-    </UiCard>
+    </div>
 
-    <UiCard
+    <div
       v-if="!user?.hasPaymentMethod"
-      class="mb-6 border-amber-200 bg-amber-50"
+      class="mb-4 rounded-app-card bg-app-mist p-5"
     >
-      <p class="text-sm font-medium text-amber-900">Carte bancaire requise</p>
-      <p class="mt-1 text-sm text-amber-800">
-        Les conséquences monétaires (cagnotte, don, utilisateur aléatoire, Stripe)
-        nécessitent une carte enregistrée dans vos réglages.
+      <p class="text-sm font-semibold text-app-blue">Carte bancaire requise</p>
+      <p class="mt-1 text-sm text-app-secondary">
+        Les conséquences monétaires (don, Stripe) nécessitent une carte enregistrée.
       </p>
       <NuxtLink
         to="/app/reglages#paiement"
-        class="mt-3 inline-flex text-sm font-medium text-focus-accent hover:opacity-80"
+        class="mt-3 inline-flex text-sm font-semibold text-app-blue"
       >
         Configurer ma carte →
       </NuxtLink>
-    </UiCard>
+    </div>
 
-    <div v-if="isLoading" class="py-12 text-center text-sm text-focus-gray-400">
+    <div v-if="isLoading" class="py-12 text-center text-sm text-app-secondary">
       Chargement...
     </div>
 
@@ -199,11 +199,11 @@ async function handleReorder(orderedIds: string[]) {
         @reorder="handleReorder"
       />
 
-      <UiCard v-else title="Aucune conséquence">
-        <p class="text-sm text-focus-gray-500">
+      <AppUiCard v-else title="Aucune conséquence">
+        <p class="text-sm text-app-secondary">
           Ajoutez votre première conséquence pour personnaliser les pénalités d'échec.
         </p>
-      </UiCard>
+      </AppUiCard>
 
       <ConsequenceTypePicker
         class="mt-6"

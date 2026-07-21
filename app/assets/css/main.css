@@ -110,6 +110,143 @@
   .focus-nav-item-active {
     @apply text-focus-gray-900;
   }
+
+  .app-shell {
+    @apply min-h-dvh bg-app-canvas text-app-ink;
+  }
+
+  .app-page {
+    @apply mx-auto w-full max-w-6xl px-5 pb-8 pt-6 md:px-8 md:pt-9;
+  }
+
+  .app-heading {
+    @apply text-[2rem] font-semibold leading-tight tracking-[-0.035em] text-app-ink md:text-4xl;
+  }
+
+  .app-section-title {
+    @apply text-lg font-semibold tracking-[-0.02em] text-app-ink;
+  }
+
+  .app-eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-app-blue;
+  }
+
+  .app-muted {
+    @apply text-sm leading-relaxed text-app-secondary;
+  }
+
+  .app-sheet {
+    @apply rounded-app-card border border-app-line/70 bg-app-surface;
+    box-shadow: 0 12px 40px rgba(38, 59, 116, 0.055);
+  }
+
+  .app-card {
+    @apply app-sheet p-5 md:p-6;
+  }
+
+  .app-row {
+    @apply rounded-app-control border border-app-line/60 bg-app-surface px-4 py-4 transition duration-200 active:scale-[0.99];
+  }
+
+  .app-chip {
+    @apply inline-flex min-h-8 items-center gap-1.5 rounded-full bg-app-mist px-3 py-1.5 text-xs font-semibold text-app-blue;
+  }
+
+  .app-chip-neutral {
+    @apply inline-flex min-h-8 items-center gap-1.5 rounded-full bg-white/75 px-3 py-1.5 text-xs font-medium text-app-secondary ring-1 ring-inset ring-app-line/70;
+  }
+
+  .app-input {
+    @apply w-full rounded-app-control border border-app-line bg-white px-4 py-3.5 text-base text-app-ink outline-none transition placeholder:text-slate-300 focus:border-app-muted focus:ring-4 focus:ring-app-mist disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400;
+  }
+
+  .app-button {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .app-button-primary {
+    @apply app-button bg-app-blue text-white shadow-sm hover:brightness-105;
+  }
+
+  .app-button-secondary {
+    @apply app-button bg-white text-app-ink ring-1 ring-inset ring-app-line hover:bg-app-mist/45;
+  }
+
+  .app-button-ghost {
+    @apply app-button text-app-secondary hover:bg-white/70 hover:text-app-ink;
+  }
+
+  .app-badge {
+    @apply inline-flex min-h-6 items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  .app-badge-neutral {
+    @apply app-badge bg-app-mist text-app-blue;
+  }
+
+  .app-badge-success {
+    @apply app-badge bg-emerald-50 text-emerald-700;
+  }
+
+  .app-badge-warning {
+    @apply app-badge bg-amber-50 text-amber-700;
+  }
+
+  .app-badge-danger {
+    @apply app-badge bg-red-50 text-red-700;
+  }
+
+  .app-progress {
+    @apply h-1.5 overflow-hidden rounded-full bg-app-line;
+  }
+
+  .app-progress-bar {
+    @apply h-full origin-left rounded-full bg-app-blue transition-all duration-700 ease-out;
+  }
+
+  .app-sidebar-link {
+    @apply flex min-h-11 items-center gap-3 rounded-app-control px-3 py-2.5 text-sm font-medium text-app-secondary transition hover:bg-app-mist/65 hover:text-app-ink;
+  }
+
+  .app-sidebar-link-active {
+    @apply !bg-app-mist !font-semibold !text-app-blue;
+  }
+
+  .app-nav-item {
+    @apply flex min-h-12 min-w-[4.25rem] flex-col items-center justify-center gap-0.5 rounded-full px-2 py-1.5 text-xs font-medium text-slate-500 transition duration-200;
+  }
+
+  .app-nav-item-active {
+    @apply bg-app-blue text-white;
+    box-shadow: 0 4px 14px rgba(49, 92, 255, 0.28);
+  }
+
+  .app-nav-shell {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .app-nav-glass {
+    @apply mx-4 flex items-center justify-around gap-0.5 rounded-full px-1.5 py-1.5;
+    background: rgba(255, 255, 255, 0.52);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow:
+      0 12px 36px rgba(30, 55, 115, 0.14),
+      0 2px 8px rgba(30, 55, 115, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.88),
+      inset 0 -0.5px 0 rgba(49, 92, 255, 0.04);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    backdrop-filter: saturate(180%) blur(28px);
+  }
+
+  .app-list-stagger > * {
+    animation: appRowIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .app-list-stagger > *:nth-child(2) { animation-delay: 0.035s; }
+  .app-list-stagger > *:nth-child(3) { animation-delay: 0.07s; }
+  .app-list-stagger > *:nth-child(4) { animation-delay: 0.105s; }
+  .app-list-stagger > *:nth-child(5) { animation-delay: 0.14s; }
+  .app-list-stagger > *:nth-child(6) { animation-delay: 0.175s; }
 }
 
 @layer utilities {
@@ -123,5 +260,36 @@
 
   .pt-safe {
     padding-top: max(0px, env(safe-area-inset-top));
+  }
+}
+
+@keyframes appRowIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .app-nav-glass {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(228, 233, 244, 0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *,
+  .app-shell *::before,
+  .app-shell *::after,
+  .app-overlay,
+  .app-overlay * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

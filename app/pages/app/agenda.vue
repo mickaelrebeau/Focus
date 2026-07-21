@@ -115,32 +115,32 @@ function openComplete(id: string) {
 </script>
 
 <template>
-  <div class="p-5 md:p-8">
-    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h1 class="focus-heading-lg">Agenda</h1>
-        <p class="focus-body-sm mt-1">
-          {{ monthOccurrenceCount }} échéance{{ monthOccurrenceCount > 1 ? 's' : '' }} ce mois-ci
-        </p>
-      </div>
+  <div class="app-page animate-fade-in">
+    <div class="mb-6">
+      <p class="app-eyebrow">Vue d'ensemble</p>
+      <h1 class="app-heading mt-1">Agenda</h1>
+      <p class="mt-1 text-sm text-app-secondary">
+        {{ monthOccurrenceCount }} échéance{{ monthOccurrenceCount > 1 ? 's' : '' }} ce mois-ci
+      </p>
     </div>
 
-    <div class="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div class="mb-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <button
         v-for="item in statusFilters"
         :key="item.value"
         type="button"
-        class="shrink-0 rounded-full px-4 py-2 text-sm font-medium transition"
+        class="shrink-0 rounded-full px-4 py-2.5 text-sm font-medium transition"
         :class="statusFilter === item.value
-          ? 'bg-focus-black text-white'
-          : 'bg-focus-gray-100 text-focus-gray-600 hover:bg-focus-gray-200'"
+          ? 'bg-app-blue text-white shadow-sm'
+          : 'bg-white text-app-secondary ring-1 ring-inset ring-app-line'"
+        :aria-pressed="statusFilter === item.value"
         @click="statusFilter = item.value"
       >
         {{ item.label }}
       </button>
     </div>
 
-    <div v-if="isPending" class="focus-card h-80 animate-pulse bg-focus-gray-50" />
+    <div v-if="isPending" class="app-sheet h-80 animate-pulse" />
 
     <template v-else>
       <AppAgendaCalendar
@@ -149,25 +149,27 @@ function openComplete(id: string) {
         :day-summaries="daySummaries"
       />
 
-      <div class="mt-6">
+      <div class="mt-8">
         <div class="mb-4 flex items-center justify-between gap-3">
           <div>
-            <p class="focus-label">Jour sélectionné</p>
-            <h2 class="focus-heading-md capitalize">{{ selectedDayLabel }}</h2>
+            <p class="app-eyebrow">Jour sélectionné</p>
+            <h2 class="app-section-title mt-0.5 capitalize">
+              {{ selectedDayLabel }}
+            </h2>
           </div>
-          <UiBadge variant="neutral">
-            {{ selectedDayOccurrences.length }} échéance{{ selectedDayOccurrences.length > 1 ? 's' : '' }}
-          </UiBadge>
+          <span class="app-chip-neutral">
+            {{ selectedDayOccurrences.length }}
+          </span>
         </div>
 
-        <div v-if="!selectedDayOccurrences.length" class="focus-card py-10 text-center">
-          <p class="text-focus-gray-400">
+        <div v-if="!selectedDayOccurrences.length" class="app-sheet px-6 py-12 text-center">
+          <p class="text-sm text-app-secondary">
             Aucune échéance pour ce jour
             <span v-if="statusFilter !== 'all'"> avec ce filtre</span>.
           </p>
         </div>
 
-        <div v-else class="space-y-4">
+        <div v-else class="app-list-stagger space-y-3">
           <OccurrenceCard
             v-for="occ in selectedDayOccurrences"
             :key="occ.id"

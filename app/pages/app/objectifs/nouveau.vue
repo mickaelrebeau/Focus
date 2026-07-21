@@ -59,11 +59,18 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="p-5 md:p-8">
-    <h1 class="focus-heading-lg">Nouvel objectif</h1>
+  <div class="app-page animate-fade-in">
+    <NuxtLink
+      to="/app/objectifs"
+      class="mb-4 inline-flex text-sm font-medium text-app-secondary hover:text-app-blue"
+    >
+      ← Objectifs
+    </NuxtLink>
+    <p class="app-eyebrow">Créer un engagement</p>
+    <h1 class="app-heading mt-1">Nouvel objectif</h1>
 
-    <div v-if="step === 1" class="mt-8 space-y-4">
-      <p class="focus-body">Quel type d'objectif ?</p>
+    <div v-if="step === 1" class="mt-8 space-y-3">
+      <p class="text-sm text-app-secondary">Quel type d'objectif ?</p>
       <button
         v-for="type in [
           { value: 'recurring', label: 'Récurrent', desc: 'Chaque jour, certains jours ou N fois/semaine' },
@@ -71,59 +78,59 @@ async function handleSubmit() {
           { value: 'project', label: 'Projet', desc: 'Plusieurs jalons à atteindre' },
         ]"
         :key="type.value"
-        class="focus-card w-full text-left transition"
-        :class="{ 'border-focus-gray-900': goalType === type.value }"
+        class="app-row w-full text-left"
+        :class="{ 'ring-2 ring-app-blue/40': goalType === type.value }"
         @click="goalType = type.value as any; step = 2"
       >
-        <h3 class="font-medium text-focus-gray-900">{{ type.label }}</h3>
-        <p class="focus-body-sm mt-1">{{ type.desc }}</p>
+        <h3 class="font-semibold text-app-ink">{{ type.label }}</h3>
+        <p class="mt-1 text-sm text-app-secondary">{{ type.desc }}</p>
       </button>
     </div>
 
     <form v-if="step === 2" class="mt-8 max-w-lg space-y-5" @submit.prevent="handleSubmit">
-      <UiInput v-model="title" label="Titre" required placeholder="Ex: Publier sur X" />
-      <UiInput v-model="description" label="Description" placeholder="Optionnel" />
-      <UiInput v-model="category" label="Catégorie" placeholder="Ex: Réseaux sociaux, Sport..." />
+      <AppUiInput v-model="title" label="Titre" required placeholder="Ex: Publier sur X" />
+      <AppUiInput v-model="description" label="Description" placeholder="Optionnel" />
+      <AppUiInput v-model="category" label="Catégorie" placeholder="Ex: Réseaux sociaux, Sport..." />
 
-      <UiInput v-if="goalType === 'one_time'" v-model="dueDate" label="Date limite" type="date" required />
+      <AppUiInput v-if="goalType === 'one_time'" v-model="dueDate" label="Date limite" type="date" required />
 
       <div v-if="goalType === 'recurring'" class="space-y-4">
         <div>
-          <label class="text-sm font-medium text-focus-gray-700">Fréquence</label>
-          <select v-model="recurrenceType" class="focus-input mt-1.5">
+          <label class="text-sm font-semibold text-app-ink">Fréquence</label>
+          <select v-model="recurrenceType" class="app-input mt-1.5">
             <option value="daily">Tous les jours</option>
             <option value="weekly_days">Certains jours</option>
             <option value="weekly_count">N fois par semaine</option>
           </select>
         </div>
-        <div v-if="recurrenceType === 'weekly_days'" class="flex gap-2">
+        <div v-if="recurrenceType === 'weekly_days'" class="flex flex-wrap gap-2">
           <button
             v-for="(label, i) in dayLabels"
             :key="i"
             type="button"
-            class="flex h-10 w-10 items-center justify-center rounded-full text-xs font-medium transition"
-            :class="daysOfWeek.includes(i) ? 'bg-focus-black text-white' : 'bg-focus-gray-100 text-focus-gray-500'"
+            class="flex h-11 w-11 items-center justify-center rounded-full text-xs font-medium transition"
+            :class="daysOfWeek.includes(i) ? 'bg-app-blue text-white' : 'bg-white text-app-secondary ring-1 ring-inset ring-app-line'"
             @click="toggleDay(i)"
           >
             {{ label }}
           </button>
         </div>
-        <UiInput v-if="recurrenceType === 'weekly_count'" v-model="timesPerWeek" label="Fois par semaine" type="number" />
+        <AppUiInput v-if="recurrenceType === 'weekly_count'" v-model="timesPerWeek" label="Fois par semaine" type="number" />
       </div>
 
       <div v-if="goalType === 'project'" class="space-y-4">
-        <div v-for="(m, i) in milestones" :key="i" class="space-y-2 rounded-focus border border-focus-gray-100 p-4">
-          <UiInput v-model="m.title" :label="`Jalon ${i + 1}`" required />
-          <UiInput v-model="m.dueDate" label="Date" type="date" />
+        <div v-for="(m, i) in milestones" :key="i" class="app-sheet space-y-2 p-4">
+          <AppUiInput v-model="m.title" :label="`Jalon ${i + 1}`" required />
+          <AppUiInput v-model="m.dueDate" label="Date" type="date" />
         </div>
-        <UiButton type="button" variant="secondary" @click="addMilestone">+ Ajouter un jalon</UiButton>
+        <AppUiButton type="button" variant="secondary" @click="addMilestone">+ Ajouter un jalon</AppUiButton>
       </div>
 
       <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
 
       <div class="flex gap-3">
-        <UiButton type="button" variant="secondary" @click="step = 1">Retour</UiButton>
-        <UiButton type="submit" :loading="createGoal.isPending.value">Créer l'objectif</UiButton>
+        <AppUiButton type="button" variant="secondary" @click="step = 1">Retour</AppUiButton>
+        <AppUiButton type="submit" :loading="createGoal.isPending.value">Créer l'objectif</AppUiButton>
       </div>
     </form>
   </div>

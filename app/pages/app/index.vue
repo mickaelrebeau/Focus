@@ -93,129 +93,96 @@ const streakProgressPercent = computed(() => {
 </script>
 
 <template>
-  <div class="p-5 md:p-8">
-    <section class="overflow-hidden rounded-focus-xl border border-focus-gray-200 bg-focus-white shadow-focus">
-      <div class="border-b border-focus-gray-100 bg-gradient-to-br from-focus-gray-900 to-focus-gray-800 px-5 py-6 text-white md:px-8 md:py-8">
-        <p class="text-xs font-medium uppercase tracking-wider text-white/60">Aujourd'hui</p>
-        <h1 class="mt-1 text-2xl font-semibold capitalize md:text-3xl">{{ todayLabel }}</h1>
-        <p class="mt-2 text-sm text-white/70">
-          Bonjour <span class="font-medium text-white">{{ user?.displayName }}</span>
-        </p>
-        <p class="mt-4 max-w-xl text-sm leading-relaxed text-white/80">
-          {{ motivationMessage }}
-        </p>
+  <div class="app-page animate-fade-in">
+    <section class="animate-slide-up">
+      <p class="app-eyebrow">Aujourd'hui</p>
+      <h1 class="app-heading mt-1 capitalize">
+        {{ todayLabel }}
+      </h1>
+      <p class="mt-2 text-base text-app-secondary">
+        Bonjour <span class="font-semibold text-app-ink">{{ user?.displayName }}</span>
+      </p>
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-app-secondary">
+        {{ motivationMessage }}
+      </p>
+
+      <div class="mt-5 flex flex-wrap gap-2">
+        <span class="app-chip">{{ user?.credits ?? 0 }} crédits</span>
+        <span v-if="user?.debt" class="app-chip-neutral !text-red-600">{{ user.debt }} dette</span>
+        <span class="app-chip-neutral">Score {{ user?.netScore ?? 0 }}</span>
       </div>
-
-      <div class="grid divide-y divide-focus-gray-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-        <div class="px-5 py-4 md:px-6">
-          <p class="text-xs uppercase tracking-wide text-focus-gray-400">Crédits</p>
-          <p class="mt-1 text-2xl font-semibold text-focus-gray-900">{{ user?.credits ?? 0 }}</p>
-        </div>
-        <div class="px-5 py-4 md:px-6">
-          <p class="text-xs uppercase tracking-wide text-focus-gray-400">Dette</p>
-          <p class="mt-1 text-2xl font-semibold" :class="user?.debt ? 'text-red-500' : 'text-focus-gray-900'">
-            {{ user?.debt ?? 0 }}
-          </p>
-        </div>
-        <div class="px-5 py-4 md:px-6">
-          <p class="text-xs uppercase tracking-wide text-focus-gray-400">Score net</p>
-          <p class="mt-1 text-2xl font-semibold text-focus-accent">{{ user?.netScore ?? 0 }}</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="mt-6 grid gap-4 lg:grid-cols-3">
-      <UiCard class="lg:col-span-2">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <p class="focus-label">Progression du jour</p>
-            <p class="mt-1 text-lg font-semibold text-focus-gray-900">
-              {{ todayStats.completed }} / {{ todayStats.total }} validée{{ todayStats.completed > 1 ? 's' : '' }}
-            </p>
-          </div>
-          <div class="text-right">
-            <p class="text-2xl font-semibold text-focus-gray-900">{{ progressPercent }}%</p>
-            <p class="text-xs text-focus-gray-400">{{ activeGoalsCount }} objectif{{ activeGoalsCount > 1 ? 's' : '' }} actif{{ activeGoalsCount > 1 ? 's' : '' }}</p>
-          </div>
-        </div>
-
-        <div class="mt-4 h-2 overflow-hidden rounded-full bg-focus-gray-100">
-          <div
-            class="h-full rounded-full bg-focus-black transition-all duration-500"
-            :style="{ width: `${progressPercent}%` }"
-          />
-        </div>
-
-        <div class="mt-4 flex flex-wrap gap-2">
-          <UiBadge v-if="todayStats.pending" variant="neutral">
-            {{ todayStats.pending }} à faire
-          </UiBadge>
-          <UiBadge v-if="todayStats.overdue" variant="warning">
-            {{ todayStats.overdue }} en retard
-          </UiBadge>
-          <UiBadge v-if="todayStats.completed" variant="success">
-            {{ todayStats.completed }} réussie{{ todayStats.completed > 1 ? 's' : '' }}
-          </UiBadge>
-          <UiBadge v-if="todayStats.failed" variant="danger">
-            {{ todayStats.failed }} échouée{{ todayStats.failed > 1 ? 's' : '' }}
-          </UiBadge>
-        </div>
-      </UiCard>
-
-      <UiCard>
-        <p class="focus-label mb-1">Série en cours</p>
-        <p class="text-3xl font-semibold text-focus-gray-900">
-          {{ streakData?.streak?.currentStreak ?? 0 }}
-          <span class="text-base font-normal text-focus-gray-400">jour{{ (streakData?.streak?.currentStreak ?? 0) > 1 ? 's' : '' }}</span>
-        </p>
-        <p class="mt-1 text-xs text-focus-gray-400">
-          Record : {{ streakData?.streak?.longestStreak ?? 0 }} jour{{ (streakData?.streak?.longestStreak ?? 0) > 1 ? 's' : '' }}
-        </p>
-        <div class="mt-4">
-          <div class="mb-1 flex justify-between text-xs text-focus-gray-400">
-            <span>Prochain bonus</span>
-            <span>{{ streakData?.streak?.progressToNext ?? 0 }}/7</span>
-          </div>
-          <div class="h-2 overflow-hidden rounded-full bg-focus-gray-100">
-            <div
-              class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500"
-              :style="{ width: `${streakProgressPercent}%` }"
-            />
-          </div>
-          <p class="mt-2 text-xs text-focus-gray-400">+10 crédits tous les 7 jours réussis</p>
-        </div>
-      </UiCard>
     </section>
 
     <section class="mt-8">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <p class="text-sm font-semibold text-app-ink">
+            {{ todayStats.completed }} / {{ todayStats.total }} validée{{ todayStats.completed > 1 ? 's' : '' }}
+          </p>
+          <p class="mt-0.5 text-xs text-app-secondary">
+            {{ activeGoalsCount }} objectif{{ activeGoalsCount > 1 ? 's' : '' }} · série {{ streakData?.streak?.currentStreak ?? 0 }} j
+          </p>
+        </div>
+        <p class="text-2xl font-semibold tabular-nums text-app-blue">{{ progressPercent }}%</p>
+      </div>
+
+      <div class="app-progress mt-3">
+        <div
+          class="app-progress-bar"
+          :style="{ width: `${progressPercent}%` }"
+        />
+      </div>
+
+      <div class="mt-3 flex items-center justify-between gap-3 text-xs text-app-secondary">
+        <span>Prochain bonus série {{ streakData?.streak?.progressToNext ?? 0 }}/7</span>
+        <div class="h-1 w-20 overflow-hidden rounded-full bg-app-line">
+          <div
+            class="h-full rounded-full bg-app-muted transition-all duration-700"
+            :style="{ width: `${streakProgressPercent}%` }"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10">
       <div class="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 class="focus-heading-md">Échéances du jour</h2>
-          <p class="focus-body-sm mt-1">
+          <h2 class="app-section-title">Échéances</h2>
+          <p class="mt-0.5 text-sm text-app-secondary">
             {{ todayStats.total }} au programme
           </p>
         </div>
-        <NuxtLink to="/app/objectifs/nouveau" class="focus-btn-primary shrink-0 text-xs">
-          + Objectif
+        <NuxtLink
+          to="/app/objectifs/nouveau"
+          class="app-button-primary !px-4"
+          aria-label="Nouvel objectif"
+        >
+          <AppIcon name="plus" class="h-4 w-4" />
+          <span>Objectif</span>
         </NuxtLink>
       </div>
 
-      <div v-if="occurrencesLoading" class="space-y-4">
-        <div v-for="i in 3" :key="i" class="focus-card h-24 animate-pulse bg-focus-gray-50" />
+      <div v-if="occurrencesLoading" class="space-y-3">
+        <div v-for="i in 3" :key="i" class="app-row h-20 animate-pulse bg-white/70" />
       </div>
 
-      <div v-else-if="!todayOccurrences.length" class="focus-card py-14 text-center">
-        <p class="text-4xl">◎</p>
-        <p class="mt-4 font-medium text-focus-gray-900">Journée libre</p>
-        <p class="mt-2 text-sm text-focus-gray-400">
+      <div v-else-if="!todayOccurrences.length" class="app-sheet px-6 py-16 text-center">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-app-mist text-app-blue">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2" />
+          </svg>
+        </div>
+        <p class="mt-5 text-lg font-semibold text-app-ink">Journée libre</p>
+        <p class="mx-auto mt-2 max-w-xs text-sm text-app-secondary">
           Aucune échéance pour aujourd'hui. Créez un objectif pour rester engagé.
         </p>
-        <NuxtLink to="/app/objectifs/nouveau" class="focus-btn-primary mt-6 inline-flex">
+        <NuxtLink to="/app/objectifs/nouveau" class="app-button-primary mt-7 inline-flex">
           Créer un objectif
         </NuxtLink>
       </div>
 
-      <div v-else class="space-y-4">
+      <div v-else class="app-list-stagger space-y-3">
         <OccurrenceCard
           v-for="occ in todayOccurrences"
           :key="occ.id"

@@ -206,119 +206,99 @@ async function archiveGoal() {
 </script>
 
 <template>
-  <div class="p-5 md:p-8">
-    <div v-if="pending" class="space-y-4">
-      <div class="focus-card h-48 animate-pulse bg-focus-gray-50" />
-      <div class="focus-card h-32 animate-pulse bg-focus-gray-50" />
-      <div class="focus-card h-64 animate-pulse bg-focus-gray-50" />
+  <div class="app-page animate-fade-in">
+    <div v-if="pending" class="space-y-3">
+      <div class="app-sheet h-40 animate-pulse" />
+      <div class="app-row h-20 animate-pulse" />
+      <div class="app-row h-20 animate-pulse" />
     </div>
 
     <template v-else-if="goal">
       <NuxtLink
         to="/app/objectifs"
-        class="inline-flex items-center gap-1 text-sm font-medium text-focus-gray-400 transition hover:text-focus-gray-700"
+        class="inline-flex items-center gap-1 text-sm font-medium text-app-secondary transition hover:text-app-blue"
       >
         ← Objectifs
       </NuxtLink>
 
-      <section class="mt-4 overflow-hidden rounded-focus-xl border border-focus-gray-200 bg-focus-white shadow-focus">
-        <div class="border-b border-focus-gray-100 px-5 py-6 md:px-8">
-          <div class="flex flex-wrap items-center gap-2">
-            <UiBadge variant="neutral">{{ typeLabels[goal.type] ?? goal.type }}</UiBadge>
-            <UiBadge v-if="goal.category" variant="neutral">{{ goal.category }}</UiBadge>
-            <UiBadge :variant="goal.isActive ? 'success' : 'warning'">
-              {{ goal.isActive ? 'Actif' : 'Archivé' }}
-            </UiBadge>
-          </div>
-
-          <h1 class="focus-heading-lg mt-4">{{ goal.title }}</h1>
-          <p v-if="goal.description" class="focus-body mt-3 max-w-2xl">{{ goal.description }}</p>
-
-          <div v-if="recurrenceLabel || dueDateLabel" class="mt-4 flex flex-wrap gap-3 text-sm text-focus-gray-500">
-            <span v-if="recurrenceLabel" class="rounded-full bg-focus-gray-100 px-3 py-1">
-              ◷ {{ recurrenceLabel }}
-            </span>
-            <span v-if="dueDateLabel" class="rounded-full bg-focus-gray-100 px-3 py-1">
-              Échéance : {{ dueDateLabel }}
-            </span>
-          </div>
+      <section class="mt-4">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="app-chip-neutral">{{ typeLabels[goal.type] ?? goal.type }}</span>
+          <span v-if="goal.category" class="app-chip-neutral">{{ goal.category }}</span>
+          <AppUiBadge :variant="goal.isActive ? 'success' : 'warning'">
+            {{ goal.isActive ? 'Actif' : 'Archivé' }}
+          </AppUiBadge>
         </div>
 
-        <div class="grid divide-y divide-focus-gray-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          <div class="px-5 py-4 md:px-6">
-            <p class="text-xs uppercase tracking-wide text-focus-gray-400">Récompense</p>
-            <p class="mt-1 text-2xl font-semibold text-emerald-600">+{{ goal.rewardCredits }}</p>
-          </div>
-          <div class="px-5 py-4 md:px-6">
-            <p class="text-xs uppercase tracking-wide text-focus-gray-400">Pénalité</p>
-            <p class="mt-1 text-2xl font-semibold text-red-500">-{{ goal.penaltyCredits }}</p>
-          </div>
-          <div class="px-5 py-4 md:px-6">
-            <p class="text-xs uppercase tracking-wide text-focus-gray-400">Progression</p>
-            <p class="mt-1 text-2xl font-semibold text-focus-gray-900">{{ progressPercent }}%</p>
-          </div>
+        <h1 class="app-heading mt-4">
+          {{ goal.title }}
+        </h1>
+        <p v-if="goal.description" class="mt-3 max-w-2xl text-sm leading-relaxed text-app-secondary">
+          {{ goal.description }}
+        </p>
+
+        <div v-if="recurrenceLabel || dueDateLabel" class="mt-4 flex flex-wrap gap-2">
+          <span v-if="recurrenceLabel" class="app-chip-neutral">{{ recurrenceLabel }}</span>
+          <span v-if="dueDateLabel" class="app-chip-neutral">{{ dueDateLabel }}</span>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="app-chip">+{{ goal.rewardCredits }} crédits</span>
+          <span class="app-chip-neutral !text-red-500">−{{ goal.penaltyCredits }}</span>
+          <span class="app-chip-neutral">{{ progressPercent }}% traité</span>
+        </div>
+
+        <div class="app-progress mt-4">
+          <div class="app-progress-bar" :style="{ width: `${progressPercent}%` }" />
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <AppUiBadge v-if="occurrenceStats.pending" variant="neutral">{{ occurrenceStats.pending }} à faire</AppUiBadge>
+          <AppUiBadge v-if="occurrenceStats.overdue" variant="warning">{{ occurrenceStats.overdue }} en retard</AppUiBadge>
+          <AppUiBadge v-if="occurrenceStats.completed" variant="success">{{ occurrenceStats.completed }} réussie{{ occurrenceStats.completed > 1 ? 's' : '' }}</AppUiBadge>
+          <AppUiBadge v-if="occurrenceStats.failed" variant="danger">{{ occurrenceStats.failed }} échouée{{ occurrenceStats.failed > 1 ? 's' : '' }}</AppUiBadge>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-2">
+          <NuxtLink to="/app/agenda" class="app-button-secondary text-sm">
+            Voir l'agenda
+          </NuxtLink>
+          <AppUiButton
+            variant="ghost"
+            class="text-red-500"
+            @click="showArchiveConfirm = true"
+          >
+            Archiver
+          </AppUiButton>
         </div>
       </section>
 
-      <section class="mt-6 grid gap-4 lg:grid-cols-3">
-        <UiCard class="lg:col-span-2">
-          <p class="focus-label">Statistiques</p>
-          <div class="mt-4 h-2 overflow-hidden rounded-full bg-focus-gray-100">
-            <div
-              class="h-full rounded-full bg-focus-black transition-all duration-500"
-              :style="{ width: `${progressPercent}%` }"
-            />
-          </div>
-          <div class="mt-4 flex flex-wrap gap-2">
-            <UiBadge variant="neutral">{{ occurrenceStats.total }} échéance{{ occurrenceStats.total > 1 ? 's' : '' }}</UiBadge>
-            <UiBadge v-if="occurrenceStats.pending" variant="neutral">{{ occurrenceStats.pending }} à faire</UiBadge>
-            <UiBadge v-if="occurrenceStats.overdue" variant="warning">{{ occurrenceStats.overdue }} en retard</UiBadge>
-            <UiBadge v-if="occurrenceStats.completed" variant="success">{{ occurrenceStats.completed }} réussie{{ occurrenceStats.completed > 1 ? 's' : '' }}</UiBadge>
-            <UiBadge v-if="occurrenceStats.failed" variant="danger">{{ occurrenceStats.failed }} échouée{{ occurrenceStats.failed > 1 ? 's' : '' }}</UiBadge>
-          </div>
-        </UiCard>
-
-        <UiCard>
-          <p class="focus-label mb-3">Actions</p>
-          <div class="space-y-2">
-            <NuxtLink to="/app/agenda" class="focus-btn-secondary w-full justify-center text-sm">
-              Voir l'agenda
-            </NuxtLink>
-            <UiButton
-              variant="ghost"
-              class="w-full text-red-500"
-              @click="showArchiveConfirm = true"
-            >
-              Archiver l'objectif
-            </UiButton>
-          </div>
-        </UiCard>
-      </section>
-
-      <section v-if="goal.milestones?.length" class="mt-8">
-        <h2 class="focus-heading-md">Jalons du projet</h2>
-        <p class="focus-body-sm mt-1">{{ goal.milestones.length }} étape{{ goal.milestones.length > 1 ? 's' : '' }} planifiée{{ goal.milestones.length > 1 ? 's' : '' }}</p>
+      <section v-if="goal.milestones?.length" class="mt-10">
+        <h2 class="app-section-title">Jalons</h2>
+        <p class="mt-0.5 text-sm text-app-secondary">
+          {{ goal.milestones.length }} étape{{ goal.milestones.length > 1 ? 's' : '' }}
+        </p>
 
         <div class="mt-4 space-y-3">
           <div
             v-for="(milestone, index) in [...goal.milestones].sort((a, b) => a.orderIndex - b.orderIndex)"
             :key="milestone.id"
-            class="focus-card flex items-start gap-4"
+            class="app-row flex items-start gap-4"
           >
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-focus-gray-100 text-sm font-semibold text-focus-gray-500">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-app-mist text-sm font-semibold text-app-blue">
               {{ index + 1 }}
             </div>
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
-                <h3 class="font-medium text-focus-gray-900">{{ milestone.title }}</h3>
-                <UiBadge :variant="milestoneBadgeVariant(milestoneStatus(milestone.id, milestone.dueDate))">
+                <h3 class="font-semibold text-app-ink">{{ milestone.title }}</h3>
+                <AppUiBadge :variant="milestoneBadgeVariant(milestoneStatus(milestone.id, milestone.dueDate))">
                   {{ milestoneStatusLabel(milestoneStatus(milestone.id, milestone.dueDate)) }}
-                </UiBadge>
+                </AppUiBadge>
               </div>
-              <p v-if="milestone.description" class="mt-1 text-sm text-focus-gray-500">
+              <p v-if="milestone.description" class="mt-1 text-sm text-app-secondary">
                 {{ milestone.description }}
               </p>
-              <p v-if="milestone.dueDate" class="mt-2 text-xs text-focus-gray-400">
+              <p v-if="milestone.dueDate" class="mt-2 text-xs text-app-secondary">
                 {{ format(parseISO(milestone.dueDate), "d MMMM yyyy", { locale: fr }) }}
               </p>
             </div>
@@ -326,11 +306,11 @@ async function archiveGoal() {
         </div>
       </section>
 
-      <section class="mt-8">
+      <section class="mt-10">
         <div class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 class="focus-heading-md">Échéances</h2>
-            <p class="focus-body-sm mt-1">Historique et prochaines échéances de cet objectif</p>
+            <h2 class="app-section-title">Échéances</h2>
+            <p class="mt-0.5 text-sm text-app-secondary">Historique et prochaines échéances</p>
           </div>
           <div class="flex gap-2 overflow-x-auto">
             <button
@@ -341,10 +321,11 @@ async function archiveGoal() {
               ]"
               :key="item.value"
               type="button"
-              class="shrink-0 rounded-full px-4 py-2 text-sm font-medium transition"
+              class="shrink-0 rounded-full px-4 py-2.5 text-sm font-medium transition"
               :class="occurrenceFilter === item.value
-                ? 'bg-focus-black text-white'
-                : 'bg-focus-gray-100 text-focus-gray-600 hover:bg-focus-gray-200'"
+                ? 'bg-app-blue text-white shadow-sm'
+                : 'bg-white text-app-secondary ring-1 ring-inset ring-app-line'"
+              :aria-pressed="occurrenceFilter === item.value"
               @click="occurrenceFilter = item.value as typeof occurrenceFilter"
             >
               {{ item.label }}
@@ -352,11 +333,11 @@ async function archiveGoal() {
           </div>
         </div>
 
-        <div v-if="!filteredOccurrences.length" class="focus-card py-12 text-center">
-          <p class="text-focus-gray-400">Aucune échéance dans cette catégorie.</p>
+        <div v-if="!filteredOccurrences.length" class="app-sheet py-12 text-center">
+          <p class="text-app-secondary">Aucune échéance dans cette catégorie.</p>
         </div>
 
-        <div v-else-if="occurrenceFilter === 'pending'" class="space-y-4">
+        <div v-else-if="occurrenceFilter === 'pending'" class="app-list-stagger space-y-3">
           <OccurrenceCard
             v-for="occ in occurrenceCards"
             :key="occ.id"
@@ -365,21 +346,21 @@ async function archiveGoal() {
           />
         </div>
 
-        <div v-else class="space-y-3">
+        <div v-else class="app-list-stagger space-y-3">
           <div
             v-for="occ in filteredOccurrences"
             :key="occ.id"
-            class="flex items-center justify-between rounded-focus-lg border border-focus-gray-200 bg-focus-white px-4 py-4 shadow-focus"
+            class="app-row flex items-center justify-between"
           >
             <div>
-              <p class="text-sm font-medium capitalize text-focus-gray-900">
+              <p class="text-sm font-semibold capitalize text-app-ink">
                 {{ formatOccurrenceDate(occ.dueDate, occ.dueAt) }}
               </p>
-              <p class="mt-1 text-xs text-focus-gray-400">
+              <p class="mt-1 text-xs text-app-secondary">
                 {{ statusLabels[occ.status] ?? occ.status }}
               </p>
             </div>
-            <UiBadge
+            <AppUiBadge
               :variant="occ.status === 'completed'
                 ? 'success'
                 : occ.status === 'failed'
@@ -389,7 +370,7 @@ async function archiveGoal() {
                     : 'neutral'"
             >
               {{ isOverdue(occ) && occ.status === 'pending' ? 'En retard' : statusLabels[occ.status] ?? occ.status }}
-            </UiBadge>
+            </AppUiBadge>
           </div>
         </div>
       </section>
@@ -409,30 +390,36 @@ async function archiveGoal() {
       <Teleport to="body">
         <div
           v-if="showArchiveConfirm"
-          class="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          class="app-overlay fixed inset-0 z-50 flex items-end justify-center bg-slate-950/25 p-0 backdrop-blur-sm sm:items-center sm:p-4"
           @click.self="showArchiveConfirm = false"
+          @keydown.esc="showArchiveConfirm = false"
         >
-          <div class="w-full max-w-md rounded-focus-xl bg-focus-white p-6 shadow-focus-lg">
-            <h3 class="focus-heading-md">Archiver cet objectif ?</h3>
-            <p class="focus-body-sm mt-2">
+          <div
+            class="w-full max-w-md animate-slide-up rounded-t-[28px] bg-white p-6 pb-safe shadow-app-soft sm:rounded-app-card sm:pb-6"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="archive-title"
+          >
+            <h2 id="archive-title" class="text-xl font-semibold tracking-tight text-app-ink">Archiver cet objectif ?</h2>
+            <p class="mt-2 text-sm text-app-secondary">
               L'objectif ne sera plus visible dans votre liste active. Les échéances passées sont conservées.
             </p>
             <div class="mt-6 flex gap-3">
-              <UiButton variant="secondary" class="flex-1" @click="showArchiveConfirm = false">
+              <AppUiButton variant="secondary" class="flex-1" @click="showArchiveConfirm = false">
                 Annuler
-              </UiButton>
-              <UiButton class="flex-1" variant="ghost" :loading="archiving" @click="archiveGoal">
+              </AppUiButton>
+              <AppUiButton class="flex-1 !text-red-600" variant="ghost" :loading="archiving" @click="archiveGoal">
                 Archiver
-              </UiButton>
+              </AppUiButton>
             </div>
           </div>
         </div>
       </Teleport>
     </template>
 
-    <div v-else class="focus-card py-12 text-center">
-      <p class="text-focus-gray-400">Objectif introuvable.</p>
-      <NuxtLink to="/app/objectifs" class="focus-btn-secondary mt-4 inline-flex">
+    <div v-else class="app-sheet py-12 text-center">
+      <p class="text-app-secondary">Objectif introuvable.</p>
+      <NuxtLink to="/app/objectifs" class="app-button-secondary mt-4 inline-flex">
         Retour aux objectifs
       </NuxtLink>
     </div>

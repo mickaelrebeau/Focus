@@ -33,24 +33,26 @@ function formatDefaultAmount(type: string): string {
 </script>
 
 <template>
-  <UiCard v-if="availableTypes.length" title="Ajouter une conséquence">
+  <AppUiCard v-if="availableTypes.length" title="Ajouter une conséquence">
     <div class="grid gap-3 sm:grid-cols-2">
       <button
         v-for="type in availableTypes"
         :key="type.key"
         type="button"
-        class="flex items-start gap-3 rounded-focus border border-focus-gray-200 p-4 text-left transition hover:border-focus-accent hover:bg-focus-gray-50"
+        class="flex min-h-11 items-start gap-3 rounded-app-control bg-app-canvas p-4 text-left transition hover:bg-app-mist active:scale-[0.99]"
         @click="addType(type)"
       >
-        <span class="text-xl">{{ type.icon }}</span>
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-lg text-app-blue">
+          {{ type.icon }}
+        </span>
         <div class="min-w-0">
-          <p class="text-sm font-medium text-focus-gray-900">{{ type.name }}</p>
-          <p class="mt-1 text-xs text-focus-gray-400">{{ type.description }}</p>
-          <p class="mt-2 text-xs font-medium text-focus-accent">
+          <p class="text-sm font-semibold text-app-ink">{{ type.name }}</p>
+          <p class="mt-1 text-xs text-app-secondary">{{ type.description }}</p>
+          <p class="mt-2 text-xs font-semibold text-app-blue">
             Par défaut : {{ formatDefaultAmount(type.key) }}
           </p>
         </div>
       </button>
     </div>
-  </UiCard>
+  </AppUiCard>
 </template>

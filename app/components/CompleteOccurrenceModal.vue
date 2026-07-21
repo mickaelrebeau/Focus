@@ -118,17 +118,24 @@ onBeforeUnmount(() => {
   <Teleport to="body">
     <div
       v-if="modelValue"
-      class="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+      class="app-overlay fixed inset-0 z-50 flex items-end justify-center bg-slate-950/25 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       @click.self="close"
+      @keydown.esc="close"
     >
-      <div class="w-full max-w-md rounded-focus-xl bg-focus-white p-6 shadow-focus-lg">
-        <h3 class="focus-heading-md">Valider l'échéance</h3>
-        <p class="focus-body-sm mt-2">Ajoutez une note, un lien ou une photo (facultatif).</p>
+      <div
+        class="w-full max-w-md animate-slide-up rounded-t-[28px] bg-white p-6 pb-safe shadow-app-soft sm:rounded-app-card sm:pb-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="complete-title"
+      >
+        <div class="mx-auto mb-4 h-1 w-10 rounded-full bg-app-line sm:hidden" />
+        <h2 id="complete-title" class="text-xl font-semibold tracking-tight text-app-ink">Valider l'échéance</h2>
+        <p class="mt-1 text-sm text-app-secondary">Ajoutez une note, un lien ou une photo (facultatif).</p>
 
-        <div class="mt-4 space-y-4">
-          <UiInput v-model="note" label="Note" placeholder="Ce que j'ai accompli..." />
+        <div class="mt-5 space-y-4">
+          <AppUiInput v-model="note" label="Note" placeholder="Ce que j'ai accompli..." />
 
-          <UiInput
+          <AppUiInput
             v-model="proofUrl"
             label="Lien de preuve"
             type="text"
@@ -136,22 +143,22 @@ onBeforeUnmount(() => {
           />
 
           <div class="space-y-2">
-            <label class="text-sm font-medium text-focus-gray-700">Photo de preuve</label>
+            <label class="text-sm font-semibold text-app-ink">Photo de preuve</label>
             <input
               ref="fileInput"
               type="file"
               accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-              class="block w-full text-sm text-focus-gray-500 file:mr-3 file:rounded-focus file:border-0 file:bg-focus-gray-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-focus-gray-700 hover:file:bg-focus-gray-200"
+              class="block w-full text-sm text-app-secondary file:mr-3 file:rounded-full file:border-0 file:bg-app-mist file:px-4 file:py-2 file:text-sm file:font-semibold file:text-app-blue hover:file:bg-app-muted/40"
               @change="onImageSelected"
             >
-            <p class="text-xs text-focus-gray-400">
+            <p class="text-xs text-app-secondary">
               Facultatif. L'image sera compressée avant envoi.
             </p>
-            <div v-if="proofImagePreview" class="relative overflow-hidden rounded-focus border border-focus-gray-200">
+            <div v-if="proofImagePreview" class="relative overflow-hidden rounded-app-control">
               <img :src="proofImagePreview" alt="Aperçu de la preuve" class="max-h-40 w-full object-cover">
               <button
                 type="button"
-                class="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white"
+                class="absolute right-2 top-2 rounded-full bg-slate-950/60 px-3 py-1 text-xs text-white"
                 @click="clearProofImage"
               >
                 Retirer
@@ -163,12 +170,12 @@ onBeforeUnmount(() => {
         <p v-if="error" class="mt-4 text-sm text-red-500">{{ error }}</p>
 
         <div class="mt-6 flex gap-3">
-          <UiButton variant="secondary" class="flex-1" :disabled="submitting" @click="close">
+          <AppUiButton variant="secondary" class="flex-1" :disabled="submitting" @click="close">
             Annuler
-          </UiButton>
-          <UiButton class="flex-1" :loading="submitting" @click="submit">
+          </AppUiButton>
+          <AppUiButton class="flex-1" :loading="submitting" @click="submit">
             Valider (+{{ rewardLabel }})
-          </UiButton>
+          </AppUiButton>
         </div>
       </div>
     </div>

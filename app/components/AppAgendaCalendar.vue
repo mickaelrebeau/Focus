@@ -86,7 +86,7 @@ function dayDots(summary?: CalendarDaySummary) {
 }
 
 const dotClass: Record<string, string> = {
-  pending: 'bg-focus-accent',
+  pending: 'bg-app-muted',
   overdue: 'bg-amber-500',
   completed: 'bg-emerald-500',
   failed: 'bg-red-500',
@@ -94,11 +94,11 @@ const dotClass: Record<string, string> = {
 </script>
 
 <template>
-  <div class="focus-card overflow-hidden p-0">
-    <div class="flex items-center justify-between border-b border-focus-gray-100 px-4 py-4 md:px-6">
+  <div class="app-sheet overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-4 md:px-6">
       <button
         type="button"
-        class="flex h-9 w-9 items-center justify-center rounded-full text-focus-gray-500 transition hover:bg-focus-gray-100 hover:text-focus-gray-900"
+        class="flex h-11 w-11 items-center justify-center rounded-full text-app-secondary transition hover:bg-app-mist hover:text-app-ink"
         aria-label="Mois précédent"
         @click="previousMonth"
       >
@@ -106,12 +106,12 @@ const dotClass: Record<string, string> = {
       </button>
 
       <div class="text-center">
-        <p class="text-base font-semibold capitalize text-focus-gray-900 md:text-lg">
+        <p class="text-base font-semibold capitalize tracking-tight text-app-ink md:text-lg">
           {{ monthLabel }}
         </p>
         <button
           type="button"
-          class="mt-1 text-xs font-medium text-focus-accent transition hover:opacity-80"
+          class="mt-1 text-xs font-semibold text-app-blue"
           @click="goToToday"
         >
           Aujourd'hui
@@ -120,7 +120,7 @@ const dotClass: Record<string, string> = {
 
       <button
         type="button"
-        class="flex h-9 w-9 items-center justify-center rounded-full text-focus-gray-500 transition hover:bg-focus-gray-100 hover:text-focus-gray-900"
+        class="flex h-11 w-11 items-center justify-center rounded-full text-app-secondary transition hover:bg-app-mist hover:text-app-ink"
         aria-label="Mois suivant"
         @click="nextMonth"
       >
@@ -128,11 +128,11 @@ const dotClass: Record<string, string> = {
       </button>
     </div>
 
-    <div class="grid grid-cols-7 border-b border-focus-gray-100 px-2 py-2 md:px-4">
+    <div class="grid grid-cols-7 px-2 py-2 md:px-4">
       <div
         v-for="day in weekDays"
         :key="day"
-        class="py-1 text-center text-[11px] font-medium uppercase tracking-wide text-focus-gray-400"
+        class="py-1 text-center text-[11px] font-medium tracking-wide text-app-secondary"
       >
         {{ day }}
       </div>
@@ -143,16 +143,16 @@ const dotClass: Record<string, string> = {
         v-for="day in calendarDays"
         :key="toDateKey(day)"
         type="button"
-        class="group relative flex min-h-[52px] flex-col items-center justify-center rounded-focus px-1 py-2 transition md:min-h-[64px]"
+        class="group relative flex min-h-[52px] flex-col items-center justify-center rounded-md px-1 py-2 transition md:min-h-[64px]"
         :class="[
           isSameMonth(day, month)
-            ? 'text-focus-gray-900 hover:bg-focus-gray-50'
-            : 'text-focus-gray-300 hover:bg-focus-gray-50/60',
+            ? 'text-app-ink hover:bg-app-mist/55'
+            : 'text-slate-300 hover:bg-app-mist/30',
           isSameDay(day, selectedDateObj) && isSameMonth(day, month)
-            ? '!bg-focus-black !text-white hover:!bg-focus-gray-800'
+            ? '!bg-app-blue !text-white hover:!brightness-105'
             : '',
           isToday(day) && !isSameDay(day, selectedDateObj)
-            ? 'ring-1 ring-inset ring-focus-accent/40'
+            ? 'ring-1 ring-inset ring-app-blue/50'
             : '',
         ]"
         @click="selectDay(day)"
@@ -173,17 +173,16 @@ const dotClass: Record<string, string> = {
             :key="`${toDateKey(day)}-${dot}-${index}`"
             class="h-1.5 w-1.5 rounded-full"
             :class="[
-              dotClass[dot],
-              isSameDay(day, selectedDateObj) && isSameMonth(day, month) ? 'opacity-90' : '',
+              isSameDay(day, selectedDateObj) && isSameMonth(day, month) ? 'bg-white/90' : dotClass[dot],
             ]"
           />
         </div>
       </button>
     </div>
 
-    <div class="flex flex-wrap items-center justify-center gap-4 border-t border-focus-gray-100 px-4 py-3 text-[11px] text-focus-gray-400">
+    <div class="flex flex-wrap items-center justify-center gap-4 px-4 py-3 text-[11px] text-app-secondary">
       <span class="inline-flex items-center gap-1.5">
-        <span class="h-1.5 w-1.5 rounded-full bg-focus-accent" /> À faire
+        <span class="h-1.5 w-1.5 rounded-full bg-app-muted" /> À faire
       </span>
       <span class="inline-flex items-center gap-1.5">
         <span class="h-1.5 w-1.5 rounded-full bg-amber-500" /> En retard

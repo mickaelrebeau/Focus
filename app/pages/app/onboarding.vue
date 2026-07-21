@@ -36,22 +36,24 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="flex min-h-[60dvh] items-center justify-center p-5">
-    <div class="w-full max-w-md">
-      <div class="mb-8 flex justify-center">
+  <div class="app-page flex min-h-[70dvh] items-center justify-center">
+    <div class="app-sheet w-full max-w-md p-6 sm:p-8">
+      <div class="mb-7 flex justify-center">
         <AppLogo to="/app" size="lg" />
       </div>
-      <h1 class="focus-heading-lg text-center">Bienvenue sur Focus</h1>
-      <p class="focus-body mt-2 text-center">Configurez votre profil pour commencer.</p>
+      <p class="app-eyebrow text-center">Premiers pas</p>
+      <h1 class="app-heading mt-1 text-center">Bienvenue sur Focus</h1>
+      <p class="mt-2 text-center text-sm text-app-secondary">Configurez votre profil pour commencer.</p>
 
       <form class="mt-8 space-y-5" @submit.prevent="handleSubmit">
-        <UiInput v-model="displayName" label="Nom d'affichage" required />
-        <UiTimezoneSelect v-model="timezone" label="Fuseau horaire" required />
-        <label class="flex items-center gap-3">
-          <input v-model="leaderboardOptIn" type="checkbox" class="h-4 w-4 rounded border-focus-gray-300">
-          <span class="text-sm text-focus-gray-600">Participer au classement</span>
-        </label>
-        <UiButton type="submit" class="w-full" :loading="loading">Continuer</UiButton>
+        <AppUiInput v-model="displayName" label="Nom d'affichage" required />
+        <AppUiTimezoneSelect v-model="timezone" label="Fuseau horaire" required />
+        <AppUiToggle
+          v-model="leaderboardOptIn"
+          label="Participer au classement"
+          description="Votre score net pourra apparaître dans le classement."
+        />
+        <AppUiButton type="submit" class="w-full" :loading="loading">Continuer</AppUiButton>
       </form>
     </div>
   </div>

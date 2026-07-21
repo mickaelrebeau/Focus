@@ -131,29 +131,29 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-3 rounded-focus border border-focus-gray-200 p-4">
-    <p class="text-sm font-medium text-focus-gray-900">Carte bancaire</p>
+  <div class="space-y-3 rounded-app-control bg-app-canvas p-4">
+    <p class="text-sm font-semibold text-app-ink">Carte bancaire</p>
 
     <div
       v-if="!showForm && paymentMethodLast4"
       class="flex flex-wrap items-center justify-between gap-3"
     >
-      <p class="text-sm text-focus-gray-600">
+      <p class="text-sm text-app-secondary">
         {{ brandLabel }} •••• {{ paymentMethodLast4 }}
       </p>
-      <UiButton variant="secondary" @click="changeCard">
+      <AppUiButton variant="secondary" @click="changeCard">
         Changer de carte
-      </UiButton>
+      </AppUiButton>
     </div>
 
     <template v-else>
-      <p class="text-xs text-focus-gray-500">
+      <p class="text-xs text-app-secondary">
         Enregistrez une carte pour autoriser les prélèvements automatiques en cas d'échec.
       </p>
       <div ref="paymentElementRef" class="min-h-[120px]" />
-      <UiButton :loading="loading" @click="savePaymentMethod">
+      <AppUiButton :loading="loading" @click="savePaymentMethod">
         Enregistrer la carte
-      </UiButton>
+      </AppUiButton>
     </template>
 
     <p v-if="error" class="text-sm text-red-500">{{ error }}</p>

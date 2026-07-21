@@ -17,23 +17,36 @@ const typeLabels: Record<string, string> = {
 </script>
 
 <template>
-  <div class="p-5 md:p-8">
-    <h1 class="focus-heading-lg">Historique</h1>
+  <div class="app-page animate-fade-in">
+    <p class="app-eyebrow">Portefeuille</p>
+    <h1 class="app-heading mt-1">Historique</h1>
+    <p class="mt-1 text-sm text-app-secondary">Mouvements de votre portefeuille</p>
 
     <div v-if="isLoading" class="mt-8 space-y-3">
-      <div v-for="i in 5" :key="i" class="focus-card h-14 animate-pulse bg-focus-gray-50" />
+      <div v-for="i in 5" :key="i" class="app-row h-16 animate-pulse" />
     </div>
 
-    <div v-else class="mt-8 space-y-3">
-      <div v-for="entry in data?.entries ?? []" :key="entry.id" class="focus-card flex items-center justify-between">
-        <div class="flex flex-col gap-2">
-          <p class="font-medium text-focus-gray-900">{{ typeLabels[entry.type] ?? entry.type }}</p>
-          <p class="text-xs text-focus-gray-400">
+    <div v-else-if="!(data?.entries ?? []).length" class="app-sheet mt-8 px-6 py-16 text-center">
+      <p class="text-sm text-app-secondary">Aucun mouvement pour le moment.</p>
+    </div>
+
+    <div v-else class="app-list-stagger mt-8 space-y-3">
+      <div
+        v-for="entry in data?.entries ?? []"
+        :key="entry.id"
+        class="app-row flex items-center justify-between gap-3"
+      >
+        <div class="min-w-0">
+          <p class="font-semibold text-app-ink">{{ typeLabels[entry.type] ?? entry.type }}</p>
+          <p class="mt-0.5 text-xs text-app-secondary">
             {{ new Date(entry.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) }}
           </p>
-          <p v-if="entry.reason" class="text-xs text-focus-gray-400">{{ entry.reason }}</p>
+          <p v-if="entry.reason" class="mt-1 text-xs text-app-secondary">{{ entry.reason }}</p>
         </div>
-        <span class="font-semibold" :class="entry.amount >= 0 ? 'text-emerald-600' : 'text-red-500'">
+        <span
+          class="shrink-0 text-base font-semibold tabular-nums"
+          :class="entry.amount >= 0 ? 'text-emerald-600' : 'text-red-500'"
+        >
           {{ entry.amount >= 0 ? '+' : '' }}{{ entry.amount }}
         </span>
       </div>

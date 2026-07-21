@@ -5,6 +5,7 @@ import { DEFAULT_TIMEZONE, getTimezoneLabel, isValidTimezone } from '#shared/tim
 
 import StripePaymentSetup from '~/components/consequences/StripePaymentSetup.vue'
 import { formatEuroFromCents, useConsequenceStats } from '~/composables/useConsequences'
+import type { AppIconName } from '~/types/app-icon'
 
 const { user, fetchUser, logout, isAdmin } = useAuth()
 const { isEnabled: userjotEnabled, showFeedback } = useUserjot()
@@ -27,12 +28,12 @@ const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 
-const quickLinks = [
-  { to: '/app/objectifs', label: 'Mes objectifs', icon: '◈' },
-  { to: '/app/agenda', label: 'Agenda', icon: '◷' },
-  { to: '/app/historique', label: 'Historique crédits', icon: '◫' },
-  { to: '/app/classement', label: 'Classement', icon: '▲' },
-  { to: '/app/reglages/consequences', label: 'Conséquences', icon: '⚡' },
+const quickLinks: { to: string, label: string, icon: AppIconName }[] = [
+  { to: '/app/objectifs', label: 'Mes objectifs', icon: 'goals' },
+  { to: '/app/agenda', label: 'Agenda', icon: 'agenda' },
+  { to: '/app/historique', label: 'Historique crédits', icon: 'history' },
+  { to: '/app/classement', label: 'Classement', icon: 'ranking' },
+  { to: '/app/reglages/consequences', label: 'Conséquences', icon: 'bolt' },
 ]
 
 const walletTypeLabels: Record<string, string> = {
@@ -149,93 +150,93 @@ async function changePassword() {
 </script>
 
 <template>
-  <div class="p-5 md:p-8">
+  <div class="app-page animate-fade-in">
     <div class="mb-8">
-      <h1 class="focus-heading-lg">Réglages</h1>
-      <p class="focus-body-sm mt-1">Gérez votre profil, vos préférences et la sécurité de votre compte.</p>
+      <p class="app-eyebrow">Votre espace</p>
+      <h1 class="app-heading mt-1">Réglages</h1>
+      <p class="mt-1 text-sm text-app-secondary">Profil, préférences et sécurité.</p>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-2">
-      <UiCard>
+    <div class="grid gap-3 lg:grid-cols-2">
+      <AppUiCard>
         <div class="flex items-center gap-4">
-          <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-focus-gray-900 text-lg font-semibold text-white">
+          <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-app-mist text-lg font-semibold text-app-blue">
             {{ initials }}
           </div>
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
-              <h2 class="truncate text-lg font-semibold text-focus-gray-900">
+              <h2 class="truncate text-lg font-semibold text-app-ink">
                 {{ user?.displayName }}
               </h2>
-              <UiBadge v-if="isAdmin" variant="neutral">Admin</UiBadge>
+              <AppUiBadge v-if="isAdmin" variant="neutral">Admin</AppUiBadge>
             </div>
-            <p class="truncate text-sm text-focus-gray-400">{{ user?.email }}</p>
+            <p class="truncate text-sm text-app-secondary">{{ user?.email }}</p>
           </div>
         </div>
-      </UiCard>
+      </AppUiCard>
 
-      <UiCard>
-        <p class="focus-label mb-3">Portefeuille</p>
+      <AppUiCard>
+        <p class="app-eyebrow mb-3">Portefeuille</p>
         <div class="grid grid-cols-3 gap-4">
           <div>
-            <p class="text-2xl font-semibold text-focus-gray-900">{{ user?.credits ?? 0 }}</p>
-            <p class="text-xs text-focus-gray-400">Crédits</p>
+            <p class="text-2xl font-semibold text-app-ink">{{ user?.credits ?? 0 }}</p>
+            <p class="text-xs text-app-secondary">Crédits</p>
           </div>
           <div>
-            <p class="text-2xl font-semibold" :class="user?.debt ? 'text-red-500' : 'text-focus-gray-900'">
+            <p class="text-2xl font-semibold" :class="user?.debt ? 'text-red-500' : 'text-app-ink'">
               {{ user?.debt ?? 0 }}
             </p>
-            <p class="text-xs text-focus-gray-400">Dette</p>
+            <p class="text-xs text-app-secondary">Dette</p>
           </div>
           <div>
-            <p class="text-2xl font-semibold text-focus-accent">{{ user?.netScore ?? 0 }}</p>
-            <p class="text-xs text-focus-gray-400">Score net</p>
+            <p class="text-2xl font-semibold text-app-blue">{{ user?.netScore ?? 0 }}</p>
+            <p class="text-xs text-app-secondary">Score net</p>
           </div>
         </div>
-        <NuxtLink to="/app/historique" class="mt-4 inline-flex text-sm font-medium text-focus-accent hover:opacity-80">
-          Voir l'historique complet →
+        <NuxtLink to="/app/historique" class="mt-4 inline-flex text-sm font-semibold text-app-blue">
+          Voir l'historique →
         </NuxtLink>
-      </UiCard>
+      </AppUiCard>
     </div>
 
-    <UiCard v-if="consequenceStats" title="Conséquences" class="mt-6">
+    <AppUiCard v-if="consequenceStats" title="Conséquences" class="mt-4">
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <div>
-          <p class="text-2xl font-semibold text-focus-gray-900">{{ consequenceStats.totalConfigured }}</p>
-          <p class="text-xs text-focus-gray-400">Configurées</p>
+          <p class="text-2xl font-semibold text-app-ink">{{ consequenceStats.totalConfigured }}</p>
+          <p class="text-xs text-app-secondary">Configurées</p>
         </div>
         <div>
-          <p class="text-2xl font-semibold text-focus-gray-900">{{ consequenceStats.totalExecuted }}</p>
-          <p class="text-xs text-focus-gray-400">Exécutées</p>
+          <p class="text-2xl font-semibold text-app-ink">{{ consequenceStats.totalExecuted }}</p>
+          <p class="text-xs text-app-secondary">Exécutées</p>
         </div>
         <div>
-          <p class="text-2xl font-semibold text-focus-gray-900">
+          <p class="text-2xl font-semibold text-app-ink">
             {{ formatEuroFromCents(consequenceStats.moneyCommittedCents) }}
           </p>
-          <p class="text-xs text-focus-gray-400">Argent engagé</p>
+          <p class="text-xs text-app-secondary">Argent engagé</p>
         </div>
         <div>
-          <p class="text-2xl font-semibold text-focus-gray-900">
+          <p class="text-2xl font-semibold text-app-ink">
             {{ formatEuroFromCents(consequenceStats.moneyDonatedCents) }}
           </p>
-          <p class="text-xs text-focus-gray-400">Argent donné</p>
+          <p class="text-xs text-app-secondary">Argent donné</p>
         </div>
         <div>
           <p class="text-2xl font-semibold text-red-500">{{ consequenceStats.creditsLost }}</p>
-          <p class="text-xs text-focus-gray-400">Crédits perdus</p>
+          <p class="text-xs text-app-secondary">Crédits perdus</p>
         </div>
       </div>
       <NuxtLink
         to="/app/reglages/consequences"
-        class="mt-4 inline-flex text-sm font-medium text-focus-accent hover:opacity-80"
+        class="mt-4 inline-flex text-sm font-semibold text-app-blue"
       >
         Configurer les conséquences →
       </NuxtLink>
-    </UiCard>
+    </AppUiCard>
 
-    <UiCard id="paiement" title="Paiement" class="mt-6">
-      <p class="mb-4 text-sm text-focus-gray-500">
-        Enregistrez une carte bancaire pour activer les conséquences monétaires :
-        cagnotte commune, don, utilisateur aléatoire et prélèvement Stripe.
+    <AppUiCard id="paiement" title="Paiement" class="mt-4">
+      <p class="mb-4 text-sm text-app-secondary">
+        Enregistrez une carte pour activer les conséquences monétaires (don, Stripe).
       </p>
       <ClientOnly>
         <StripePaymentSetup
@@ -247,47 +248,47 @@ async function changePassword() {
       <p v-if="paymentSaved" class="mt-3 text-sm text-emerald-600">
         Carte enregistrée.
       </p>
-    </UiCard>
+    </AppUiCard>
 
-    <form class="mt-6 space-y-6" @submit.prevent="saveProfile">
-      <UiCard title="Profil">
+    <form class="mt-4 space-y-4" @submit.prevent="saveProfile">
+      <AppUiCard title="Profil">
         <div class="space-y-5">
-          <UiInput v-model="displayName" label="Nom d'affichage" placeholder="Votre nom public" />
-          <UiInput :model-value="user?.email ?? ''" label="Email" type="email" disabled />
-          <UiTimezoneSelect v-model="timezone" label="Fuseau horaire" />
-          <p class="text-xs text-focus-gray-400">
+          <AppUiInput v-model="displayName" label="Nom d'affichage" placeholder="Votre nom public" />
+          <AppUiInput :model-value="user?.email ?? ''" label="Email" type="email" disabled />
+          <AppUiTimezoneSelect v-model="timezone" label="Fuseau horaire" />
+          <p class="text-xs text-app-secondary">
             Les échéances sont calculées selon {{ timezoneLabel }}.
           </p>
         </div>
-      </UiCard>
+      </AppUiCard>
 
-      <UiCard title="Préférences">
+      <AppUiCard title="Préférences">
         <div class="space-y-4">
-          <UiToggle
+          <AppUiToggle
             v-model="leaderboardOptIn"
             label="Participer au classement"
             description="Votre score net apparaît dans le classement public. Vous pouvez le désactiver à tout moment."
           />
-          <div class="rounded-focus bg-focus-gray-50 px-4 py-3 text-sm text-focus-gray-500">
-            <span class="font-medium text-focus-gray-700">{{ activeGoalsCount }}</span>
+          <div class="rounded-app-control bg-app-canvas px-4 py-3 text-sm text-app-secondary">
+            <span class="font-semibold text-app-ink">{{ activeGoalsCount }}</span>
             objectif{{ activeGoalsCount > 1 ? 's' : '' }} actif{{ activeGoalsCount > 1 ? 's' : '' }}
           </div>
         </div>
-      </UiCard>
+      </AppUiCard>
 
       <div class="flex flex-wrap items-center gap-3">
-        <UiButton type="submit" :loading="profileLoading">Enregistrer les modifications</UiButton>
+        <AppUiButton type="submit" :loading="profileLoading">Enregistrer les modifications</AppUiButton>
         <p v-if="profileSaved" class="text-sm text-emerald-600">Réglages enregistrés.</p>
         <p v-if="profileError" class="text-sm text-red-500">{{ profileError }}</p>
       </div>
     </form>
 
-    <UiCard title="Sécurité" class="mt-6">
+    <AppUiCard title="Sécurité" class="mt-4">
       <form class="max-w-lg space-y-5" @submit.prevent="changePassword">
-        <p v-if="user?.hasPassword === false" class="text-sm text-focus-gray-500">
+        <p v-if="user?.hasPassword === false" class="text-sm text-app-secondary">
           Votre compte utilise la connexion Google. Vous pouvez définir un mot de passe pour vous connecter aussi par email.
         </p>
-        <UiInput
+        <AppUiInput
           v-if="user?.hasPassword !== false"
           v-model="currentPassword"
           label="Mot de passe actuel"
@@ -295,14 +296,14 @@ async function changePassword() {
           autocomplete="current-password"
           placeholder="••••••••"
         />
-        <UiInput
+        <AppUiInput
           v-model="newPassword"
           :label="user?.hasPassword === false ? 'Mot de passe' : 'Nouveau mot de passe'"
           type="password"
           autocomplete="new-password"
           placeholder="Minimum 8 caractères"
         />
-        <UiInput
+        <AppUiInput
           v-model="confirmPassword"
           label="Confirmer le mot de passe"
           type="password"
@@ -310,27 +311,27 @@ async function changePassword() {
           placeholder="••••••••"
         />
         <div class="flex flex-wrap items-center gap-3">
-          <UiButton type="submit" variant="secondary" :loading="passwordLoading">
+          <AppUiButton type="submit" variant="secondary" :loading="passwordLoading">
             {{ user?.hasPassword === false ? 'Définir un mot de passe' : 'Changer le mot de passe' }}
-          </UiButton>
+          </AppUiButton>
           <p v-if="passwordSaved" class="text-sm text-emerald-600">Mot de passe mis à jour.</p>
           <p v-if="passwordError" class="text-sm text-red-500">{{ passwordError }}</p>
         </div>
       </form>
-    </UiCard>
+    </AppUiCard>
 
-    <UiCard v-if="recentEntries.length" title="Activité récente" class="mt-6">
+    <AppUiCard v-if="recentEntries.length" title="Activité récente" class="mt-4">
       <div class="space-y-3">
         <div
           v-for="entry in recentEntries"
           :key="entry.id"
-          class="flex items-center justify-between rounded-focus border border-focus-gray-100 px-4 py-3"
+          class="flex items-center justify-between rounded-app-control bg-app-canvas px-4 py-3"
         >
           <div>
-            <p class="text-sm font-medium text-focus-gray-900">
+            <p class="text-sm font-semibold text-app-ink">
               {{ walletTypeLabels[entry.type] ?? entry.type }}
             </p>
-            <p class="text-xs text-focus-gray-400">
+            <p class="text-xs text-app-secondary">
               {{ new Date(entry.createdAt).toLocaleDateString('fr-FR', {
                 day: 'numeric',
                 month: 'short',
@@ -344,58 +345,58 @@ async function changePassword() {
           </span>
         </div>
       </div>
-      <NuxtLink to="/app/historique" class="mt-4 inline-flex text-sm font-medium text-focus-accent hover:opacity-80">
+      <NuxtLink to="/app/historique" class="mt-4 inline-flex text-sm font-semibold text-app-blue">
         Tout l'historique →
       </NuxtLink>
-    </UiCard>
+    </AppUiCard>
 
-    <UiCard title="Raccourcis" class="mt-6">
+    <AppUiCard title="Raccourcis" class="mt-4">
       <div class="grid gap-2 sm:grid-cols-2">
         <NuxtLink
           v-for="link in quickLinks"
           :key="link.to"
           :to="link.to"
-          class="flex items-center gap-3 rounded-focus border border-focus-gray-200 px-4 py-3 text-sm font-medium text-focus-gray-700 transition hover:border-focus-gray-300 hover:bg-focus-gray-50"
+          class="flex min-h-11 items-center gap-3 rounded-app-control bg-app-canvas px-4 py-3 text-sm font-semibold text-app-ink transition hover:bg-app-mist hover:text-app-blue"
         >
-          <span class="text-base text-focus-gray-400">{{ link.icon }}</span>
+          <AppIcon :name="link.icon" class="h-5 w-5 text-app-blue" />
           {{ link.label }}
         </NuxtLink>
       </div>
-    </UiCard>
+    </AppUiCard>
 
-    <UiCard v-if="pwa?.showInstallPrompt && !pwa?.isPWAInstalled" title="Application" class="mt-6">
-      <p class="text-sm text-focus-gray-500">
+    <AppUiCard v-if="pwa?.showInstallPrompt && !pwa?.isPWAInstalled" title="Application" class="mt-4">
+      <p class="text-sm text-app-secondary">
         Installez Focus sur votre écran d'accueil pour un accès rapide, comme une application native.
       </p>
-      <UiButton variant="secondary" class="mt-4" @click="installPwa">
+      <AppUiButton variant="secondary" class="mt-4" @click="installPwa">
         Installer l'application
-      </UiButton>
-    </UiCard>
+      </AppUiButton>
+    </AppUiCard>
 
-    <UiCard v-if="userjotEnabled" title="Aide & feedback" class="mt-6">
-      <p class="text-sm text-focus-gray-500">
+    <AppUiCard v-if="userjotEnabled" title="Aide & feedback" class="mt-4">
+      <p class="text-sm text-app-secondary">
         Partagez vos idées, signalez un bug ou votez pour les prochaines fonctionnalités.
       </p>
-      <UiButton variant="secondary" class="mt-4" @click="showFeedback">
+      <AppUiButton variant="secondary" class="mt-4" @click="showFeedback">
         Donner un avis
-      </UiButton>
-    </UiCard>
+      </AppUiButton>
+    </AppUiCard>
 
-    <UiCard title="Compte" class="mt-6">
+    <AppUiCard title="Compte" class="mt-4">
       <div class="space-y-3">
         <NuxtLink
           v-if="isAdmin"
           to="/admin"
-          class="focus-btn-secondary inline-flex w-full justify-center sm:w-auto"
+          class="app-button-secondary inline-flex w-full justify-center sm:w-auto"
         >
-          ◆ Administration
+          Administration
         </NuxtLink>
         <div>
-          <UiButton variant="ghost" class="text-red-500" @click="logout">
+          <AppUiButton variant="ghost" class="!text-red-500" @click="logout">
             Déconnexion
-          </UiButton>
+          </AppUiButton>
         </div>
       </div>
-    </UiCard>
+    </AppUiCard>
   </div>
 </template>
