@@ -1,7 +1,19 @@
 {
-  "name": "Focus",
+  "name": "focus",
+  "version": "0.1.0",
+  "description": "PWA open source pour atteindre ses objectifs avec crédits, conséquences et responsabilité",
   "type": "module",
   "private": true,
+  "license": "MIT",
+  "author": "Mickael Rébeau",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mickaelrebeau/Focus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mickaelrebeau/Focus/issues"
+  },
+  "homepage": "https://github.com/mickaelrebeau/Focus#readme",
   "engines": {
     "node": "22"
   },
