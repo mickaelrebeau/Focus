@@ -65,7 +65,8 @@ export default defineNuxtConfig({
     databaseUrl: process.env.DATABASE_URL || '',
     redisUrl: process.env.REDIS_URL || '',
     sessionSecret: process.env.SESSION_SECRET || 'dev-secret-change-me',
-    adminEmail: process.env.ADMIN_EMAIL || 'rebeau.mickael@gmail.com',
+    // Aucun administrateur par défaut : chaque instance doit définir ADMIN_EMAIL
+    adminEmail: process.env.ADMIN_EMAIL || '',
     adminPassword: process.env.ADMIN_PASSWORD || '',
     googleClientId: process.env.GOOGLE_CLIENT_ID || '',
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',

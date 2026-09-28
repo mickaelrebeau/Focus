@@ -26,11 +26,16 @@ function loadEnv() {
 loadEnv()
 
 const databaseUrl = process.env.DATABASE_URL
-const adminEmail = process.env.ADMIN_EMAIL || 'rebeau.mickael@gmail.com'
+const adminEmail = process.env.ADMIN_EMAIL
 const force = process.argv.includes('--force')
 
 if (!databaseUrl) {
   console.error('DATABASE_URL manquant. Vérifiez votre fichier .env')
+  process.exit(1)
+}
+
+if (!adminEmail) {
+  console.error('ADMIN_EMAIL manquant : indiquez le compte administrateur qui recevra les données de démo.')
   process.exit(1)
 }
 
