@@ -8,6 +8,7 @@ export type AppIconName =
   | 'settings'
   | 'bolt'
   | 'bell'
+  | 'pause'
   | 'plus'
   | 'check'
   | 'close'

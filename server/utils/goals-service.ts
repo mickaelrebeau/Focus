@@ -5,6 +5,7 @@ import { useDatabase, schema } from '../database'
 import { triggerConsequencesOnFailure } from './consequences-service'
 import { processStreaksForUser, reevaluateUserDay } from './streaks'
 import { acquireLock, redisGet, redisSet, releaseLock, tryAcquireLock, withRedisTimeout } from './redis'
+import { getEffectivePauses, isDateInPauses } from './pauses'
 
 type Db = PostgresJsDatabase<typeof schema>
 
@@ -186,6 +187,7 @@ export async function generateUpcomingOccurrences(dbInstance?: Db) {
     .where(eq(schema.goals.isActive, true))
 
   let created = 0
+  const pausesByUser = new Map<string, Awaited<ReturnType<typeof getEffectivePauses>>>()
 
   for (const goal of activeGoals) {
     const [user] = await db
@@ -208,6 +210,11 @@ export async function generateUpcomingOccurrences(dbInstance?: Db) {
     } else {
       dates = generateOccurrenceDates(goal, user.timezone, from, to)
     }
+
+    if (!pausesByUser.has(goal.userId)) {
+      pausesByUser.set(goal.userId, await getEffectivePauses(goal.userId))
+    }
+    const pauses = pausesByUser.get(goal.userId)!
 
     for (const date of dates) {
       try {

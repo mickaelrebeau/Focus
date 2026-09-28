@@ -78,6 +78,7 @@
       <ClientOnly>
         <AppOfflineBanner />
       </ClientOnly>
+      <AppPauseBanner />
       <div class="pb-28 lg:pb-8">
         <slot />
       </div>

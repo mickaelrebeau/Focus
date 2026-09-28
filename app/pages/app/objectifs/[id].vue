@@ -50,7 +50,7 @@ const statusLabels: Record<string, string> = {
   pending: 'À faire',
   completed: 'Réussi',
   failed: 'Échoué',
-  skipped: 'Ignoré',
+  skipped: 'En pause',
 }
 
 const goal = computed(() => data.value?.goal)

@@ -15,6 +15,7 @@ export interface AuthUser {
   paymentMethodLast4?: string
   paymentMethodExpMonth?: number
   paymentMethodExpYear?: number
+  activePause?: { id: string, startDate: string, endDate: string } | null
 }
 
 import { clearOfflineCaches } from '~/utils/offline-cache'

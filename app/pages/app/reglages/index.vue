@@ -35,6 +35,7 @@ const quickLinks: { to: string, label: string, icon: AppIconName }[] = [
   { to: '/app/classement', label: 'Classement', icon: 'ranking' },
   { to: '/app/reglages/consequences', label: 'Conséquences', icon: 'bolt' },
   { to: '/app/reglages/notifications', label: 'Notifications', icon: 'bell' },
+  { to: '/app/reglages/pause', label: 'Pause / vacances', icon: 'pause' },
 ]
 
 const walletTypeLabels: Record<string, string> = {

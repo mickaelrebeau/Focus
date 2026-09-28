@@ -92,7 +92,7 @@
       "overdue": "En retard",
       "completed": "Réussi",
       "failed": "Échoué",
-      "skipped": "Ignoré"
+      "skipped": "En pause"
     },
     "validate": "Valider {title}"
   },
@@ -222,6 +222,49 @@
     "testNotDelivered": "La notification de test n'a pas pu être remise. Réessayez dans quelques instants.",
     "errors": {
       "load": "Impossible de charger vos réglages de notifications.",
+      "generic": "Une erreur est survenue."
+    }
+  },
+  "pause": {
+    "eyebrow": "Absence planifiée",
+    "title": "Pause / vacances",
+    "subtitle": "Mettez vos objectifs en pause pendant une absence, sans échec ni conséquence.",
+    "rulesTitle": "Comment ça marche",
+    "ruleSkipped": "Pendant la pause, vos échéances passent « En pause » : aucune ne peut échouer, aucune conséquence ni pénalité n'est appliquée, aucun rappel n'est envoyé.",
+    "ruleStreak": "Votre streak est gelé : les jours de pause ne le cassent pas et ne le prolongent pas. Il reprend là où il en était.",
+    "ruleLimits": "Une pause commence au plus tôt aujourd'hui (pas de pause rétroactive) et dure au maximum {max} jours.",
+    "planTitle": "Planifier une pause",
+    "alreadyPlanned": "Une pause est déjà en cours ou planifiée. Terminez-la ou annulez-la pour en créer une nouvelle.",
+    "startDate": "Début",
+    "endDate": "Fin (incluse)",
+    "reason": "Motif (facultatif)",
+    "reasonPlaceholder": "Ex. vacances, déplacement…",
+    "submit": "Planifier la pause",
+    "created": "Pause planifiée. | Pause planifiée, {count} échéance mise en pause. | Pause planifiée, {count} échéances mises en pause.",
+    "historyTitle": "Historique des pauses",
+    "historyEmpty": "Aucune pause pour l'instant.",
+    "range": "Du {start} au {end}",
+    "endedEarly": "Terminée plus tôt (fin prévue le {date})",
+    "status": {
+      "upcoming": "À venir",
+      "active": "En cours",
+      "ended": "Terminée",
+      "cancelled": "Annulée"
+    },
+    "endNow": "Terminer maintenant",
+    "cancel": "Annuler",
+    "cancelledFeedback": "Pause annulée.",
+    "endedFeedback": "Pause terminée : vos échéances à venir sont de nouveau à faire.",
+    "bannerTitle": "Pause en cours.",
+    "bannerText": "Vos objectifs sont en pause jusqu'au {date} inclus.",
+    "bannerLink": "Gérer",
+    "errors": {
+      "start_in_past": "Une pause ne peut pas commencer dans le passé.",
+      "end_before_start": "La date de fin doit suivre la date de début.",
+      "too_long": "Une pause dure au maximum {max} jours.",
+      "overlap": "Cette période chevauche une pause existante.",
+      "not_found": "Pause introuvable.",
+      "already_ended": "Cette pause est déjà terminée.",
       "generic": "Une erreur est survenue."
     }
   }
