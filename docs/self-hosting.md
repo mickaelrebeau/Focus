@@ -64,7 +64,7 @@ En local, `docker compose up -d` fournit les deux (voir le [README](../README.md
 
 ### 3. Compte administrateur
 
-- [ ] **Définir `ADMIN_EMAIL` avec votre propre adresse.** Le compte qui s’inscrit avec cette adresse (par email ou via Google) reçoit le rôle administrateur. Ne laissez pas la valeur par défaut du dépôt.
+- [ ] **Définir `ADMIN_EMAIL` avec votre propre adresse.** Le compte qui s’inscrit avec cette adresse (par email ou via Google) reçoit le rôle administrateur. Sans cette variable, aucun compte n’est administrateur.
 - [ ] Optionnel : définir aussi `ADMIN_PASSWORD` pour que le compte admin soit créé automatiquement au démarrage (ou promu admin s’il existe déjà).
 - [ ] Optionnel : `pnpm db:seed` ajoute des objectifs de démonstration au compte admin (qui doit déjà exister).
 
