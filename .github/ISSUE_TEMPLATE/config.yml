@@ -1,5 +1,11 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Question / aide
+    url: https://github.com/mickaelrebeau/Focus/discussions/categories/q-a
+    about: Une question sur l’installation ou l’utilisation ? Posez-la dans les Discussions (Q&A) plutôt que dans une issue.
+  - name: Idée à discuter
+    url: https://github.com/mickaelrebeau/Focus/discussions/categories/ideas
+    about: Une idée encore floue ? Lancez la discussion avant d’ouvrir une issue « feature ».
   - name: Signalement de sécurité
     url: https://github.com/mickaelrebeau/Focus/security/advisories/new
     about: Ne pas ouvrir d’issue publique pour une vulnérabilité. Utilisez un advisory privé.

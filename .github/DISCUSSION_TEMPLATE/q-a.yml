@@ -1,0 +1,31 @@
+title: "[Question] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci pour votre question. Pour un bug reproductible, ouvrez plutôt une [issue](https://github.com/mickaelrebeau/Focus/issues/new/choose) ; pour une vulnérabilité, un [advisory privé](https://github.com/mickaelrebeau/Focus/security/advisories/new).
+  - type: textarea
+    id: question
+    attributes:
+      label: Votre question
+      description: Ce que vous cherchez à faire et ce qui bloque.
+    validations:
+      required: true
+  - type: dropdown
+    id: context
+    attributes:
+      label: Contexte
+      options:
+        - Installation locale (Docker Compose)
+        - Installation locale (Postgres / Redis installés)
+        - Déploiement Railway
+        - Autre hébergement
+        - Utilisation de l’app
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Détails
+      description: Messages d’erreur, logs, version de Node, commit utilisé… Retirez toute donnée sensible (clés, tokens, URL de base).
+      render: shell
