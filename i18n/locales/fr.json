@@ -29,7 +29,8 @@
     "getStarted": "Commencer",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
-    "copyright": "© {year} Focus. Tous droits réservés."
+    "copyright": "© {year} Focus. Tous droits réservés.",
+    "partner": "Binôme"
   },
   "offline": {
     "bannerTitle": "Hors ligne.",
@@ -265,6 +266,63 @@
       "overlap": "Cette période chevauche une pause existante.",
       "not_found": "Pause introuvable.",
       "already_ended": "Cette pause est déjà terminée.",
+      "generic": "Une erreur est survenue."
+    }
+  },
+  "partner": {
+    "eyebrow": "Responsabilité",
+    "title": "Binôme",
+    "subtitle": "Un pair de confiance voit votre statut du jour, et vous le sien.",
+    "yourPartner": "Votre binôme",
+    "streak": "Streak : {count} jour | Streak : {count} jour | Streak : {count} jours",
+    "today": "Aujourd'hui",
+    "progress": "{completed} sur {total} échéances validées",
+    "status": {
+      "success": "Journée réussie",
+      "failed": "Échec aujourd'hui",
+      "late": "En retard",
+      "in_progress": "En cours",
+      "rest": "Rien de prévu",
+      "paused": "En pause"
+    },
+    "lastDays": "7 derniers jours",
+    "history": {
+      "success": "Réussi",
+      "failed": "Échoué",
+      "neutral": "Rien de prévu",
+      "paused": "En pause"
+    },
+    "privacy": "Votre binôme voit uniquement votre prénom, votre statut du jour, votre streak et vos 7 derniers jours. Jamais les titres de vos objectifs, vos notes, vos preuves, vos crédits, vos paiements ni vos conséquences.",
+    "revoke": "Mettre fin au binôme",
+    "confirmRevoke": "Mettre fin au binôme ? Vous ne verrez plus vos statuts respectifs.",
+    "revoked": "Binôme terminé.",
+    "inviteTitle": "Inviter un binôme",
+    "inviteExplain": "Créez un lien d'invitation et envoyez-le à une personne de confiance. En l'acceptant, vous verrez chacun le statut de l'autre.",
+    "createLink": "Créer un lien d'invitation",
+    "newLink": "Générer un nouveau lien",
+    "linkLabel": "Lien d'invitation",
+    "linkHint": "Valable 7 jours et une seule fois. Générer un nouveau lien invalide le précédent.",
+    "copy": "Copier",
+    "copied": "Lien copié.",
+    "pendingInvite": "Une invitation est en attente. Pour des raisons de sécurité, le lien n'est affiché qu'à sa création : générez-en un nouveau si besoin.",
+    "cancelInvite": "Annuler l'invitation",
+    "inviteCancelled": "Invitation annulée.",
+    "invite": {
+      "title": "{name} vous invite à devenir son binôme",
+      "explain": "Vous verrez chacun le statut du jour de l'autre (réussi, en retard, échoué) pour vous encourager mutuellement.",
+      "privacy": "Seuls le prénom, le statut du jour, le streak et les 7 derniers jours sont partagés. Aucun objectif détaillé, aucune donnée de paiement. Vous pourrez y mettre fin à tout moment.",
+      "accept": "Accepter et partager mon statut",
+      "loginToAccept": "Se connecter pour accepter",
+      "signupToAccept": "Créer un compte",
+      "unavailableTitle": "Invitation indisponible"
+    },
+    "errors": {
+      "invalid_invite": "Ce lien d'invitation n'est pas valide ou a déjà été utilisé.",
+      "expired": "Ce lien d'invitation a expiré.",
+      "self": "Vous ne pouvez pas accepter votre propre invitation.",
+      "already_partnered": "Vous avez déjà un binôme. Mettez-y fin avant d'en accepter un autre.",
+      "inviter_partnered": "Cette personne a déjà un binôme.",
+      "not_found": "Binôme introuvable.",
       "generic": "Une erreur est survenue."
     }
   }

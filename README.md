@@ -30,6 +30,7 @@ PWA open source, mobile-first, pour aider à réaliser ses objectifs avec un sys
 - Panel admin (users, modération, cagnottes, audit)
 - PWA installable, consultation hors ligne des échéances déjà chargées
 - Notifications push (opt-in) : rappel avant échéance, streak en danger, conséquence appliquée, bonus de palier
+- Binôme de responsabilité : invitation par lien, statut du jour partagé sans données privées
 - Interface en français (par défaut) et en anglais ([ajouter une langue](./CONTRIBUTING.md#ajouter-une-langue))
 
 Pour comprendre le flux métier (échéances, workers, streak, conséquences), lire [docs/architecture.md](./docs/architecture.md).

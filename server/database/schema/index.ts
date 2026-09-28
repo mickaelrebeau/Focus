@@ -426,6 +426,22 @@ export const notifications = pgTable('notifications', {
   index('notifications_user_read_idx').on(table.userId, table.read),
 ])
 
+export const partnerships = pgTable('partnerships', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  inviterId: uuid('inviter_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  partnerId: uuid('partner_id').references(() => users.id, { onDelete: 'cascade' }),
+  inviteTokenHash: text('invite_token_hash').notNull().unique(),
+  status: text('status', { enum: ['pending', 'active', 'revoked'] }).notNull().default('pending'),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  acceptedAt: timestamp('accepted_at', { withTimezone: true }),
+  revokedAt: timestamp('revoked_at', { withTimezone: true }),
+  revokedBy: uuid('revoked_by').references(() => users.id, { onDelete: 'set null' }),
+}, (table) => [
+  index('partnerships_inviter_id_idx').on(table.inviterId),
+  index('partnerships_partner_id_idx').on(table.partnerId),
+])
+
 export const pausePeriods = pgTable('pause_periods', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),

@@ -29,7 +29,7 @@ async function handleLogin() {
   loading.value = true
   try {
     const user = await login(email.value, password.value)
-    await navigateTo(user.role === 'admin' ? '/admin' : '/app')
+    await navigateTo(safeRedirect(route.query.redirect) ?? (user.role === 'admin' ? '/admin' : '/app'))
   } catch (e: any) {
     error.value = authErrorMessage(e, 'auth.errors.login')
   } finally {
@@ -70,7 +70,7 @@ async function handleLogin() {
       <div class="mt-6 text-center text-sm text-focus-gray-400">
         <NuxtLink to="/mot-de-passe-oublie" class="hover:text-focus-gray-700">{{ t('auth.login.forgotPassword') }}</NuxtLink>
         <span class="mx-2">·</span>
-        <NuxtLink to="/inscription" class="hover:text-focus-gray-700">{{ t('auth.login.createAccount') }}</NuxtLink>
+        <NuxtLink :to="{ path: '/inscription', query: route.query.redirect ? { redirect: route.query.redirect } : {} }" class="hover:text-focus-gray-700">{{ t('auth.login.createAccount') }}</NuxtLink>
       </div>
     </div>
   </div>

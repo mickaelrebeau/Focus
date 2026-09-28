@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 
+const route = useRoute()
 const email = ref('')
 const password = ref('')
 const displayName = ref('')
@@ -15,7 +16,8 @@ async function handleRegister() {
   loading.value = true
   try {
     await register(email.value, password.value, displayName.value)
-    await navigateTo('/app/onboarding')
+    const redirect = safeRedirect(route.query.redirect)
+    await navigateTo({ path: '/app/onboarding', query: redirect ? { redirect } : {} })
   } catch (e: any) {
     error.value = authErrorMessage(e, 'auth.errors.register')
   } finally {
@@ -56,7 +58,7 @@ async function handleRegister() {
 
       <p class="mt-6 text-center text-sm text-focus-gray-400">
         {{ t('auth.register.alreadyRegistered') }}
-        <NuxtLink to="/connexion" class="text-focus-gray-700 hover:underline">{{ t('auth.register.login') }}</NuxtLink>
+        <NuxtLink :to="{ path: '/connexion', query: route.query.redirect ? { redirect: route.query.redirect } : {} }" class="text-focus-gray-700 hover:underline">{{ t('auth.register.login') }}</NuxtLink>
       </p>
     </div>
   </div>
