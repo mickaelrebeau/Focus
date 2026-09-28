@@ -107,7 +107,7 @@ sequenceDiagram
   par Synchronisation à la lecture
     U->>API: GET /api/occurrences ou /api/goals/:id
     API->>GS: syncUserDeadlines(userId, tz)
-    GS->>GS: processExpiredOccurrencesForUser
+    Note over GS: saute si rien n'a expiré et synchro < 60 s<br/>verrou Redis sync-deadlines:userId
     GS->>GS: processStreaksForUser
   and Tick périodique
     W->>GS: processExpiredOccurrences()<br/>(verrou Redis worker:deadlines)
@@ -120,7 +120,11 @@ sequenceDiagram
 ```
 
 - **Tick** (`processExpiredOccurrences`) : traite toutes les échéances expirées, sous un verrou Redis `lock:worker:deadlines` (TTL 60 s) pour éviter que deux workers tournent en parallèle. Si le verrou n’est pas acquis, le tick est ignoré.
-- **Lecture API** (`syncUserDeadlines`) : `GET /api/occurrences` et `GET /api/goals/:id` traitent les échéances expirées **de l’utilisateur courant** avant de répondre, pour que l’UI soit juste même si le worker est en retard ou arrêté. Les erreurs sont avalées : la lecture ne doit jamais échouer à cause de la synchronisation. L’issue #9 propose d’en limiter la fréquence.
+- **Lecture API** (`syncUserDeadlines`) : `GET /api/occurrences` et `GET /api/goals/:id` traitent les échéances expirées **de l’utilisateur courant** avant de répondre, pour que l’UI soit juste même si le worker est en retard ou arrêté. Les erreurs sont avalées : la lecture ne doit jamais échouer à cause de la synchronisation. Pour limiter la charge :
+  - s’il existe une échéance expirée, elle est **toujours** traitée tout de suite ;
+  - sinon, la clôture des jours passés n’est rejouée qu’une fois par minute et par utilisateur (marqueur Redis `sync-deadlines:last:<userId>`, `SYNC_THROTTLE_SECONDS`) ;
+  - un verrou Redis `lock:sync-deadlines:<userId>` empêche deux synchronisations concurrentes du même utilisateur : la seconde lecture répond sans synchroniser ;
+  - si Redis est indisponible, la synchronisation a lieu quand même (voir « Concurrence »). Chaque opération Redis de ce chemin est bornée à 500 ms, car le client attend sinon indéfiniment la reconnexion.
 - **Concurrence** : chaque échéance est reverrouillée (`FOR UPDATE`) et son statut revérifié dans une transaction. Si les deux chemins tombent sur la même échéance, un seul la passe en `failed` et déclenche les conséquences.
 
 ## Streak et clôture journalière
