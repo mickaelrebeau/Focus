@@ -78,7 +78,7 @@ Les deux workers se lancent depuis le **dépôt complet** (ils s’exécutent av
 - [ ] **consequences** : `pnpm worker:consequences`. Exécute les conséquences mises en file lors d’un échec (5 en parallèle, 3 tentatives). Il a besoin de `STRIPE_SECRET_KEY` si Stripe est activé. Au démarrage, il reprend les conséquences restées en attente.
 - [ ] Un seul exemplaire de chaque worker suffit. Un verrou Redis évite de toute façon un double traitement des échéances.
 
-**Railway** : créer trois services depuis le même dépôt. Le web est configuré par `/railway.toml`. Les deux workers se règlent dans leurs paramètres de service : commande de démarrage, build command neutre (pas de build Nuxt), aucun healthcheck et redémarrage « Always ». Le détail est dans la section « Déploiement Railway » du README. Définissez leurs variables par référence au service web (`DATABASE_URL=${{web.DATABASE_URL}}`), et ne leur donnez pas `NODE_ENV=production`, qui priverait le build de `tsx`.
+**Railway** : le dépôt décrit l’infrastructure complète dans `.railway/railway.ts` (Infrastructure as Code). Sur votre propre projet Railway, adaptez le nom du dépôt GitHub dans ce fichier, liez le dossier (`railway link`), puis `railway config plan` et `railway config apply` créent les services web, `worker` et `consequences`, PostgreSQL et Redis. Les workers reçoivent les variables du web par référence. Ne leur donnez pas `NODE_ENV=production`, qui priverait le build de `tsx`.
 
 **Docker / serveur** : le dépôt ne fournit pas encore de `Dockerfile`. Le plus simple est une image unique contenant le dépôt, `node_modules` et le build, lancée trois fois avec une commande différente :
 
