@@ -3,7 +3,7 @@ import { hashPassword } from '../../utils/password'
 import { createSession, isConfiguredAdminEmail, setSessionCookie } from '../../utils/auth'
 import { useDatabase, schema } from '../../database'
 import { eq } from 'drizzle-orm'
-import { redisIncr } from '../../utils/redis'
+import { rateLimitFromEnv, redisIncr } from '../../utils/redis'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
 
   const ip = getRequestIP(event) ?? 'unknown'
   const attempts = await redisIncr(`register:${ip}`, 3600)
-  if (attempts > 10) {
+  // 10 inscriptions par heure et par IP (REGISTER_RATE_LIMIT pour ajuster)
+  if (attempts > rateLimitFromEnv('REGISTER_RATE_LIMIT', 10)) {
     throw createError({ statusCode: 429, message: 'Trop de tentatives' })
   }
 

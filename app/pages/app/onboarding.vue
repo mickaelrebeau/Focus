@@ -20,6 +20,9 @@ onMounted(() => {
   }
 })
 
+const { t } = useI18n()
+const pickTemplate = ref(false)
+
 async function handleSubmit() {
   loading.value = true
   await $fetch('/api/user/settings', {
@@ -31,7 +34,8 @@ async function handleSubmit() {
     },
   })
   await fetchUser()
-  await navigateTo(safeRedirect(route.query.redirect) ?? '/app')
+  const fallback = pickTemplate.value ? '/app/objectifs/nouveau' : '/app'
+  await navigateTo(safeRedirect(route.query.redirect) ?? fallback)
   loading.value = false
 }
 </script>
@@ -54,7 +58,10 @@ async function handleSubmit() {
           label="Participer au classement"
           description="Votre score net pourra apparaître dans le classement."
         />
-        <AppUiButton type="submit" class="w-full" :loading="loading">Continuer</AppUiButton>
+        <AppUiButton type="submit" class="w-full" :loading="loading" @click="pickTemplate = false">Continuer</AppUiButton>
+        <AppUiButton type="submit" variant="secondary" class="w-full" :disabled="loading" @click="pickTemplate = true">
+          {{ t('templates.onboardingCta') }}
+        </AppUiButton>
       </form>
     </div>
   </div>

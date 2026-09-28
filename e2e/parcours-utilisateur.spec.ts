@@ -52,7 +52,7 @@ test('inscription puis onboarding', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/app\/onboarding$/)
   await expect(page.getByLabel('Nom d\'affichage')).toHaveValue(account.displayName)
-  await page.getByRole('button', { name: 'Continuer' }).click()
+  await page.getByRole('button', { name: 'Continuer', exact: true }).click()
 
   await expect(page).toHaveURL(/\/app$/)
 })

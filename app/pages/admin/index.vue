@@ -1,4 +1,17 @@
 <script setup lang="ts">
+import { HugeiconsIcon } from '@hugeicons/vue'
+import {
+  Alert02Icon,
+  Calendar03Icon,
+  Coins01Icon,
+  FileSearchIcon,
+  MinusSignCircleIcon,
+  MoneyBag01Icon,
+  Shield01Icon,
+  Target01Icon,
+  TaskDone01Icon,
+  UserGroupIcon,
+} from '@hugeicons/core-free-icons'
 definePageMeta({ layout: 'admin', middleware: ['auth', 'admin'] })
 
 const { data, pending } = useFetch('/api/admin/stats', { credentials: 'include' })
@@ -13,42 +26,42 @@ const stats = computed(() => {
       value: s.users,
       hint: 'Comptes inscrits',
       tone: 'neutral' as const,
-      icon: '◉',
+      icon: UserGroupIcon,
     },
     {
       label: 'Objectifs actifs',
       value: s.activeGoals,
       hint: 'En cours',
       tone: 'accent' as const,
-      icon: '◈',
+      icon: Target01Icon,
     },
     {
       label: 'Validations en attente',
       value: s.pendingValidations,
       hint: 'À modérer',
       tone: s.pendingValidations > 0 ? 'warning' as const : 'neutral' as const,
-      icon: '◎',
+      icon: TaskDone01Icon,
     },
     {
       label: 'Échéances échouées',
       value: s.failedOccurrences,
       hint: 'Total',
       tone: s.failedOccurrences > 0 ? 'danger' as const : 'neutral' as const,
-      icon: '△',
+      icon: Alert02Icon,
     },
     {
       label: 'Crédits en circulation',
       value: s.totalCredits,
       hint: 'Solde cumulé',
       tone: 'success' as const,
-      icon: '+',
+      icon: Coins01Icon,
     },
     {
       label: 'Dette totale',
       value: s.totalDebt,
       hint: 'À rembourser',
       tone: s.totalDebt > 0 ? 'danger' as const : 'neutral' as const,
-      icon: '−',
+      icon: MinusSignCircleIcon,
     },
   ]
 })
@@ -63,35 +76,35 @@ const actions = [
     to: '/admin/moderation',
     label: 'Modération',
     description: 'Valider ou rejeter les preuves soumises',
-    icon: '◎',
+    icon: Shield01Icon,
     highlight: computed(() => (data.value?.stats?.pendingValidations ?? 0) > 0),
   },
   {
     to: '/admin/utilisateurs',
     label: 'Utilisateurs',
     description: 'Consulter les profils et ajuster les crédits',
-    icon: '◉',
+    icon: UserGroupIcon,
     highlight: computed(() => false),
   },
   {
     to: '/admin/cagnotte',
     label: 'Cagnotte commune',
     description: 'Suivre la cagnotte et enregistrer les reversements mensuels',
-    icon: '◎',
+    icon: MoneyBag01Icon,
     highlight: computed(() => false),
   },
   {
     to: '/admin/echeances',
     label: 'Échéances',
     description: 'Suivre les occurrences et leur statut',
-    icon: '◷',
+    icon: Calendar03Icon,
     highlight: computed(() => (data.value?.stats?.failedOccurrences ?? 0) > 0),
   },
   {
     to: '/admin/audit',
     label: 'Journal d\'audit',
     description: 'Historique des actions administrateur',
-    icon: '◫',
+    icon: FileSearchIcon,
     highlight: computed(() => false),
   },
 ]
@@ -162,7 +175,7 @@ const toneValueClasses = {
           <span
             class="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-lg text-focus-gray-400"
           >
-            {{ stat.icon }}
+            <HugeiconsIcon :icon="stat.icon" :size="20" :stroke-width="1.8" aria-hidden="true" />
           </span>
         </div>
         <p class="mt-3 text-xs text-focus-gray-400">{{ stat.hint }}</p>
@@ -181,7 +194,7 @@ const toneValueClasses = {
         >
           <div class="flex items-start gap-4">
             <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-focus-gray-100 text-lg text-focus-gray-500 transition group-hover:bg-focus-gray-900 group-hover:text-white">
-              {{ action.icon }}
+              <HugeiconsIcon :icon="action.icon" :size="20" :stroke-width="1.8" aria-hidden="true" />
             </span>
             <div>
               <p class="font-medium text-focus-gray-900">{{ action.label }}</p>

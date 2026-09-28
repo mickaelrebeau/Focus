@@ -3,7 +3,7 @@ import { verifyPassword } from '../../utils/password'
 import { createSession, setSessionCookie } from '../../utils/auth'
 import { useDatabase, schema } from '../../database'
 import { eq } from 'drizzle-orm'
-import { redisIncr } from '../../utils/redis'
+import { rateLimitFromEnv, redisIncr } from '../../utils/redis'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
 
   const ip = getRequestIP(event) ?? 'unknown'
   const attempts = await redisIncr(`login:${ip}`, 900)
-  if (attempts > 20) {
+  // 20 tentatives par quart d'heure et par IP (LOGIN_RATE_LIMIT pour ajuster)
+  if (attempts > rateLimitFromEnv('LOGIN_RATE_LIMIT', 20)) {
     throw createError({ statusCode: 429, message: 'Trop de tentatives de connexion' })
   }
 

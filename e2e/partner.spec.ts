@@ -42,7 +42,7 @@ test('invitation, vue mutuelle sans données privées, puis révocation', async 
   await bobPage.getByPlaceholder('8 caractères minimum').fill(randomBytes(16).toString('base64url'))
   await bobPage.getByRole('button', { name: 'S\'inscrire' }).click()
   await expect(bobPage).toHaveURL(/\/app\/onboarding\?redirect=/)
-  await bobPage.getByRole('button', { name: 'Continuer' }).click()
+  await bobPage.getByRole('button', { name: 'Continuer', exact: true }).click()
   await expect(bobPage).toHaveURL(new URL(link).pathname)
 
   await bobPage.getByRole('button', { name: 'Accepter et partager mon statut' }).click()

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { HugeiconsIcon } from '@hugeicons/vue'
+import { consequenceIcon } from '~/utils/consequence-icons'
 import type { ConsequenceType, UserConsequence } from '~/composables/useConsequences'
 import {
   centsToEuros,
@@ -153,7 +155,7 @@ function onToggle(value: boolean) {
       <div class="min-w-0 flex-1">
         <div class="flex flex-wrap items-center gap-2">
           <span class="flex h-8 w-8 items-center justify-center rounded-full bg-app-mist text-sm text-app-blue">
-            {{ typeInfo?.icon ?? '◈' }}
+            <HugeiconsIcon :icon="consequenceIcon(consequence.type)" :size="16" :stroke-width="1.8" aria-hidden="true" />
           </span>
           <h3 class="text-sm font-semibold text-app-ink">
             {{ typeName(consequence.type, typeInfo) }}

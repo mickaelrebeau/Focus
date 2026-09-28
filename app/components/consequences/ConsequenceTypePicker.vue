@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { HugeiconsIcon } from '@hugeicons/vue'
+import { consequenceIcon } from '~/utils/consequence-icons'
 import type { ConsequenceType } from '~/composables/useConsequences'
 import {
   isBehaviorConsequenceType,
@@ -46,7 +48,7 @@ function formatDefaultAmount(type: string): string {
         @click="addType(type)"
       >
         <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-lg text-app-blue">
-          {{ type.icon }}
+          <HugeiconsIcon :icon="consequenceIcon(type.key)" :size="20" :stroke-width="1.8" aria-hidden="true" />
         </span>
         <div class="min-w-0">
           <p class="text-sm font-semibold text-app-ink">{{ typeName(type.key, type) }}</p>

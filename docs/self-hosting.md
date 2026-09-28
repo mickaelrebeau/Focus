@@ -171,6 +171,8 @@ Sur iPhone et iPad, les notifications ne fonctionnent que si Focus est installé
 | `VAPID_PUBLIC_KEY` | Push | `VAPID_PUBLIC_KEY` | Clé publique Web Push (web + workers) |
 | `VAPID_PRIVATE_KEY` | Push | `VAPID_PRIVATE_KEY` | Clé privée Web Push (web + workers) |
 | `VAPID_SUBJECT` | Push | `VAPID_SUBJECT` | Contact de l’instance (`mailto:` ou URL), `APP_URL` par défaut |
+| `REGISTER_RATE_LIMIT` | — | `REGISTER_RATE_LIMIT` | Inscriptions par heure et par IP (10 par défaut) |
+| `LOGIN_RATE_LIMIT` | — | `LOGIN_RATE_LIMIT` | Tentatives de connexion par quart d’heure et par IP (20 par défaut) |
 | `USERJOT_PROJECT_ID` | — | `NUXT_PUBLIC_USERJOT_PROJECT_ID` | Widget de feedback [UserJot](https://userjot.com) |
 | `USERJOT_SECRET_KEY` | — | `NUXT_USERJOT_SECRET_KEY` | Identification signée des utilisateurs UserJot |
 

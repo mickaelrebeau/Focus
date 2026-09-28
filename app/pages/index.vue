@@ -1,14 +1,27 @@
 <script setup lang="ts">
+import { HugeiconsIcon } from '@hugeicons/vue'
+import {
+  Analytics01Icon,
+  CheckmarkBadge01Icon,
+  Clock01Icon,
+  Dumbbell01Icon,
+  FavouriteIcon,
+  NewTwitterIcon,
+  Note01Icon,
+  PaintBrush01Icon,
+  RankingIcon,
+} from '@hugeicons/core-free-icons'
+
 const landingRef = ref<HTMLElement | null>(null)
 useLandingMotion(landingRef)
 
 const useCases = [
-  { icon: '𝕏', title: 'Réseaux sociaux', description: 'Publiez un post sur X chaque jour et tenez le rythme.' },
-  { icon: '◈', title: 'Projets créatifs', description: 'Suivez l\'avancement de vos projets dev, design ou jeux vidéo.' },
-  { icon: '◎', title: 'Sport & santé', description: 'Faites du sport 3 fois par semaine, sans exception.' },
-  { icon: '◷', title: 'Habitudes quotidiennes', description: 'Méditation, lecture, apprentissage — chaque jour compte.' },
-  { icon: '▲', title: 'Classement', description: 'Comparez votre score net avec la communauté Focus.' },
-  { icon: '◫', title: 'Historique complet', description: 'Retracez chaque crédit gagné, perdu ou remboursé.' },
+  { icon: NewTwitterIcon, title: 'Réseaux sociaux', description: 'Publiez un post sur X chaque jour et tenez le rythme.' },
+  { icon: PaintBrush01Icon, title: 'Projets créatifs', description: 'Suivez l\'avancement de vos projets dev, design ou jeux vidéo.' },
+  { icon: Dumbbell01Icon, title: 'Sport & santé', description: 'Faites du sport 3 fois par semaine, sans exception.' },
+  { icon: Clock01Icon, title: 'Habitudes quotidiennes', description: 'Méditation, lecture, apprentissage — chaque jour compte.' },
+  { icon: RankingIcon, title: 'Classement', description: 'Comparez votre score net avec la communauté Focus.' },
+  { icon: Note01Icon, title: 'Historique complet', description: 'Retracez chaque crédit gagné, perdu ou remboursé.' },
 ]
 </script>
 
@@ -83,7 +96,7 @@ const useCases = [
         <h2 class="landing-reveal focus-heading-lg text-center">Pour tous vos objectifs</h2>
         <div class="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div v-for="useCase in useCases" :key="useCase.title" class="landing-reveal focus-card">
-            <span class="text-2xl">{{ useCase.icon }}</span>
+            <HugeiconsIcon :icon="useCase.icon" :size="28" :stroke-width="1.8" class="text-focus-gray-900" aria-hidden="true" />
             <h3 class="mt-3 font-semibold text-focus-gray-900">{{ useCase.title }}</h3>
             <p class="focus-body-sm mt-2">{{ useCase.description }}</p>
           </div>
@@ -134,21 +147,21 @@ const useCases = [
 
         <div class="landing-reveal mt-14 grid gap-6 md:grid-cols-3">
           <div class="focus-card text-center">
-            <span class="text-2xl">♥</span>
+            <HugeiconsIcon :icon="FavouriteIcon" :size="28" :stroke-width="1.8" class="mx-auto text-focus-gray-900" aria-hidden="true" />
             <h3 class="mt-3 font-semibold text-focus-gray-900">Une cagnotte par association</h3>
             <p class="focus-body-sm mt-2">
               WWF, MSF, Croix-Rouge, Restos du Cœur… Chaque association dispose de son propre suivi.
             </p>
           </div>
           <div class="focus-card text-center">
-            <span class="text-2xl">◎</span>
+            <HugeiconsIcon :icon="Analytics01Icon" :size="28" :stroke-width="1.8" class="mx-auto text-focus-gray-900" aria-hidden="true" />
             <h3 class="mt-3 font-semibold text-focus-gray-900">Suivi public en temps réel</h3>
             <p class="focus-body-sm mt-2">
               Montants collectés, soldes disponibles et reversements mensuels sont accessibles à tous sur la page Cagnottes.
             </p>
           </div>
           <div class="focus-card text-center">
-            <span class="text-2xl">◈</span>
+            <HugeiconsIcon :icon="CheckmarkBadge01Icon" :size="28" :stroke-width="1.8" class="mx-auto text-focus-gray-900" aria-hidden="true" />
             <h3 class="mt-3 font-semibold text-focus-gray-900">Reversements vérifiés</h3>
             <p class="focus-body-sm mt-2">
               En fin de mois, Focus reverse manuellement les fonds à l'association, avec un historique consultable.

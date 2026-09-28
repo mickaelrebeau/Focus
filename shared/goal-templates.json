@@ -1,0 +1,322 @@
+{
+  "$comment": "Catalogue des modèles d'objectifs et des packs. Ajouter une entrée suffit : aucune modification d'interface n'est nécessaire. Les icônes sont des icônes gratuites Hugeicons (https://hugeicons.com), désignées par leur nom et déclarées dans TEMPLATE_ICON_NAMES (shared/goal-templates.ts) et app/utils/template-icons.ts. Format validé au chargement et par les tests.",
+  "templates": [
+    {
+      "id": "sport-3x-semaine",
+      "icon": "Dumbbell01Icon",
+      "recurrence": {
+        "type": "weekly_count",
+        "timesPerWeek": 3
+      },
+      "dueTime": "20:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 20
+      },
+      "locales": {
+        "fr": {
+          "title": "Faire du sport",
+          "description": "Trois séances par semaine, les jours de votre choix.",
+          "category": "Sport"
+        },
+        "en": {
+          "title": "Work out",
+          "description": "Three sessions a week, on the days that suit you.",
+          "category": "Sport"
+        }
+      }
+    },
+    {
+      "id": "course-30-min",
+      "icon": "RunningShoesIcon",
+      "recurrence": {
+        "type": "weekly_days",
+        "daysOfWeek": [
+          1,
+          3,
+          6
+        ]
+      },
+      "dueTime": "19:00",
+      "suggestedConsequence": {
+        "type": "mandatory-proof"
+      },
+      "locales": {
+        "fr": {
+          "title": "Courir 30 minutes",
+          "description": "Lundi, mercredi et samedi.",
+          "category": "Sport"
+        },
+        "en": {
+          "title": "Run for 30 minutes",
+          "description": "Monday, Wednesday and Saturday.",
+          "category": "Sport"
+        }
+      }
+    },
+    {
+      "id": "ecrire-500-mots",
+      "icon": "Pen01Icon",
+      "recurrence": {
+        "type": "daily"
+      },
+      "dueTime": "22:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 20
+      },
+      "locales": {
+        "fr": {
+          "title": "Écrire 500 mots",
+          "description": "Un peu chaque jour pour avancer sur un texte ou un livre.",
+          "category": "Écriture"
+        },
+        "en": {
+          "title": "Write 500 words",
+          "description": "A little every day to move a piece or a book forward.",
+          "category": "Writing"
+        }
+      }
+    },
+    {
+      "id": "post-linkedin",
+      "icon": "Linkedin01Icon",
+      "recurrence": {
+        "type": "weekly_days",
+        "daysOfWeek": [
+          2,
+          4
+        ]
+      },
+      "dueTime": "12:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 20
+      },
+      "locales": {
+        "fr": {
+          "title": "Publier sur LinkedIn",
+          "description": "Deux publications par semaine, mardi et jeudi.",
+          "category": "Réseaux sociaux"
+        },
+        "en": {
+          "title": "Post on LinkedIn",
+          "description": "Two posts a week, on Tuesday and Thursday.",
+          "category": "Social media"
+        }
+      }
+    },
+    {
+      "id": "deep-work",
+      "icon": "Target01Icon",
+      "recurrence": {
+        "type": "weekly_days",
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "dueTime": "12:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 20
+      },
+      "locales": {
+        "fr": {
+          "title": "Bloc de deep work (2 h)",
+          "description": "Deux heures sans notifications chaque matin de semaine.",
+          "category": "Travail"
+        },
+        "en": {
+          "title": "Deep work block (2 h)",
+          "description": "Two distraction-free hours every weekday morning.",
+          "category": "Work"
+        }
+      }
+    },
+    {
+      "id": "lire-20-pages",
+      "icon": "Book02Icon",
+      "recurrence": {
+        "type": "daily"
+      },
+      "dueTime": "23:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 10
+      },
+      "locales": {
+        "fr": {
+          "title": "Lire 20 pages",
+          "description": "Une lecture quotidienne, sur papier ou liseuse.",
+          "category": "Lecture"
+        },
+        "en": {
+          "title": "Read 20 pages",
+          "description": "Daily reading, on paper or e-reader.",
+          "category": "Reading"
+        }
+      }
+    },
+    {
+      "id": "mediter-10-min",
+      "icon": "Yoga01Icon",
+      "recurrence": {
+        "type": "daily"
+      },
+      "dueTime": "09:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 10
+      },
+      "locales": {
+        "fr": {
+          "title": "Méditer 10 minutes",
+          "description": "Chaque matin, avant de commencer la journée.",
+          "category": "Bien-être"
+        },
+        "en": {
+          "title": "Meditate for 10 minutes",
+          "description": "Every morning, before starting the day.",
+          "category": "Wellbeing"
+        }
+      }
+    },
+    {
+      "id": "langue-15-min",
+      "icon": "LanguageSkillIcon",
+      "recurrence": {
+        "type": "daily"
+      },
+      "dueTime": "21:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 10
+      },
+      "locales": {
+        "fr": {
+          "title": "Pratiquer une langue 15 minutes",
+          "description": "Application, podcast ou conversation.",
+          "category": "Apprentissage"
+        },
+        "en": {
+          "title": "Practice a language for 15 minutes",
+          "description": "App, podcast or conversation.",
+          "category": "Learning"
+        }
+      }
+    },
+    {
+      "id": "ecrans-22h",
+      "icon": "Moon02Icon",
+      "recurrence": {
+        "type": "daily"
+      },
+      "dueTime": "22:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 10
+      },
+      "locales": {
+        "fr": {
+          "title": "Couper les écrans à 22 h",
+          "description": "Pour un meilleur sommeil.",
+          "category": "Santé"
+        },
+        "en": {
+          "title": "Screens off at 10 pm",
+          "description": "For better sleep.",
+          "category": "Health"
+        }
+      }
+    },
+    {
+      "id": "revue-hebdo",
+      "icon": "Calendar03Icon",
+      "recurrence": {
+        "type": "weekly_days",
+        "daysOfWeek": [
+          0
+        ]
+      },
+      "dueTime": "20:00",
+      "suggestedConsequence": {
+        "type": "credits",
+        "amount": 20
+      },
+      "locales": {
+        "fr": {
+          "title": "Revue de la semaine",
+          "description": "Chaque dimanche : bilan et priorités de la semaine suivante.",
+          "category": "Travail"
+        },
+        "en": {
+          "title": "Weekly review",
+          "description": "Every Sunday: review and priorities for the week ahead.",
+          "category": "Work"
+        }
+      }
+    }
+  ],
+  "packs": [
+    {
+      "id": "productivite",
+      "icon": "Rocket01Icon",
+      "templateIds": [
+        "deep-work",
+        "revue-hebdo",
+        "lire-20-pages"
+      ],
+      "locales": {
+        "fr": {
+          "title": "Productivité",
+          "description": "Deep work en semaine, lecture quotidienne et revue du dimanche."
+        },
+        "en": {
+          "title": "Productivity",
+          "description": "Weekday deep work, daily reading and a Sunday review."
+        }
+      }
+    },
+    {
+      "id": "createur",
+      "icon": "PaintBrush01Icon",
+      "templateIds": [
+        "ecrire-500-mots",
+        "post-linkedin"
+      ],
+      "locales": {
+        "fr": {
+          "title": "Créateur de contenu",
+          "description": "Écrire chaque jour et publier deux fois par semaine."
+        },
+        "en": {
+          "title": "Content creator",
+          "description": "Write every day and publish twice a week."
+        }
+      }
+    },
+    {
+      "id": "sante",
+      "icon": "FavouriteIcon",
+      "templateIds": [
+        "sport-3x-semaine",
+        "mediter-10-min",
+        "ecrans-22h"
+      ],
+      "locales": {
+        "fr": {
+          "title": "Santé",
+          "description": "Sport, méditation et un meilleur sommeil."
+        },
+        "en": {
+          "title": "Health",
+          "description": "Exercise, meditation and better sleep."
+        }
+      }
+    }
+  ]
+}
