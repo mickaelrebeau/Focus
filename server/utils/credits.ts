@@ -21,6 +21,15 @@ interface CreditOperation {
   metadata?: Record<string, unknown>
 }
 
+/**
+ * Opérations qui retirent des crédits. Un ajustement admin est un débit quand son montant
+ * est négatif : sans cette règle, sa valeur absolue était ajoutée au solde.
+ */
+export function isDebitOperation(op: Pick<CreditOperation, 'type' | 'amount'>) {
+  if (op.type === 'task_penalty' || op.type === 'transfer_sent') return true
+  return op.type === 'admin_adjustment' && op.amount < 0
+}
+
 export async function applyCreditOperation(op: CreditOperation) {
   const db = useDatabase()
 
@@ -38,8 +47,9 @@ export async function applyCreditOperation(op: CreditOperation) {
     let balance = wallet.balance
     let debt = wallet.debt
     const absAmount = Math.abs(op.amount)
+    const debit = isDebitOperation(op)
 
-    switch (op.type) {
+    switch (debit ? 'debit' : op.type) {
       case 'task_reward':
       case 'signup_bonus':
       case 'streak_bonus':
@@ -69,7 +79,8 @@ export async function applyCreditOperation(op: CreditOperation) {
         balance += remaining
         break
       }
-      case 'task_penalty': {
+      case 'debit': {
+        // Débit : puise d'abord dans le solde, puis crée de la dette
         const fromBalance = Math.min(balance, absAmount)
         balance -= fromBalance
         const remainingDebt = absAmount - fromBalance
@@ -83,6 +94,7 @@ export async function applyCreditOperation(op: CreditOperation) {
             debtAfter: debt,
             occurrenceId: op.occurrenceId,
             goalId: op.goalId,
+            adminId: op.adminId,
             reason: op.reason,
             metadata: op.metadata,
           })
@@ -101,7 +113,7 @@ export async function applyCreditOperation(op: CreditOperation) {
     const [entry] = await tx.insert(schema.creditLedger).values({
       userId: op.userId,
       type: op.type,
-      amount: op.type === 'task_penalty' ? -absAmount : absAmount,
+      amount: debit ? -absAmount : absAmount,
       balanceAfter: balance,
       debtAfter: debt,
       occurrenceId: op.occurrenceId,

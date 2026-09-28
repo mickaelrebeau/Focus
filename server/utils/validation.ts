@@ -98,7 +98,7 @@ export const changePasswordSchema = z.object({
 })
 
 export const adminAdjustSchema = z.object({
-  amount: z.number().int(),
+  amount: z.number().int().refine(value => value !== 0, 'Montant non nul requis'),
   reason: z.string().min(5, 'Motif requis (min 5 caractères)'),
 })
 
