@@ -177,6 +177,8 @@ export const occurrences = pgTable('occurrences', {
   index('occurrences_goal_id_idx').on(table.goalId),
   index('occurrences_status_idx').on(table.status),
   index('occurrences_due_at_idx').on(table.dueAt),
+  // NULLS NOT DISTINCT : voir 0011_occurrence_dedupe.sql.
+  // Sans ça, PostgreSQL autorise plusieurs lignes quand milestone_id est NULL.
   uniqueIndex('occurrences_goal_due_unique').on(table.goalId, table.dueDate, table.milestoneId),
 ])
 

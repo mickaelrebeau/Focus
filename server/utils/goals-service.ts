@@ -225,9 +225,14 @@ export async function generateUpcomingOccurrences(dbInstance?: Db) {
           dueDate: date.dueDate,
           dueAt: date.dueAt,
           weekKey: date.weekKey,
-          // Échéance tombant pendant une pause : créée directement « skipped »
-          status: isDateInPauses(date.dueDate, pauses) ? 'skipped' : 'pending',
-        }).onConflictDoNothing()
+          status: 'pending',
+        }).onConflictDoNothing({
+          target: [
+            schema.occurrences.goalId,
+            schema.occurrences.dueDate,
+            schema.occurrences.milestoneId,
+          ],
+        })
         created++
       } catch {
         // duplicate occurrence, skip
