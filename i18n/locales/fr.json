@@ -325,5 +325,28 @@
       "not_found": "Binôme introuvable.",
       "generic": "Une erreur est survenue."
     }
+  },
+  "templates": {
+    "title": "Démarrer avec un modèle",
+    "subtitle": "Un clic préremplit l'objectif : vous pourrez tout ajuster avant de le créer.",
+    "daily": "Tous les jours",
+    "timesPerWeek": "{count} fois par semaine | {count} fois par semaine | {count} fois par semaine",
+    "before": "avant {time}",
+    "packsTitle": "Packs d'habitudes",
+    "addPack": "Ajouter le pack | Ajouter l'objectif | Ajouter les {count} objectifs",
+    "packError": "Impossible de créer tous les objectifs du pack.",
+    "fromScratch": "Ou partir de zéro",
+    "prefilled": "Prérempli depuis le modèle « {title} ». Ajustez ce que vous voulez avant de créer l'objectif.",
+    "suggested": "Conséquence suggérée : {consequence}.",
+    "configure": "Configurer mes conséquences",
+    "consequence": {
+      "credits": "perte de {amount} crédits",
+      "mandatory-proof": "preuve obligatoire à la prochaine réussite",
+      "custom": "rappel personnalisé",
+      "random-user": "transfert de {amount} crédits",
+      "donation": "don à une association"
+    },
+    "dueTime": "Heure limite",
+    "onboardingCta": "Continuer et choisir un modèle"
   }
 }

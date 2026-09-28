@@ -43,6 +43,9 @@ export default defineConfig({
       NUXT_GOOGLE_CLIENT_SECRET: '',
       NUXT_S3_SECRET_KEY: '',
       NUXT_USERJOT_SECRET_KEY: '',
+      // La suite crée plus de comptes que la limite de production (10 / heure / IP)
+      REGISTER_RATE_LIMIT: '500',
+      LOGIN_RATE_LIMIT: '500',
       VAPID_PUBLIC_KEY: pushAssets.vapid.publicKey,
       VAPID_PRIVATE_KEY: pushAssets.vapid.privateKey,
       VAPID_SUBJECT: 'mailto:e2e@focus.test',

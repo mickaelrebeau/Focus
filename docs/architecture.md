@@ -249,7 +249,7 @@ Les providers monétaires passent par `chargeUserForConsequence` (`server/utils/
 
 1. Ajouter la clé dans `CONSEQUENCE_PROVIDER_KEYS`, le schéma de config et l’entrée de `ProviderConfigMap` (`server/consequences/types.ts`). Classer la clé dans `isMonetaryProvider`, `isCreditsProvider` ou `isNonMonetaryBehaviorProvider` pour la validation du montant.
 2. Créer `server/consequences/providers/<clé>.ts` et l’enregistrer dans `registry.ts`.
-3. Ajouter une migration SQL qui insère la ligne dans `consequence_types` (nom, description, icône, `enabled`).
+3. Ajouter une migration SQL qui insère la ligne dans `consequence_types` (nom, description, `enabled`), et son icône Hugeicons dans `app/utils/consequence-icons.ts` (la colonne `icon` en base n’est plus affichée).
 4. Rendre `execute` **idempotent** : un job peut être rejoué (voir ci-dessous).
 
 ### Idempotence et reprise

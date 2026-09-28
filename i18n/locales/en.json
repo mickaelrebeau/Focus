@@ -379,5 +379,28 @@
       "not_found": "Partnership not found.",
       "generic": "Something went wrong."
     }
+  },
+  "templates": {
+    "title": "Start from a template",
+    "subtitle": "One click pre-fills the goal: you can adjust everything before creating it.",
+    "daily": "Every day",
+    "timesPerWeek": "{count} times a week | {count} time a week | {count} times a week",
+    "before": "before {time}",
+    "packsTitle": "Habit packs",
+    "addPack": "Add the pack | Add the goal | Add the {count} goals",
+    "packError": "Could not create all the goals of the pack.",
+    "fromScratch": "Or start from scratch",
+    "prefilled": "Pre-filled from the “{title}” template. Adjust anything before creating the goal.",
+    "suggested": "Suggested consequence: {consequence}.",
+    "configure": "Set up my consequences",
+    "consequence": {
+      "credits": "lose {amount} credits",
+      "mandatory-proof": "proof required on your next check-in",
+      "custom": "custom reminder",
+      "random-user": "transfer {amount} credits",
+      "donation": "charity donation"
+    },
+    "dueTime": "Deadline time",
+    "onboardingCta": "Continue and pick a template"
   }
 }

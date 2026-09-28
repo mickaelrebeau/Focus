@@ -85,6 +85,16 @@ Les textes produits par le serveur (erreurs d’API, noms et estimations des con
 4. Adapter `agenda.dayFormat` au format de date usuel de la langue ([motifs date-fns](https://date-fns.org/docs/format)).
 5. Vérifier les écrans traduits, en mobile comme en desktop, et lancer `pnpm lint` et `pnpm test:e2e`.
 
+## Ajouter un modèle d’objectif
+
+Les modèles proposés dans « Nouvel objectif » (et les packs d’habitudes) sont décrits dans [`shared/goal-templates.json`](./shared/goal-templates.json) : **aucune modification d’interface n’est nécessaire**.
+
+1. Ajouter une entrée dans `templates` : `id` (minuscules et tirets), `icon`, `recurrence` (`daily`, `weekly_days` avec `daysOfWeek` de 0 = dimanche à 6, ou `weekly_count` avec `timesPerWeek`), `dueTime` (`HH:MM`), `suggestedConsequence` (facultatif) et `locales` (`fr` obligatoire : `title`, `description`, `category` ; autres langues facultatives).
+2. Pour un pack, ajouter une entrée dans `packs` avec les `templateIds` concernés.
+3. `pnpm test` valide le fichier : format, identifiants uniques, packs cohérents, et chaque modèle doit produire un objectif accepté par l’API.
+
+**Icônes** : uniquement des icônes gratuites [Hugeicons](https://hugeicons.com), désignées par leur nom d’export (`Book02Icon`…). Pour en utiliser une nouvelle, ajoutez son nom à `TEMPLATE_ICON_NAMES` (`shared/goal-templates.ts`) et à `app/utils/template-icons.ts`. Un test vérifie que l’icône existe dans `@hugeicons/core-free-icons` et que les deux listes concordent.
+
 ## Conventions
 
 - **Langue** : issues, PR et commits de préférence en français (l’anglais est accepté)

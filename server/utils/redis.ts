@@ -52,6 +52,12 @@ export async function redisIncr(key: string, ttlSeconds?: number): Promise<numbe
   return count
 }
 
+/** Seuil d'un limiteur, surchargeable par variable d'environnement (défaut sinon). */
+export function rateLimitFromEnv(name: string, fallback: number) {
+  const value = Number(process.env[name])
+  return Number.isInteger(value) && value > 0 ? value : fallback
+}
+
 export async function redisDel(key: string): Promise<void> {
   const r = useRedis()
   await r.del(key)
