@@ -231,5 +231,5 @@ export async function recordAssociationPayout(input: {
     notes: input.notes,
   }).returning()
 
-  return payout
+  return payout!
 }

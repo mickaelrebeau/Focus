@@ -18,14 +18,14 @@ export default defineEventHandler(async (event) => {
   const data = parseBody(createAssociationSchema, body)
   const db = useDatabase()
 
-  const [association] = await db.insert(schema.associations).values({
+  const association = (await db.insert(schema.associations).values({
     slug: data.slug,
     name: data.name,
     description: data.description,
     logoUrl: data.logoUrl,
     enabled: data.enabled,
     sortOrder: data.sortOrder,
-  }).returning()
+  }).returning())[0]!
 
   await db.insert(schema.auditLogs).values({
     actorId: admin.id,

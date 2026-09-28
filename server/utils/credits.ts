@@ -111,7 +111,7 @@ export async function applyCreditOperation(op: CreditOperation) {
       metadata: op.metadata,
     }).returning()
 
-    return { wallet: { balance, debt }, entry }
+    return { wallet: { balance, debt }, entry: entry! }
   })
 }
 

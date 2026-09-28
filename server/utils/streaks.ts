@@ -122,7 +122,7 @@ async function getOrCreateUserStreak(userId: string) {
     longestStreak: 0,
   }).returning()
 
-  return created
+  return created!
 }
 
 function isConsecutiveDay(previousDate: string, nextDate: string): boolean {

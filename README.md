@@ -1,5 +1,6 @@
 # Focus
 
+[![CI](https://github.com/mickaelrebeau/Focus/actions/workflows/ci.yml/badge.svg)](https://github.com/mickaelrebeau/Focus/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Node.js](https://img.shields.io/badge/node-22-brightgreen.svg)](./package.json)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
@@ -68,6 +69,12 @@ Voir [`.env.example`](./.env.example). Ne committez jamais de fichier `.env` ré
 | `pnpm build:web` | Build production |
 | `pnpm worker` | Worker d’expiration / streaks |
 | `pnpm worker:consequences` | Worker d’exécution des conséquences |
+
+## Intégration continue
+
+Le workflow [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) s’exécute sur chaque `push` et chaque pull request vers `main`. Il installe les dépendances avec pnpm, puis lance `pnpm test` et `pnpm lint` (typecheck Nuxt via `vue-tsc`). Si l’une de ces étapes échoue, la CI échoue.
+
+Pour rendre la CI bloquante au merge, activez une règle de protection sur `main` (*Settings → Branches*) avec le check **Tests & typecheck** comme obligatoire.
 
 ## Déploiement Railway
 

@@ -55,7 +55,7 @@ export const randomUserProvider: ConsequenceProvider<RandomUserConfig> = {
 
     const recipient = eligibleUsers[Math.floor(Math.random() * eligibleUsers.length)]!
 
-    const [transfer] = await db.insert(schema.internalTransfers).values({
+    const transfer = (await db.insert(schema.internalTransfers).values({
       fromUserId: payload.userId,
       toUserId: recipient.id,
       amount: credits,
@@ -68,7 +68,7 @@ export const randomUserProvider: ConsequenceProvider<RandomUserConfig> = {
         occurrenceId: payload.occurrenceId,
         credits,
       },
-    }).returning()
+    }).returning())[0]!
 
     const senderResult = await applyPenalty(
       payload.userId,

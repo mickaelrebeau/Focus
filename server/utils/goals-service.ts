@@ -1,3 +1,4 @@
+import type { H3Event } from 'h3'
 import { eq, and, lte } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { useDatabase, schema } from '../database'
@@ -194,4 +195,20 @@ export async function generateUpcomingOccurrences(dbInstance?: Db) {
   }
 
   return { created }
+}
+
+export async function requireOwnedGoal(event: H3Event, userId: string) {
+  const id = getRouterParam(event, 'id')
+  if (!id) throw createError({ statusCode: 400, message: 'ID requis' })
+
+  const db = useDatabase()
+  const [goal] = await db
+    .select()
+    .from(schema.goals)
+    .where(and(eq(schema.goals.id, id), eq(schema.goals.userId, userId)))
+    .limit(1)
+
+  if (!goal) throw createError({ statusCode: 404, message: 'Objectif introuvable' })
+
+  return goal
 }

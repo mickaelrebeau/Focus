@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const data = parseBody(updateSettingsSchema, body)
   const db = useDatabase()
 
-  const [updated] = await db
+  const updated = (await db
     .update(schema.users)
     .set({
       displayName: data.displayName ?? user.displayName,
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
       updatedAt: new Date(),
     })
     .where(eq(schema.users.id, user.id))
-    .returning()
+    .returning())[0]!
 
   return {
     user: {

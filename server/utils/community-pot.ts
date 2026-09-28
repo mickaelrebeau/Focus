@@ -41,7 +41,7 @@ export async function getCommunityPotSettings() {
     targetAssociation: 'msf',
   }).returning()
 
-  return created
+  return created!
 }
 
 export async function getCommunityPotStats(): Promise<CommunityPotStats> {

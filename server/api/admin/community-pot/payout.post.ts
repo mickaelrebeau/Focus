@@ -22,13 +22,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const db = useDatabase()
-  const [payout] = await db.insert(schema.communityPotPayouts).values({
+  const payout = (await db.insert(schema.communityPotPayouts).values({
     period: data.period,
     association: data.association,
     amount: data.amountCents,
     adminId: admin.id,
     notes: data.notes,
-  }).returning()
+  }).returning())[0]!
 
   await db.insert(schema.auditLogs).values({
     actorId: admin.id,

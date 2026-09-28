@@ -5,10 +5,8 @@ export default defineEventHandler(async () => {
   const payouts = await getAssociationPayoutHistory(undefined, 100)
 
   const payoutsByAssociation = payouts.reduce<Record<string, typeof payouts>>((acc, payout) => {
-    if (!acc[payout.associationSlug]) {
-      acc[payout.associationSlug] = []
-    }
-    acc[payout.associationSlug].push(payout)
+    const list = (acc[payout.associationSlug] ??= [])
+    list.push(payout)
     return acc
   }, {})
 

@@ -1,13 +1,15 @@
 import type { Ref } from 'vue'
+import type Lenis from 'lenis'
 
 export function useLandingMotion(containerRef: Ref<HTMLElement | null>) {
   const { gsap, ScrollTrigger } = useGSAP()
-  let lenis: { destroy: () => void; raf: (time: number) => void; on: (event: string, cb: () => void) => void } | null = null
-  let ctx: { revert: () => void } | null = null
-  let mm: { revert: () => void } | null = null
+  let lenis: Lenis | null = null
+  let ctx: gsap.Context | null = null
+  let mm: gsap.MatchMedia | null = null
 
   onMounted(async () => {
-    if (!containerRef.value || !gsap || !ScrollTrigger) return
+    const container = containerRef.value
+    if (!container || !gsap || !ScrollTrigger) return
 
     const LenisModule = await import('lenis')
     const LenisClass = LenisModule.default
@@ -35,7 +37,7 @@ export function useLandingMotion(containerRef: Ref<HTMLElement | null>) {
           reduceMotion: '(prefers-reduced-motion: reduce)',
         },
         (context) => {
-          const { isDesktop, reduceMotion } = context.conditions
+          const { isDesktop, reduceMotion } = context.conditions!
           const duration = reduceMotion ? 0 : isDesktop ? 1 : 0.6
 
           gsap.from('.landing-hero-title', {
@@ -92,9 +94,9 @@ export function useLandingMotion(containerRef: Ref<HTMLElement | null>) {
             })
           }
         },
-        containerRef.value,
+        container,
       )
-    }, containerRef.value)
+    }, container)
 
     ScrollTrigger.refresh()
   })

@@ -18,6 +18,11 @@ interface AdminAssociation {
   contributionCount: number
 }
 
+type EditableAssociation = Omit<AdminAssociation, 'description' | 'logoUrl'> & {
+  description: string
+  logoUrl: string
+}
+
 const { data, pending, refresh } = await useFetch<{
   associations: AdminAssociation[]
   payouts: Array<{
@@ -33,7 +38,7 @@ const { data, pending, refresh } = await useFetch<{
 })
 
 const selectedSlug = ref('')
-const editingAssociation = ref<AdminAssociation | null>(null)
+const editingAssociation = ref<EditableAssociation | null>(null)
 const creating = ref(false)
 
 const newAssociation = ref({
@@ -56,7 +61,7 @@ const error = ref('')
 watch(data, (value) => {
   if (!value?.associations.length) return
   if (!selectedSlug.value) {
-    selectedSlug.value = value.associations[0].slug
+    selectedSlug.value = value.associations[0]!.slug
   }
 }, { immediate: true })
 
