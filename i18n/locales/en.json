@@ -185,21 +185,98 @@
       "cardFirst": "Set up a card in your settings first"
     },
     "types": {
-      "credits": { "name": "Credit loss", "description": "Removes credits from your wallet, or increases your debt if your balance is too low." },
-      "donation": { "name": "Charity donation", "description": "Commits a donation to a charity when you fail." },
-      "stripe": { "name": "Stripe payment", "description": "Automatic charge to your saved card when you fail." },
-      "random-user": { "name": "Random user", "description": "Transfers credits to another active user picked at random." },
-      "custom": { "name": "Custom consequence", "description": "A personal reminder of your commitment." },
-      "mandatory-proof": { "name": "Mandatory proof", "description": "Requires proof to check in your next success on this goal." }
+      "credits": {
+        "name": "Credit loss",
+        "description": "Removes credits from your wallet, or increases your debt if your balance is too low."
+      },
+      "donation": {
+        "name": "Charity donation",
+        "description": "Commits a donation to a charity when you fail."
+      },
+      "stripe": {
+        "name": "Stripe payment",
+        "description": "Automatic charge to your saved card when you fail."
+      },
+      "random-user": {
+        "name": "Random user",
+        "description": "Transfers credits to another active user picked at random."
+      },
+      "custom": {
+        "name": "Custom consequence",
+        "description": "A personal reminder of your commitment."
+      },
+      "mandatory-proof": {
+        "name": "Mandatory proof",
+        "description": "Requires proof to check in your next success on this goal."
+      }
     },
     "estimates": {
-      "credits": { "label": "-{amount} credits", "description": "Removes {amount} credits from your wallet. If your balance is too low, your debt increases." },
-      "donation": { "label": "{amount} donation", "description": "A {amount} charge will be made and added to the {association} pot." },
-      "stripe": { "label": "{amount} charge", "description": "A {amount} charge will be made to your saved card." },
-      "random-user": { "label": "Transfer of {amount} credits", "description": "{amount} credits will be removed from your wallet and given to a random active user." },
-      "random-user-min": { "description": "{amount} credits will be removed from your wallet and given to a random active user (recipient's minimum net score: {score})." },
-      "custom": { "label": "Custom reminder" },
-      "mandatory-proof": { "label": "Mandatory proof", "description": "Your next check-in on this goal will have to include proof." }
+      "credits": {
+        "label": "-{amount} credits",
+        "description": "Removes {amount} credits from your wallet. If your balance is too low, your debt increases."
+      },
+      "donation": {
+        "label": "{amount} donation",
+        "description": "A {amount} charge will be made and added to the {association} pot."
+      },
+      "stripe": {
+        "label": "{amount} charge",
+        "description": "A {amount} charge will be made to your saved card."
+      },
+      "random-user": {
+        "label": "Transfer of {amount} credits",
+        "description": "{amount} credits will be removed from your wallet and given to a random active user."
+      },
+      "random-user-min": {
+        "description": "{amount} credits will be removed from your wallet and given to a random active user (recipient's minimum net score: {score})."
+      },
+      "custom": {
+        "label": "Custom reminder"
+      },
+      "mandatory-proof": {
+        "label": "Mandatory proof",
+        "description": "Your next check-in on this goal will have to include proof."
+      }
+    }
+  },
+  "notifications": {
+    "eyebrow": "Reminders",
+    "title": "Notifications",
+    "subtitle": "Get a reminder before your deadlines, even when Focus is closed.",
+    "deviceTitle": "This device",
+    "consent": "No notification is ever sent without your consent. When you enable them, your browser will ask for permission on this device.",
+    "enable": "Enable notifications",
+    "disable": "Disable on this device",
+    "sendTest": "Send a test notification",
+    "activeOnDevice": "Notifications are enabled on this device.",
+    "devices": "{count} subscribed devices | {count} subscribed device | {count} subscribed devices",
+    "iosInstall": "On iPhone and iPad, notifications are only available once Focus is added to your Home Screen (Share → Add to Home Screen).",
+    "unsupported": "This browser does not support push notifications.",
+    "notConfigured": "Push notifications are not configured on this server.",
+    "denied": "Notifications are blocked for Focus in your browser. Allow them in the site settings, then come back here.",
+    "typesTitle": "Notification types",
+    "typesInactive": "These settings apply as soon as a device is subscribed.",
+    "types": {
+      "dueReminder": "Deadline reminder",
+      "dueReminderHint": "A notification before each pending deadline.",
+      "streakAtRisk": "Streak at risk",
+      "streakAtRiskHint": "In the evening, if deadlines are left to check in to keep your streak.",
+      "consequenceExecuted": "Consequence applied",
+      "consequenceExecutedHint": "When a consequence runs after a missed goal.",
+      "milestoneBonus": "Streak bonus",
+      "milestoneBonusHint": "When you reach a perfect-day milestone."
+    },
+    "reminderDelay": "Reminder timing",
+    "minutesBefore": "{n} minutes before",
+    "hoursBefore": "{count} hours before | {count} hour before | {count} hours before",
+    "saved": "Preferences saved.",
+    "enabled": "Notifications enabled.",
+    "disabled": "Notifications disabled on this device.",
+    "testSent": "Test notification sent.",
+    "testNotDelivered": "The test notification could not be delivered. Please try again shortly.",
+    "errors": {
+      "load": "Could not load your notification settings.",
+      "generic": "Something went wrong."
     }
   }
 }

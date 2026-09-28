@@ -10,6 +10,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Expiration des échéances](#expiration-des-échéances)
 - [Streak et clôture journalière](#streak-et-clôture-journalière)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
+- [Notifications push](#notifications-push)
 - [Mode hors ligne (PWA)](#mode-hors-ligne-pwa)
 - [Design tokens `app-*` vs `focus-*`](#design-tokens-app--vs-focus-)
 
@@ -236,6 +237,45 @@ Les providers monétaires passent par `chargeUserForConsequence` (`server/utils/
 - `executeConsequenceHistory` verrouille la ligne et ne l’exécute que si elle n’est ni `processing`, ni `completed`, ni `cancelled`.
 - Au démarrage, le worker ré-enfile toutes les lignes `pending` (`recoverPendingConsequenceJobs`), par exemple si Redis a été vidé ou si le worker était arrêté.
 - Les effets de bord portent eux aussi des contraintes uniques, par exemple `donation_executions.consequence_history_id`.
+
+## Notifications push
+
+Code : `server/utils/push.ts` (envoi, préférences, rappels), `server/api/push/*`, `app/composables/usePushNotifications.ts`, `public/push-sw.js` (importé par le service worker Workbox).
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as Utilisateur
+  participant B as Navigateur
+  participant API as API web
+  participant W as Worker deadlines
+  participant PS as Service push (navigateur)
+
+  U->>B: Réglages → Notifications → « Activer »
+  B->>B: Notification.requestPermission()
+  B->>B: pushManager.subscribe(clé publique VAPID)
+  B->>API: POST /api/push/subscriptions
+  loop toutes les 5 min
+    W->>W: processPushReminders()
+    W->>PS: envoi signé VAPID, chiffré (aes128gcm)
+  end
+  PS-->>B: push
+  B->>U: showNotification (push-sw.js)
+```
+
+| Type | Déclencheur | Clé de déduplication |
+|---|---|---|
+| `due_reminder` | Job du worker `deadlines`, toutes les 5 min : échéance `pending` dont `dueAt` tombe dans le délai choisi (15 min à 4 h) | id de l’échéance |
+| `streak_at_risk` | Même job : à partir de 20 h (heure locale), streak > 0 et échéances du jour encore à valider | date locale |
+| `consequence_executed` | `executeConsequenceHistory`, après une exécution réussie | id de l’historique |
+| `milestone_bonus` | `awardMilestoneIfNeeded`, quand un bonus de palier est versé | palier |
+
+- **Consentement** : aucun envoi sans ligne dans `push_subscriptions`, créée seulement après le clic de l’utilisateur et l’autorisation du navigateur. À la déconnexion, l’appareil est désabonné (navigateur et serveur).
+- **Préférences** (`notification_preferences`) : un booléen par type, le délai du rappel et la langue des messages (`fr` / `en`, enregistrée à l’abonnement).
+- **Une seule fois** : `push_deliveries` porte une contrainte unique `(user_id, kind, ref_key)`. Si aucun appareil n’a pu être joint, la ligne est supprimée pour réessayer au passage suivant.
+- **Abonnements expirés** : une réponse 404 ou 410 du service push supprime l’abonnement.
+- **Isolation des erreurs** : les envois déclenchés par un flux métier passent par `notifySafely`, qui ne fait jamais échouer la conséquence ou le bonus.
+- **Clés VAPID** lues au lancement (`process.env`), pour que les workers, qui s’exécutent hors de Nuxt, les reçoivent aussi.
 
 ## Mode hors ligne (PWA)
 

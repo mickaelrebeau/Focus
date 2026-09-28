@@ -424,6 +424,41 @@ export const notifications = pgTable('notifications', {
   index('notifications_user_read_idx').on(table.userId, table.read),
 ])
 
+export const pushSubscriptions = pgTable('push_subscriptions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  endpoint: text('endpoint').notNull().unique(),
+  p256dh: text('p256dh').notNull(),
+  auth: text('auth').notNull(),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  lastSuccessAt: timestamp('last_success_at', { withTimezone: true }),
+}, (table) => [
+  index('push_subscriptions_user_id_idx').on(table.userId),
+])
+
+export const notificationPreferences = pgTable('notification_preferences', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  dueReminder: boolean('due_reminder').notNull().default(true),
+  dueReminderMinutes: integer('due_reminder_minutes').notNull().default(60),
+  streakAtRisk: boolean('streak_at_risk').notNull().default(true),
+  consequenceExecuted: boolean('consequence_executed').notNull().default(true),
+  milestoneBonus: boolean('milestone_bonus').notNull().default(true),
+  locale: text('locale').notNull().default('fr'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const pushDeliveries = pgTable('push_deliveries', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  kind: text('kind').notNull(),
+  refKey: text('ref_key').notNull(),
+  sentCount: integer('sent_count').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('push_deliveries_user_kind_ref_unique').on(table.userId, table.kind, table.refKey),
+])
+
 export const stripePayments = pgTable('stripe_payments', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),

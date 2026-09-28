@@ -3,6 +3,7 @@ import { parseISO } from 'date-fns'
 import { useDatabase, schema } from '../database'
 import { awardStreakBonus } from './credits'
 import { getTodayInTimezone } from './occurrences'
+import { notifySafely, pushMessages } from './push'
 
 export const STREAK_MILESTONE_DAYS = 7
 export const STREAK_MILESTONE_REWARD = 10
@@ -278,6 +279,12 @@ async function awardMilestoneIfNeeded(userId: string, currentStreak: number): Pr
     amount: STREAK_MILESTONE_REWARD,
     creditLedgerId: entry.id,
   })
+
+  await notifySafely(userId, 'milestone_bonus', String(milestone), locale => ({
+    ...pushMessages(locale).milestoneBonus(milestone, STREAK_MILESTONE_REWARD),
+    url: '/app',
+    tag: 'streak-milestone',
+  }))
 
   return { bonusAwarded: STREAK_MILESTONE_REWARD, milestoneReached: milestone }
 }

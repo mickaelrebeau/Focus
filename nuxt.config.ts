@@ -109,6 +109,8 @@ export default defineNuxtConfig({
       // précacher. Elles sont mises en cache à la consultation (voir runtimeCaching).
       navigateFallback: null,
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+      // Réception et clic des notifications push (public/push-sw.js)
+      importScripts: ['/push-sw.js'],
       // Noms de cache aussi utilisés par app/utils/offline-cache.ts (vidage à la déconnexion)
       runtimeCaching: [
         {

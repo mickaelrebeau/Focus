@@ -1,3 +1,9 @@
+import { execFileSync } from 'node:child_process'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import webpush from 'web-push'
+
 // Configuration des tests E2E. Volontairement indépendante de `.env`, qui peut pointer
 // vers une base distante (production) : les E2E créent des comptes et modifient des données.
 
@@ -21,4 +27,31 @@ export function assertLocalServices() {
       )
     }
   }
+}
+
+// Notifications push : clés VAPID et certificat du faux service push, générés une fois
+// par machine dans le répertoire temporaire (rien de secret n'est versionné).
+// web-push n'émet qu'en HTTPS : le serveur de test approuve ce certificat via
+// NODE_EXTRA_CA_CERTS, sans désactiver la vérification TLS.
+export function ensurePushTestAssets() {
+  const dir = join(tmpdir(), 'focus-e2e-push')
+  const certPath = join(dir, 'cert.pem')
+  const keyPath = join(dir, 'key.pem')
+  const vapidPath = join(dir, 'vapid.json')
+  mkdirSync(dir, { recursive: true })
+
+  if (!existsSync(certPath) || !existsSync(keyPath)) {
+    execFileSync('openssl', [
+      'req', '-x509', '-newkey', 'ec', '-pkeyopt', 'ec_paramgen_curve:prime256v1', '-nodes',
+      '-keyout', keyPath, '-out', certPath, '-days', '365', '-subj', '/CN=localhost',
+      '-addext', 'subjectAltName=DNS:localhost,IP:127.0.0.1',
+    ], { stdio: 'ignore' })
+  }
+
+  if (!existsSync(vapidPath)) {
+    writeFileSync(vapidPath, JSON.stringify(webpush.generateVAPIDKeys()))
+  }
+
+  const vapid = JSON.parse(readFileSync(vapidPath, 'utf8')) as { publicKey: string, privateKey: string }
+  return { certPath, keyPath, vapid }
 }
