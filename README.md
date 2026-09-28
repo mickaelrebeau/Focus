@@ -30,6 +30,8 @@ PWA open source, mobile-first, pour aider à réaliser ses objectifs avec un sys
 - Panel admin (users, modération, cagnottes, audit)
 - PWA installable
 
+Pour comprendre le flux métier (échéances, workers, streak, conséquences), lire [docs/architecture.md](./docs/architecture.md).
+
 ## Démarrage avec Docker
 
 Le plus simple pour contribuer : PostgreSQL et Redis tournent dans Docker, l’app tourne en local.
@@ -111,6 +113,7 @@ Pour rendre la CI bloquante au merge, activez une règle de protection sur `main
 Les contributions sont les bienvenues.
 
 - [Guide de contribution](./CONTRIBUTING.md)
+- [Architecture](./docs/architecture.md)
 - [Code de conduite](./CODE_OF_CONDUCT.md)
 - [Politique de sécurité](./SECURITY.md)
 
