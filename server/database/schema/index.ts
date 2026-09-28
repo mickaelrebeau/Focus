@@ -424,6 +424,19 @@ export const notifications = pgTable('notifications', {
   index('notifications_user_read_idx').on(table.userId, table.read),
 ])
 
+export const pausePeriods = pgTable('pause_periods', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date').notNull(),
+  reason: text('reason'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+  originalEndDate: date('original_end_date'),
+}, (table) => [
+  index('pause_periods_user_id_idx').on(table.userId),
+])
+
 export const pushSubscriptions = pgTable('push_subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),

@@ -62,6 +62,12 @@ vi.mock('../../server/utils/streaks', async (importOriginal) => {
   }
 })
 
+// Aucune pause dans ces scénarios (le mode pause est testé dans pauses.test.ts)
+vi.mock('../../server/utils/pauses', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../server/utils/pauses')>()
+  return { ...actual, getEffectivePauses: vi.fn(async () => []) }
+})
+
 vi.mock('../../server/utils/occurrences', () => ({
   getTodayInTimezone: vi.fn(() => '2026-07-11'),
 }))

@@ -131,6 +131,14 @@ export const notificationPreferencesSchema = z.object({
   locale: z.enum(['fr', 'en']).optional(),
 })
 
+const localDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date invalide')
+
+export const createPauseSchema = z.object({
+  startDate: localDateSchema,
+  endDate: localDateSchema,
+  reason: z.string().trim().max(200).optional(),
+})
+
 export function parseBody<T>(schema: z.ZodSchema<T>, body: unknown): T {
   const result = schema.safeParse(body)
   if (!result.success) {

@@ -9,6 +9,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Workers BullMQ](#workers-bullmq)
 - [Expiration des échéances](#expiration-des-échéances)
 - [Streak et clôture journalière](#streak-et-clôture-journalière)
+- [Mode pause / vacances](#mode-pause--vacances)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
 - [Notifications push](#notifications-push)
 - [Mode hors ligne (PWA)](#mode-hors-ligne-pwa)
@@ -72,7 +73,7 @@ stateDiagram-v2
   completed --> [*]
 ```
 
-- Le statut `skipped` existe dans l’enum `occurrence_status` et il est ignoré dans le calcul du streak, mais aucun code ne l’attribue pour l’instant.
+- Le statut `skipped` (« En pause ») est attribué par le [mode pause](#mode-pause--vacances). Une échéance `skipped` n’expire jamais : aucun échec, aucune conséquence.
 - **Génération** : `generateUpcomingOccurrences` (`server/utils/goals-service.ts`) crée les échéances des 30 prochains jours pour chaque objectif actif, dans le fuseau de l’utilisateur. Les dates viennent de `server/utils/occurrences.ts` (`generateOccurrenceDates`, ou `generateMilestoneOccurrences` pour les objectifs de type `project`). L’index unique `(goal_id, due_date, milestone_id)` et `onConflictDoNothing` rendent l’opération ré-exécutable.
 - **Réussite** : `server/api/occurrences/[id]/complete.post.ts` passe l’échéance en `completed`, crée une `validation` en `pending_review`, crédite `rewardCredits` et recalcule le jour courant du streak. Si une [preuve obligatoire](#providers) est en attente, la requête est refusée sans preuve.
 - **Modération** : `server/api/admin/validations/[id]/review.post.ts`. Un rejet repasse l’échéance en `failed`, déclenche les conséquences et réévalue le jour. Les crédits gagnés à la validation ne sont pas repris.
@@ -150,7 +151,7 @@ Le résultat est stocké dans `user_daily_results` (une ligne par utilisateur et
 
 ### Recalcul du streak
 
-Le streak n’est jamais incrémenté à la main : `recalculateStreakFromHistory` le **recalcule entièrement** à partir de `user_daily_results`. Si le dernier jour clôturé est `failed`, le streak courant retombe à 0. Sinon, il vaut la longueur de la dernière suite de jours `success` consécutifs. `longestStreak` ne diminue jamais. Perdre son streak n’est donc pas une conséquence à part : c’est l’effet mécanique d’un jour `failed`.
+Le streak n’est jamais incrémenté à la main : `recalculateStreakFromHistory` le **recalcule entièrement** à partir de `user_daily_results`. Si le dernier jour clôturé est `failed`, le streak courant retombe à 0. Sinon, il vaut la longueur de la dernière suite de jours `success` consécutifs, les jours de [pause](#mode-pause--vacances) étant gelés (ni rupture ni jour compté). `longestStreak` ne diminue jamais. Perdre son streak n’est donc pas une conséquence à part : c’est l’effet mécanique d’un jour `failed`.
 
 Tous les 7 jours de streak (`STREAK_MILESTONE_DAYS`), `awardMilestoneIfNeeded` verse 10 crédits (`STREAK_MILESTONE_REWARD`) une seule fois par palier (table `streak_rewards`).
 
@@ -176,6 +177,16 @@ Déclencheurs :
 - **Échec** : `reevaluateUserDay` après chaque expiration ou rejet de validation.
 
 Toutes les dates « jour » sont calculées dans le fuseau de l’utilisateur (`users.timezone`, via `getTodayInTimezone`).
+
+## Mode pause / vacances
+
+Code : `server/utils/pauses.ts`, `server/api/pauses/*`, page `app/pages/app/reglages/pause.vue`. Table `pause_periods` : dates locales de l’utilisateur, bornes incluses.
+
+- **Règles** : une pause commence au plus tôt aujourd’hui (pas de pause rétroactive, pour ne pas effacer un échec déjà constaté), dure au plus `MAX_PAUSE_DAYS` (60) jours, et ne chevauche pas une autre pause.
+- **Échéances** : à la création, les échéances `pending` de la période passent en `skipped`. Celles générées ensuite sur la période (`generateUpcomingOccurrences`) naissent directement `skipped`. Comme seules les échéances `pending` expirent, **aucun échec, aucune conséquence, aucun rappel push** ne peut survenir pendant la pause.
+- **Fin anticipée** : une pause à venir, ou commencée le jour même, est annulée (`cancelled_at`). Une pause commencée avant aujourd’hui est terminée à la veille (`end_date`), et la date prévue est conservée dans `original_end_date` pour l’historique. Dans les deux cas, les échéances `skipped` dont l’heure limite n’est pas passée redeviennent `pending`.
+- **Streak gelé** : les jours de pause sont transparents pour la consécutivité (`isConsecutiveDay`). Deux jours réussis séparés uniquement par des jours de pause restent consécutifs, et les jours de pause ne s’ajoutent pas au compte. Exemple : réussi lun. et mar., pause mer.–ven., réussi sam. et dim. → streak de **4**, pas de 7, et pas de remise à zéro. Un jour non gelé manqué, ou un échec après la pause, casse toujours le streak.
+- **Visibilité** : bannière dans l’espace connecté pendant une pause (`/api/auth/me` renvoie `activePause`), statut « En pause » sur les échéances, historique des pauses (à venir, en cours, terminée, annulée) dans Réglages → Pause / vacances.
 
 ## Pipeline des conséquences
 

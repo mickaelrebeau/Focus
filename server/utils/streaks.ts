@@ -1,9 +1,10 @@
 import { eq, and, lt } from 'drizzle-orm'
-import { parseISO } from 'date-fns'
+import { addDays, format, parseISO } from 'date-fns'
 import { useDatabase, schema } from '../database'
 import { awardStreakBonus } from './credits'
 import { getTodayInTimezone } from './occurrences'
 import { notifySafely, pushMessages } from './push'
+import { expandPauseDates, getEffectivePauses } from './pauses'
 
 export const STREAK_MILESTONE_DAYS = 7
 export const STREAK_MILESTONE_REWARD = 10
@@ -126,15 +127,22 @@ async function getOrCreateUserStreak(userId: string) {
   return created!
 }
 
-function isConsecutiveDay(previousDate: string, nextDate: string): boolean {
-  const prev = parseISO(previousDate)
+/**
+ * Deux jours réussis sont consécutifs s'ils se suivent, ou si tous les jours qui les
+ * séparent sont gelés (pause / vacances) : la pause ne casse pas le streak, et ses
+ * jours ne s'y ajoutent pas non plus.
+ */
+function isConsecutiveDay(previousDate: string, nextDate: string, frozenDates?: ReadonlySet<string>): boolean {
+  let cursor = addDays(parseISO(previousDate), 1)
   const next = parseISO(nextDate)
-  const diffMs = next.getTime() - prev.getTime()
-  const oneDayMs = 24 * 60 * 60 * 1000
-  return diffMs === oneDayMs
+  while (cursor < next) {
+    if (!frozenDates?.has(format(cursor, 'yyyy-MM-dd'))) return false
+    cursor = addDays(cursor, 1)
+  }
+  return cursor.getTime() === next.getTime()
 }
 
-export function calculateStreaksFromDates(dates: string[]): {
+export function calculateStreaksFromDates(dates: string[], frozenDates?: ReadonlySet<string>): {
   current: number
   longest: number
   lastDate: string | null
@@ -145,7 +153,7 @@ export function calculateStreaksFromDates(dates: string[]): {
   let run = 1
 
   for (let i = 1; i < dates.length; i++) {
-    if (isConsecutiveDay(dates[i - 1]!, dates[i]!)) {
+    if (isConsecutiveDay(dates[i - 1]!, dates[i]!, frozenDates)) {
       run++
     } else {
       run = 1
@@ -155,7 +163,7 @@ export function calculateStreaksFromDates(dates: string[]): {
 
   let currentStreak = 1
   for (let i = dates.length - 1; i > 0; i--) {
-    if (isConsecutiveDay(dates[i - 1]!, dates[i]!)) {
+    if (isConsecutiveDay(dates[i - 1]!, dates[i]!, frozenDates)) {
       currentStreak++
     } else {
       break
@@ -171,6 +179,7 @@ export function calculateStreaksFromDates(dates: string[]): {
 
 export function resolveStreakFromDailyResults(
   dailyResults: Array<{ dateKey: string, status: DailyResultStatus }>,
+  frozenDates?: ReadonlySet<string>,
 ): {
   currentStreak: number
   longestStreak: number
@@ -187,7 +196,7 @@ export function resolveStreakFromDailyResults(
 
   const latestClosed = closedDays.at(-1) ?? null
   const longestFromSuccess = successDays.length
-    ? calculateStreaksFromDates(successDays).longest
+    ? calculateStreaksFromDates(successDays, frozenDates).longest
     : 0
 
   if (!latestClosed || latestClosed.status === 'failed') {
@@ -199,7 +208,7 @@ export function resolveStreakFromDailyResults(
   }
 
   const successesUpToLatest = successDays.filter(dateKey => dateKey <= latestClosed.dateKey)
-  const { current, longest, lastDate } = calculateStreaksFromDates(successesUpToLatest)
+  const { current, longest, lastDate } = calculateStreaksFromDates(successesUpToLatest, frozenDates)
 
   return {
     currentStreak: current,
@@ -220,11 +229,14 @@ async function recalculateStreakFromHistory(userId: string) {
     .where(eq(schema.userDailyResults.userId, userId))
     .orderBy(schema.userDailyResults.dateKey)
 
+  // Jours de pause : gelés, ils ne cassent ni ne prolongent le streak
+  const frozenDates = expandPauseDates(await getEffectivePauses(userId))
   const resolved = resolveStreakFromDailyResults(
     dailyResults.map(row => ({
       dateKey: row.dateKey,
       status: row.status as DailyResultStatus,
     })),
+    frozenDates,
   )
 
   const [streakRow] = await db

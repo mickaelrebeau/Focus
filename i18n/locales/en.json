@@ -92,7 +92,7 @@
       "overdue": "Overdue",
       "completed": "Done",
       "failed": "Failed",
-      "skipped": "Skipped"
+      "skipped": "Paused"
     },
     "validate": "Check in {title}"
   },
@@ -276,6 +276,49 @@
     "testNotDelivered": "The test notification could not be delivered. Please try again shortly.",
     "errors": {
       "load": "Could not load your notification settings.",
+      "generic": "Something went wrong."
+    }
+  },
+  "pause": {
+    "eyebrow": "Planned absence",
+    "title": "Pause / vacation",
+    "subtitle": "Pause your goals while you are away, with no failures and no consequences.",
+    "rulesTitle": "How it works",
+    "ruleSkipped": "During the pause, your deadlines are marked “Paused”: none can fail, no consequence or penalty is applied, and no reminder is sent.",
+    "ruleStreak": "Your streak is frozen: pause days neither break nor extend it. It picks up where it left off.",
+    "ruleLimits": "A pause starts today at the earliest (no retroactive pause) and lasts at most {max} days.",
+    "planTitle": "Plan a pause",
+    "alreadyPlanned": "A pause is already active or planned. End or cancel it to create a new one.",
+    "startDate": "Start",
+    "endDate": "End (inclusive)",
+    "reason": "Reason (optional)",
+    "reasonPlaceholder": "E.g. vacation, business trip…",
+    "submit": "Plan the pause",
+    "created": "Pause planned. | Pause planned, {count} deadline paused. | Pause planned, {count} deadlines paused.",
+    "historyTitle": "Pause history",
+    "historyEmpty": "No pauses yet.",
+    "range": "From {start} to {end}",
+    "endedEarly": "Ended early (was planned until {date})",
+    "status": {
+      "upcoming": "Upcoming",
+      "active": "Active",
+      "ended": "Ended",
+      "cancelled": "Cancelled"
+    },
+    "endNow": "End now",
+    "cancel": "Cancel",
+    "cancelledFeedback": "Pause cancelled.",
+    "endedFeedback": "Pause ended: your upcoming deadlines are back to do.",
+    "bannerTitle": "Pause active.",
+    "bannerText": "Your goals are paused until {date} (inclusive).",
+    "bannerLink": "Manage",
+    "errors": {
+      "start_in_past": "A pause cannot start in the past.",
+      "end_before_start": "The end date must come after the start date.",
+      "too_long": "A pause lasts at most {max} days.",
+      "overlap": "This period overlaps an existing pause.",
+      "not_found": "Pause not found.",
+      "already_ended": "This pause has already ended.",
       "generic": "Something went wrong."
     }
   }
