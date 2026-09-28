@@ -3,7 +3,6 @@ import type { ConsequenceType, UserConsequence } from '~/composables/useConseque
 import {
   centsToEuros,
   eurosToCents,
-  formatEuroFromCents,
   isMonetaryConsequenceType,
   isCreditsConsequenceType,
   isBehaviorConsequenceType,
@@ -30,6 +29,8 @@ const emit = defineEmits<{
 }>()
 
 const { user } = useAuth()
+const { t } = useI18n()
+const { typeName, typeDescription, estimate: localizeEstimate, formatAmount } = useConsequenceText()
 const { data: associationsData } = await useFetch('/api/associations', {
   credentials: 'include',
 })
@@ -50,6 +51,12 @@ const paymentError = ref('')
 const selectedAssociation = computed(() =>
   donationAssociations.value.find(item => item.value === association.value),
 )
+
+// L'estimation décrit la configuration enregistrée, pas celle en cours d'édition
+const displayedEstimate = computed(() => {
+  const savedAssociation = donationAssociations.value.find(item => item.value === props.consequence.config.association)
+  return localizeEstimate(props.consequence, props.estimate, savedAssociation?.label)
+})
 const hasPaymentMethod = computed(() => Boolean(user.value?.hasPaymentMethod))
 const requiresPaymentMethod = computed(() =>
   isMonetaryConsequenceType(props.consequence.type),
@@ -72,9 +79,9 @@ watch(() => props.consequence, (value) => {
 }, { deep: true })
 
 const amountLabel = computed(() => {
-  if (isCreditsConsequenceType(props.consequence.type)) return 'Crédits'
-  if (props.consequence.type === 'custom') return 'Montant'
-  return 'Montant (€)'
+  if (isCreditsConsequenceType(props.consequence.type)) return t('consequences.amountCredits')
+  if (props.consequence.type === 'custom') return t('consequences.amount')
+  return t('consequences.amountEuros')
 })
 
 const showAmount = computed(() =>
@@ -83,10 +90,10 @@ const showAmount = computed(() =>
 
 const amountDisplay = computed(() => {
   if (isCreditsConsequenceType(props.consequence.type)) {
-    return `${props.consequence.amount} crédits`
+    return t('common.credits', props.consequence.amount)
   }
   if (isMonetaryConsequenceType(props.consequence.type)) {
-    return formatEuroFromCents(props.consequence.amount)
+    return formatAmount(props.consequence.amount)
   }
   return '—'
 })
@@ -121,7 +128,7 @@ function saveChanges() {
 
 function onToggle(value: boolean) {
   if (requiresPaymentMethod.value && value && !hasPaymentMethod.value) {
-    paymentError.value = 'Configurez d\'abord une carte bancaire dans vos réglages'
+    paymentError.value = t('consequences.errors.cardFirst')
     enabled.value = false
     return
   }
@@ -138,7 +145,7 @@ function onToggle(value: boolean) {
       <button
         type="button"
         class="drag-handle mt-1 cursor-grab touch-none text-lg text-slate-300 active:cursor-grabbing"
-        aria-label="Réordonner"
+        :aria-label="t('consequences.reorder')"
       >
         ⋮⋮
       </button>
@@ -149,14 +156,14 @@ function onToggle(value: boolean) {
             {{ typeInfo?.icon ?? '◈' }}
           </span>
           <h3 class="text-sm font-semibold text-app-ink">
-            {{ typeInfo?.name ?? consequence.type }}
+            {{ typeName(consequence.type, typeInfo) }}
           </h3>
           <AppUiBadge :variant="consequence.enabled ? 'success' : 'neutral'">
-            {{ consequence.enabled ? 'Active' : 'Inactive' }}
+            {{ consequence.enabled ? t('consequences.active') : t('consequences.inactive') }}
           </AppUiBadge>
         </div>
         <p class="mt-1 text-xs text-app-secondary">
-          {{ typeInfo?.description }}
+          {{ typeDescription(consequence.type, typeInfo) }}
         </p>
       </div>
 
@@ -165,7 +172,7 @@ function onToggle(value: boolean) {
           type="button"
           class="flex h-9 w-9 items-center justify-center rounded-full text-app-secondary hover:bg-app-mist hover:text-app-ink disabled:opacity-30"
           :disabled="isFirst"
-          aria-label="Monter"
+          :aria-label="t('consequences.moveUp')"
           @click="emit('moveUp')"
         >
           ↑
@@ -174,7 +181,7 @@ function onToggle(value: boolean) {
           type="button"
           class="flex h-9 w-9 items-center justify-center rounded-full text-app-secondary hover:bg-app-mist hover:text-app-ink disabled:opacity-30"
           :disabled="isLast"
-          aria-label="Descendre"
+          :aria-label="t('consequences.moveDown')"
           @click="emit('moveDown')"
         >
           ↓
@@ -187,22 +194,22 @@ function onToggle(value: boolean) {
         v-if="requiresPaymentMethod && !hasPaymentMethod"
         class="rounded-app-control bg-app-mist px-4 py-3 text-sm"
       >
-        <p class="font-semibold text-app-blue">Carte bancaire requise</p>
+        <p class="font-semibold text-app-blue">{{ t('consequences.cardRequired') }}</p>
         <p class="mt-1 text-xs text-app-secondary">
-          Cette conséquence nécessite une carte enregistrée dans vos réglages.
+          {{ t('consequences.cardRequiredThis') }}
         </p>
         <NuxtLink
           to="/app/reglages#paiement"
           class="mt-2 inline-flex text-xs font-semibold text-app-blue"
         >
-          Configurer ma carte →
+          {{ t('consequences.configureCard') }}
         </NuxtLink>
       </div>
 
       <AppUiToggle
         :model-value="enabled"
-        label="Activer cette conséquence"
-        :description="`Priorité ${consequence.priority + 1}`"
+        :label="t('consequences.enable')"
+        :description="t('consequences.priority', { n: consequence.priority + 1 })"
         @update:model-value="onToggle"
       />
 
@@ -218,7 +225,7 @@ function onToggle(value: boolean) {
       <div v-if="consequence.type === 'donation'" class="space-y-3">
         <AppUiSelect
           v-model="association"
-          label="Association"
+          :label="t('consequences.association')"
         >
           <option
             v-for="item in donationAssociations"
@@ -253,7 +260,7 @@ function onToggle(value: boolean) {
       <AppUiInput
         v-if="consequence.type === 'random-user'"
         v-model.number="minimumScore"
-        label="Score net minimum du destinataire"
+        :label="t('consequences.minimumScore')"
         type="number"
         :min="0"
         :step="1"
@@ -262,18 +269,18 @@ function onToggle(value: boolean) {
       <AppUiInput
         v-if="consequence.type === 'custom'"
         v-model="customMessage"
-        label="Message d'engagement"
-        placeholder="Ex. Faire 100 pompes"
+        :label="t('consequences.customMessage')"
+        :placeholder="t('consequences.customMessagePlaceholder')"
       />
 
       <p v-if="paymentError" class="text-sm text-red-500">{{ paymentError }}</p>
 
       <div
-        v-if="estimate"
+        v-if="displayedEstimate"
         class="rounded-app-control bg-app-canvas px-4 py-3 text-sm"
       >
-        <p class="font-semibold text-app-ink">{{ estimate.label }}</p>
-        <p class="mt-1 text-xs text-app-secondary">{{ estimate.description }}</p>
+        <p class="font-semibold text-app-ink">{{ displayedEstimate.label }}</p>
+        <p class="mt-1 text-xs text-app-secondary">{{ displayedEstimate.description }}</p>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
@@ -282,7 +289,7 @@ function onToggle(value: boolean) {
           :loading="saving"
           @click="saveChanges"
         >
-          Enregistrer
+          {{ t('common.save') }}
         </AppUiButton>
         <AppUiButton
           v-if="consequence.type !== 'credits'"
@@ -290,10 +297,10 @@ function onToggle(value: boolean) {
           class="text-red-500"
           @click="emit('remove')"
         >
-          Supprimer
+          {{ t('common.delete') }}
         </AppUiButton>
         <span class="text-xs text-app-secondary">
-          Actuel : {{ amountDisplay }}
+          {{ t('consequences.current', { value: amountDisplay }) }}
         </span>
       </div>
     </div>

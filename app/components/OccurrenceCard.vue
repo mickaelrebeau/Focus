@@ -24,19 +24,17 @@ const emit = defineEmits<{
   complete: [id: string]
 }>()
 
+const { t, te, localeProperties } = useI18n()
+
 const isOverdue = computed(() => {
   if (props.occurrence.status !== 'pending') return false
   return new Date(props.occurrence.dueAt) < new Date()
 })
 
 const statusLabel = computed(() => {
-  const labels: Record<string, string> = {
-    pending: isOverdue.value ? 'En retard' : 'À faire',
-    completed: 'Réussi',
-    failed: 'Échoué',
-    skipped: 'Ignoré',
-  }
-  return labels[props.occurrence.status] ?? props.occurrence.status
+  const status = props.occurrence.status === 'pending' && isOverdue.value ? 'overdue' : props.occurrence.status
+  const key = `occurrence.status.${status}`
+  return te(key) ? t(key) : props.occurrence.status
 })
 
 const statusClass = computed(() => {
@@ -53,7 +51,7 @@ const isDone = computed(() =>
 )
 
 const dueLabel = computed(() =>
-  new Date(props.occurrence.dueAt).toLocaleDateString('fr-FR', {
+  new Date(props.occurrence.dueAt).toLocaleDateString(localeProperties.value.language ?? 'fr-FR', {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
@@ -68,7 +66,7 @@ const dueLabel = computed(() =>
       v-if="occurrence.status === 'pending'"
       type="button"
       class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-app-line text-app-ink transition hover:border-app-ink hover:bg-app-mist focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-200 active:scale-95"
-      :aria-label="`Valider ${occurrence.goal.title}`"
+      :aria-label="t('occurrence.validate', { title: occurrence.goal.title })"
       @click="emit('complete', occurrence.id)"
     >
       <AppIcon name="check" class="h-5 w-5" />

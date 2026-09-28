@@ -16,7 +16,7 @@
           <button
             type="button"
             class="absolute inset-0 bg-slate-950/25"
-            aria-label="Fermer le menu"
+            :aria-label="t('nav.closeMenu')"
             @click="menuOpen = false"
           />
           <aside class="app-drawer-panel absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-app-line/70 bg-white shadow-app-soft">
@@ -25,7 +25,7 @@
               <button
                 type="button"
                 class="flex h-11 w-11 items-center justify-center rounded-full text-app-secondary transition hover:bg-app-mist hover:text-app-ink"
-                aria-label="Fermer le menu"
+                :aria-label="t('nav.closeMenu')"
                 @click="menuOpen = false"
               >
                 <AppIcon name="close" class="h-5 w-5" />
@@ -51,7 +51,7 @@
           <button
             type="button"
             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-app-ink transition hover:bg-white"
-            aria-label="Ouvrir le menu"
+            :aria-label="t('nav.openMenu')"
             @click="menuOpen = true"
           >
             <AppIcon name="menu" class="h-5 w-5" />
@@ -64,11 +64,11 @@
             to="/admin"
             class="text-xs font-medium text-app-secondary"
           >
-            Admin
+            {{ t('nav.admin') }}
           </NuxtLink>
           <div v-if="user" class="app-chip">
             <span>{{ user.credits }}</span>
-            <span class="font-medium opacity-80">crédits</span>
+            <span class="font-medium opacity-80">{{ t('common.creditsLabel') }}</span>
           </div>
         </div>
       </div>
@@ -107,31 +107,30 @@ import AppNavContent from '~/components/app/AppNavContent.vue'
 import type { AppIconName } from '~/types/app-icon'
 
 const { user, isAdmin } = useAuth()
+const { t } = useI18n()
 const route = useRoute()
 const menuOpen = ref(false)
 
 interface AppNavItem {
   to: string
-  label: string
+  labelKey: string
   icon: AppIconName
 }
 
-const navItems: AppNavItem[] = [
-  { to: '/app', label: 'Aujourd\'hui', icon: 'today' },
-  { to: '/app/objectifs', label: 'Objectifs', icon: 'goals' },
-  { to: '/app/agenda', label: 'Agenda', icon: 'agenda' },
-  { to: '/app/classement', label: 'Classement', icon: 'ranking' },
-  { to: '/cagnottes', label: 'Cagnottes', icon: 'heart' },
-  { to: '/app/historique', label: 'Historique', icon: 'history' },
-  { to: '/app/reglages', label: 'Réglages', icon: 'settings' },
+const navDefinition: AppNavItem[] = [
+  { to: '/app', labelKey: 'nav.today', icon: 'today' },
+  { to: '/app/objectifs', labelKey: 'nav.goals', icon: 'goals' },
+  { to: '/app/agenda', labelKey: 'nav.agenda', icon: 'agenda' },
+  { to: '/app/classement', labelKey: 'nav.ranking', icon: 'ranking' },
+  { to: '/cagnottes', labelKey: 'nav.pots', icon: 'heart' },
+  { to: '/app/historique', labelKey: 'nav.history', icon: 'history' },
+  { to: '/app/reglages', labelKey: 'nav.settings', icon: 'settings' },
 ]
 
-const mobileNavItems: AppNavItem[] = [
-  { to: '/app', label: 'Aujourd\'hui', icon: 'today' },
-  { to: '/app/objectifs', label: 'Objectifs', icon: 'goals' },
-  { to: '/app/agenda', label: 'Agenda', icon: 'agenda' },
-  { to: '/app/historique', label: 'Historique', icon: 'history' },
-]
+const mobileNavPaths = ['/app', '/app/objectifs', '/app/agenda', '/app/historique']
+
+const navItems = computed(() => navDefinition.map(item => ({ to: item.to, icon: item.icon, label: t(item.labelKey) })))
+const mobileNavItems = computed(() => navItems.value.filter(item => mobileNavPaths.includes(item.to)))
 
 function isNavActive(to: string) {
   if (to === '/app') return route.path === '/app'

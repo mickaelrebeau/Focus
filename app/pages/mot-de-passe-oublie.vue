@@ -4,17 +4,19 @@ definePageMeta({ layout: 'default' })
 const email = ref('')
 const message = ref('')
 const loading = ref(false)
+const { t } = useI18n()
 
 async function handleSubmit() {
   loading.value = true
   try {
-    const data = await $fetch<{ message: string }>('/api/auth/forgot-password', {
+    await $fetch('/api/auth/forgot-password', {
       method: 'POST',
       body: { email: email.value },
     })
-    message.value = data.message
+    // Réponse volontairement générique : le serveur ne révèle pas si l'email existe
+    message.value = t('auth.forgot.sent')
   } catch {
-    message.value = 'Une erreur est survenue.'
+    message.value = t('auth.errors.generic')
   } finally {
     loading.value = false
   }
@@ -24,10 +26,10 @@ async function handleSubmit() {
 <template>
   <div class="flex min-h-[calc(100dvh-8rem)] items-center justify-center py-12">
     <div class="w-full max-w-md px-5">
-      <h1 class="focus-heading-lg text-center">Mot de passe oublié</h1>
+      <h1 class="focus-heading-lg text-center">{{ t('auth.forgot.title') }}</h1>
       <form v-if="!message" class="mt-8 space-y-5" @submit.prevent="handleSubmit">
-        <UiInput v-model="email" label="Email" type="email" required />
-        <UiButton type="submit" class="w-full" :loading="loading">Envoyer le lien</UiButton>
+        <UiInput v-model="email" :label="t('auth.emailLabel')" type="email" required />
+        <UiButton type="submit" class="w-full" :loading="loading">{{ t('auth.forgot.submit') }}</UiButton>
       </form>
       <p v-else class="focus-body mt-8 text-center">{{ message }}</p>
     </div>

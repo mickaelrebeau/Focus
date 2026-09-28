@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const isOnline = useOnline()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -10,8 +11,8 @@ const isOnline = useOnline()
       aria-live="polite"
       class="sticky top-0 z-30 border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-center text-sm text-amber-900"
     >
-      <span class="font-semibold">Hors ligne.</span>
-      Données de votre dernière connexion ; les validations reprendront au retour du réseau.
+      <span class="font-semibold">{{ t('offline.bannerTitle') }}</span>
+      {{ t('offline.bannerText') }}
     </div>
   </Transition>
 </template>

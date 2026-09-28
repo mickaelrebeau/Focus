@@ -1,0 +1,205 @@
+{
+  "common": {
+    "or": "or",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "back": "Back",
+    "error": "Error",
+    "credits": "{count} credits | {count} credit | {count} credits",
+    "creditsLabel": "credits"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "nav": {
+    "today": "Today",
+    "goals": "Goals",
+    "agenda": "Calendar",
+    "ranking": "Leaderboard",
+    "pots": "Charity pots",
+    "history": "History",
+    "settings": "Settings",
+    "admin": "Admin",
+    "administration": "Administration",
+    "mySpace": "My space",
+    "login": "Log in",
+    "signup": "Sign up",
+    "getStarted": "Get started",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "copyright": "© {year} Focus. All rights reserved."
+  },
+  "offline": {
+    "bannerTitle": "Offline.",
+    "bannerText": "Showing data from your last connection; check-ins will resume once you are back online."
+  },
+  "auth": {
+    "emailLabel": "Email",
+    "emailPlaceholder": "you{'@'}email.com",
+    "passwordLabel": "Password",
+    "continueWithGoogle": "Continue with Google",
+    "login": {
+      "title": "Log in",
+      "subtitle": "Access your Focus space",
+      "submit": "Log in",
+      "forgotPassword": "Forgot password?",
+      "createAccount": "Create an account"
+    },
+    "register": {
+      "title": "Create an account",
+      "subtitle": "Start with 50 free credits",
+      "displayNameLabel": "Display name",
+      "displayNamePlaceholder": "Your first name",
+      "passwordPlaceholder": "At least 8 characters",
+      "submit": "Sign up",
+      "alreadyRegistered": "Already have an account?",
+      "login": "Log in"
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "submit": "Send the link",
+      "sent": "If this email exists, a reset link has been sent."
+    },
+    "reset": {
+      "title": "New password",
+      "newPassword": "New password",
+      "confirm": "Confirm",
+      "submit": "Reset",
+      "success": "Password updated.",
+      "login": "Log in"
+    },
+    "errors": {
+      "generic": "Something went wrong.",
+      "login": "Login failed",
+      "register": "Sign-up failed",
+      "invalidCredentials": "Incorrect email or password",
+      "accountSuspended": "Account suspended",
+      "emailTaken": "This email is already in use",
+      "tooManyAttempts": "Too many attempts. Please try again later.",
+      "passwordMismatch": "Passwords do not match",
+      "invalidResetLink": "Invalid or expired link",
+      "googleDenied": "Google sign-in cancelled",
+      "googleBlocked": "This account is suspended",
+      "googleEmailUnverified": "Your Google email is not verified",
+      "googleFailed": "Google sign-in failed. Please try again."
+    }
+  },
+  "occurrence": {
+    "status": {
+      "pending": "To do",
+      "overdue": "Overdue",
+      "completed": "Done",
+      "failed": "Failed",
+      "skipped": "Skipped"
+    },
+    "validate": "Check in {title}"
+  },
+  "complete": {
+    "title": "Check in",
+    "subtitle": "Add a note, a link or a photo (optional).",
+    "noteLabel": "Note",
+    "notePlaceholder": "What I accomplished...",
+    "proofUrlLabel": "Proof link",
+    "proofUrlPlaceholder": "https://... or example.com",
+    "proofPhotoLabel": "Proof photo",
+    "proofPhotoHint": "Optional. The image is compressed before upload.",
+    "proofPreviewAlt": "Proof preview",
+    "removePhoto": "Remove",
+    "submit": "Check in (+{reward})",
+    "offlineHint": "Offline: you can check in once you are back online.",
+    "errors": {
+      "offline": "You are offline: reconnect to check in.",
+      "unsupportedImage": "Unsupported format. Use JPEG, PNG or WebP.",
+      "failed": "Could not check in"
+    }
+  },
+  "agenda": {
+    "eyebrow": "Overview",
+    "title": "Calendar",
+    "monthCount": "{count} deadlines this month | {count} deadline this month | {count} deadlines this month",
+    "dayFormat": "EEEE, MMMM d",
+    "selectedDay": "Selected day",
+    "empty": "No deadlines on this day",
+    "emptyWithFilter": "No deadlines on this day with this filter.",
+    "filters": {
+      "all": "All",
+      "pending": "To do",
+      "overdue": "Overdue",
+      "completed": "Done",
+      "failed": "Failed"
+    },
+    "calendar": {
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "today": "Today"
+    }
+  },
+  "consequences": {
+    "back": "← Settings",
+    "eyebrow": "Automations",
+    "title": "Consequences",
+    "subtitle": "What happens automatically when a goal fails.",
+    "priorityHint": "Active consequences run in priority order. Use the arrows to reorder them.",
+    "cardRequired": "Card required",
+    "cardRequiredMonetary": "Monetary consequences (donation, Stripe) require a saved card.",
+    "cardRequiredThis": "This consequence requires a card saved in your settings.",
+    "configureCard": "Set up my card →",
+    "emptyTitle": "No consequences",
+    "emptyText": "Add your first consequence to customize failure penalties.",
+    "addTitle": "Add a consequence",
+    "defaultValue": "Default: {value}",
+    "defaults": {
+      "credits": "20 credits",
+      "custom": "Custom reminder",
+      "behavior": "Proof on your next check-in",
+      "monetary": "€5"
+    },
+    "defaultCustomMessage": "Do 100 push-ups",
+    "active": "Active",
+    "inactive": "Inactive",
+    "reorder": "Reorder",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "enable": "Enable this consequence",
+    "priority": "Priority {n}",
+    "amountCredits": "Credits",
+    "amount": "Amount",
+    "amountEuros": "Amount (€)",
+    "association": "Charity",
+    "minimumScore": "Recipient's minimum net score",
+    "customMessage": "Commitment message",
+    "customMessagePlaceholder": "E.g. Do 100 push-ups",
+    "current": "Current: {value}",
+    "feedback": {
+      "added": "Consequence added.",
+      "updated": "Consequence updated.",
+      "removed": "Consequence removed."
+    },
+    "errors": {
+      "add": "Could not add the consequence",
+      "update": "Could not update the consequence",
+      "remove": "Could not remove the consequence",
+      "reorder": "Could not reorder the consequences",
+      "cardFirst": "Set up a card in your settings first"
+    },
+    "types": {
+      "credits": { "name": "Credit loss", "description": "Removes credits from your wallet, or increases your debt if your balance is too low." },
+      "donation": { "name": "Charity donation", "description": "Commits a donation to a charity when you fail." },
+      "stripe": { "name": "Stripe payment", "description": "Automatic charge to your saved card when you fail." },
+      "random-user": { "name": "Random user", "description": "Transfers credits to another active user picked at random." },
+      "custom": { "name": "Custom consequence", "description": "A personal reminder of your commitment." },
+      "mandatory-proof": { "name": "Mandatory proof", "description": "Requires proof to check in your next success on this goal." }
+    },
+    "estimates": {
+      "credits": { "label": "-{amount} credits", "description": "Removes {amount} credits from your wallet. If your balance is too low, your debt increases." },
+      "donation": { "label": "{amount} donation", "description": "A {amount} charge will be made and added to the {association} pot." },
+      "stripe": { "label": "{amount} charge", "description": "A {amount} charge will be made to your saved card." },
+      "random-user": { "label": "Transfer of {amount} credits", "description": "{amount} credits will be removed from your wallet and given to a random active user." },
+      "random-user-min": { "description": "{amount} credits will be removed from your wallet and given to a random active user (recipient's minimum net score: {score})." },
+      "custom": { "label": "Custom reminder" },
+      "mandatory-proof": { "label": "Mandatory proof", "description": "Your next check-in on this goal will have to include proof." }
+    }
+  }
+}

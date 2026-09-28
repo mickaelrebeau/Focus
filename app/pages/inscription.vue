@@ -7,6 +7,8 @@ const displayName = ref('')
 const error = ref('')
 const loading = ref(false)
 const { register } = useAuth()
+const { t } = useI18n()
+const authErrorMessage = useAuthErrorMessage()
 
 async function handleRegister() {
   error.value = ''
@@ -15,7 +17,7 @@ async function handleRegister() {
     await register(email.value, password.value, displayName.value)
     await navigateTo('/app/onboarding')
   } catch (e: any) {
-    error.value = e?.data?.message ?? 'Erreur lors de l\'inscription'
+    error.value = authErrorMessage(e, 'auth.errors.register')
   } finally {
     loading.value = false
   }
@@ -28,8 +30,8 @@ async function handleRegister() {
       <div class="mb-8 flex justify-center">
         <AppLogo to="/" size="lg" />
       </div>
-      <h1 class="focus-heading-lg text-center">Créer un compte</h1>
-      <p class="focus-body mt-2 text-center">Commencez avec 50 crédits offerts</p>
+      <h1 class="focus-heading-lg text-center">{{ t('auth.register.title') }}</h1>
+      <p class="focus-body mt-2 text-center">{{ t('auth.register.subtitle') }}</p>
 
       <div class="mt-8">
         <GoogleAuthButton />
@@ -40,21 +42,21 @@ async function handleRegister() {
           <div class="w-full border-t border-focus-gray-200" />
         </div>
         <div class="relative flex justify-center text-sm">
-          <span class="bg-white px-3 text-focus-gray-400">ou</span>
+          <span class="bg-white px-3 text-focus-gray-400">{{ t('common.or') }}</span>
         </div>
       </div>
 
       <form class="space-y-5" @submit.prevent="handleRegister">
-        <UiInput v-model="displayName" label="Nom d'affichage" required placeholder="Votre prénom" />
-        <UiInput v-model="email" label="Email" type="email" required placeholder="vous@email.com" />
-        <UiInput v-model="password" label="Mot de passe" type="password" required placeholder="8 caractères minimum" />
+        <UiInput v-model="displayName" :label="t('auth.register.displayNameLabel')" required :placeholder="t('auth.register.displayNamePlaceholder')" />
+        <UiInput v-model="email" :label="t('auth.emailLabel')" type="email" required :placeholder="t('auth.emailPlaceholder')" />
+        <UiInput v-model="password" :label="t('auth.passwordLabel')" type="password" required :placeholder="t('auth.register.passwordPlaceholder')" />
         <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
-        <UiButton type="submit" class="w-full" :loading="loading">S'inscrire</UiButton>
+        <UiButton type="submit" class="w-full" :loading="loading">{{ t('auth.register.submit') }}</UiButton>
       </form>
 
       <p class="mt-6 text-center text-sm text-focus-gray-400">
-        Déjà un compte ?
-        <NuxtLink to="/connexion" class="text-focus-gray-700 hover:underline">Se connecter</NuxtLink>
+        {{ t('auth.register.alreadyRegistered') }}
+        <NuxtLink to="/connexion" class="text-focus-gray-700 hover:underline">{{ t('auth.register.login') }}</NuxtLink>
       </p>
     </div>
   </div>
