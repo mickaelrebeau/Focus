@@ -7,6 +7,7 @@ const displayName = ref('')
 const timezone = ref(DEFAULT_TIMEZONE)
 const leaderboardOptIn = ref(true)
 const loading = ref(false)
+const route = useRoute()
 const { user, fetchUser } = useAuth()
 
 onMounted(() => {
@@ -30,7 +31,7 @@ async function handleSubmit() {
     },
   })
   await fetchUser()
-  await navigateTo('/app')
+  await navigateTo(safeRedirect(route.query.redirect) ?? '/app')
   loading.value = false
 }
 </script>

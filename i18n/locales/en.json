@@ -29,7 +29,8 @@
     "getStarted": "Get started",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "copyright": "© {year} Focus. All rights reserved."
+    "copyright": "© {year} Focus. All rights reserved.",
+    "partner": "Partner"
   },
   "offline": {
     "bannerTitle": "Offline.",
@@ -319,6 +320,63 @@
       "overlap": "This period overlaps an existing pause.",
       "not_found": "Pause not found.",
       "already_ended": "This pause has already ended.",
+      "generic": "Something went wrong."
+    }
+  },
+  "partner": {
+    "eyebrow": "Accountability",
+    "title": "Partner",
+    "subtitle": "A trusted person sees your daily status, and you see theirs.",
+    "yourPartner": "Your partner",
+    "streak": "Streak: {count} days | Streak: {count} day | Streak: {count} days",
+    "today": "Today",
+    "progress": "{completed} of {total} deadlines checked in",
+    "status": {
+      "success": "Day completed",
+      "failed": "Failed today",
+      "late": "Running late",
+      "in_progress": "In progress",
+      "rest": "Nothing planned",
+      "paused": "Paused"
+    },
+    "lastDays": "Last 7 days",
+    "history": {
+      "success": "Completed",
+      "failed": "Failed",
+      "neutral": "Nothing planned",
+      "paused": "Paused"
+    },
+    "privacy": "Your partner only sees your first name, today's status, your streak and your last 7 days. Never your goal titles, notes, proofs, credits, payments or consequences.",
+    "revoke": "End the partnership",
+    "confirmRevoke": "End the partnership? You will no longer see each other's status.",
+    "revoked": "Partnership ended.",
+    "inviteTitle": "Invite a partner",
+    "inviteExplain": "Create an invitation link and send it to someone you trust. Once accepted, you will each see the other's status.",
+    "createLink": "Create an invitation link",
+    "newLink": "Generate a new link",
+    "linkLabel": "Invitation link",
+    "linkHint": "Valid for 7 days, single use. Generating a new link invalidates the previous one.",
+    "copy": "Copy",
+    "copied": "Link copied.",
+    "pendingInvite": "An invitation is pending. For security, the link is only shown when created: generate a new one if needed.",
+    "cancelInvite": "Cancel the invitation",
+    "inviteCancelled": "Invitation cancelled.",
+    "invite": {
+      "title": "{name} invites you to be their accountability partner",
+      "explain": "You will each see the other's daily status (completed, late, failed) to keep each other on track.",
+      "privacy": "Only first name, daily status, streak and last 7 days are shared. No goal details, no payment data. You can end it at any time.",
+      "accept": "Accept and share my status",
+      "loginToAccept": "Log in to accept",
+      "signupToAccept": "Create an account",
+      "unavailableTitle": "Invitation unavailable"
+    },
+    "errors": {
+      "invalid_invite": "This invitation link is invalid or has already been used.",
+      "expired": "This invitation link has expired.",
+      "self": "You cannot accept your own invitation.",
+      "already_partnered": "You already have a partner. End it before accepting another one.",
+      "inviter_partnered": "This person already has a partner.",
+      "not_found": "Partnership not found.",
       "generic": "Something went wrong."
     }
   }

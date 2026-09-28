@@ -10,6 +10,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Expiration des échéances](#expiration-des-échéances)
 - [Streak et clôture journalière](#streak-et-clôture-journalière)
 - [Mode pause / vacances](#mode-pause--vacances)
+- [Binôme de responsabilité](#binôme-de-responsabilité)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
 - [Notifications push](#notifications-push)
 - [Mode hors ligne (PWA)](#mode-hors-ligne-pwa)
@@ -187,6 +188,15 @@ Code : `server/utils/pauses.ts`, `server/api/pauses/*`, page `app/pages/app/regl
 - **Fin anticipée** : une pause à venir, ou commencée le jour même, est annulée (`cancelled_at`). Une pause commencée avant aujourd’hui est terminée à la veille (`end_date`), et la date prévue est conservée dans `original_end_date` pour l’historique. Dans les deux cas, les échéances `skipped` dont l’heure limite n’est pas passée redeviennent `pending`.
 - **Streak gelé** : les jours de pause sont transparents pour la consécutivité (`isConsecutiveDay`). Deux jours réussis séparés uniquement par des jours de pause restent consécutifs, et les jours de pause ne s’ajoutent pas au compte. Exemple : réussi lun. et mar., pause mer.–ven., réussi sam. et dim. → streak de **4**, pas de 7, et pas de remise à zéro. Un jour non gelé manqué, ou un échec après la pause, casse toujours le streak.
 - **Visibilité** : bannière dans l’espace connecté pendant une pause (`/api/auth/me` renvoie `activePause`), statut « En pause » sur les échéances, historique des pauses (à venir, en cours, terminée, annulée) dans Réglages → Pause / vacances.
+
+## Binôme de responsabilité
+
+Code : `server/utils/partnerships.ts`, `server/api/partnerships/*`, pages `app/pages/app/binome.vue` et `app/pages/binome/[token].vue`. Table `partnerships` (`pending` → `active` → `revoked`).
+
+- **Invitation par lien** : jeton aléatoire de 32 octets, dont seule l’empreinte SHA-256 est stockée. Valable `INVITE_TTL_DAYS` (7) jours, à usage unique. Générer un nouveau lien invalide le précédent. La page publique `/binome/<jeton>` n’expose que le prénom de l’invitant. Si la personne n’est pas connectée, la connexion ou l’inscription la ramène sur l’invitation (`?redirect=`, limité aux chemins internes par `safeRedirect`).
+- **Acceptation** en transaction avec verrou sur l’invitation : refusée pour soi-même, si l’un des deux a déjà un binôme actif (un binôme = une paire), si le lien a expiré ou a déjà servi.
+- **Vue mutuelle minimale** (`getPartnerView`) : prénom, statut du jour (`success`, `in_progress`, `late`, `failed`, `rest`, `paused`), nombre d’échéances validées sur le total, streak courant, et 7 derniers jours. **Jamais** les titres d’objectifs, notes, preuves, crédits, paiements ni conséquences. Un test E2E vérifie ces absences dans la réponse de l’API.
+- **Révocation** à tout moment par l’un ou l’autre (`DELETE /api/partnerships/:id`), qui sert aussi à annuler une invitation en attente.
 
 ## Pipeline des conséquences
 
