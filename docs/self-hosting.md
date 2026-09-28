@@ -76,7 +76,7 @@ Les deux workers se lancent depuis le **dépôt complet** (ils s’exécutent av
 - [ ] **consequences** : `pnpm worker:consequences`. Exécute les conséquences mises en file lors d’un échec (5 en parallèle, 3 tentatives). Il a besoin de `STRIPE_SECRET_KEY` si Stripe est activé. Au démarrage, il reprend les conséquences restées en attente.
 - [ ] Un seul exemplaire de chaque worker suffit. Un verrou Redis évite de toute façon un double traitement des échéances.
 
-**Railway** : `railway.toml` déclare les trois services (`web`, `worker`, `consequences`) depuis le même dépôt. Le script `pnpm build` saute le build Nuxt pour les services dont `RAILWAY_SERVICE_NAME` vaut `worker` ou `consequences`.
+**Railway** : créer trois services depuis le même dépôt et renseigner le réglage **Config file path** de chacun : `/railway.toml` pour le web, `/railway/worker.toml` et `/railway/consequences.toml` pour les workers. Ces fichiers désactivent le build Nuxt et le healthcheck HTTP, inutiles pour un worker. Pour ne pas recopier les secrets, définissez les variables des workers par référence au service web, par exemple `DATABASE_URL=${{web.DATABASE_URL}}`.
 
 **Docker / serveur** : le dépôt ne fournit pas encore de `Dockerfile`. Le plus simple est une image unique contenant le dépôt, `node_modules` et le build, lancée trois fois avec une commande différente :
 

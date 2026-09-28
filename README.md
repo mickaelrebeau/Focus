@@ -106,10 +106,12 @@ Pour déployer votre propre instance (variables requises ou optionnelles, worker
 
 1. Connecter le repo GitHub à Railway
 2. Ajouter PostgreSQL et Redis
-3. Créer les services à partir du repo :
-   - **web** : `node .output/server/index.mjs`
-   - **worker** : `npx tsx server/workers/deadlines.ts`
-   - **worker:consequences** (optionnel) : `npx tsx server/workers/consequences.ts`
+3. Créer trois services à partir du repo, en renseignant pour chacun le réglage **Config file path** :
+   - **web** : `/railway.toml` (`node .output/server/index.mjs`)
+   - **worker** : `/railway/worker.toml` (`pnpm worker`, sans healthcheck ni build Nuxt)
+   - **consequences** : `/railway/consequences.toml` (`pnpm worker:consequences`)
+
+   Les workers ont besoin de `DATABASE_URL`, `REDIS_URL` et, pour `consequences`, de `STRIPE_SECRET_KEY`. Des références comme `${{web.DATABASE_URL}}` évitent de recopier les secrets.
 4. Configurer les variables d’environnement (voir la [référence](./docs/self-hosting.md#référence-des-variables))
 5. Exécuter les migrations SQL
 6. Le seed admin s’exécute au démarrage si `ADMIN_EMAIL` + `ADMIN_PASSWORD` sont définis
