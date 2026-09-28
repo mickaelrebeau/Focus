@@ -30,7 +30,8 @@
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
     "copyright": "© {year} Focus. Tous droits réservés.",
-    "partner": "Binôme"
+    "partner": "Binôme",
+    "review": "Bilan"
   },
   "offline": {
     "bannerTitle": "Hors ligne.",
@@ -348,5 +349,39 @@
     },
     "dueTime": "Heure limite",
     "onboardingCta": "Continuer et choisir un modèle"
+  },
+  "review": {
+    "eyebrow": "Progression",
+    "title": "Bilan de la semaine",
+    "weekOf": "Du {start} au {end}",
+    "previous": "Semaine précédente",
+    "next": "Semaine suivante",
+    "inProgress": "En cours",
+    "successRate": "Taux de réussite",
+    "rateDetail": "Réussies : {completed} sur {closed} clôturées",
+    "perfectDays": "Jours parfaits",
+    "failedDays": "Aucun jour échoué | {count} jour échoué | {count} jours échoués",
+    "credits": "Crédits (net)",
+    "creditsDetail": "+{gained} gagnés · −{lost} perdus",
+    "bestStreak": "Meilleure série",
+    "bestStreakDetail": "jour parfait d'affilée | jour parfait d'affilée | jours parfaits d'affilée",
+    "daysTitle": "Jour par jour",
+    "day": {
+      "success": "Jour parfait",
+      "failed": "Jour échoué",
+      "paused": "En pause",
+      "neutral": "Rien de clôturé"
+    },
+    "occurrencesDetail": "{total} échéances cette semaine, dont {pending} à venir et {paused} en pause.",
+    "consequencesTitle": "Conséquences déclenchées",
+    "noConsequences": "Aucune conséquence cette semaine.",
+    "share": "Partager mon bilan",
+    "exportCsv": "Exporter en CSV",
+    "copied": "Bilan copié dans le presse-papiers.",
+    "shareTitle": "Mon bilan Focus — {week}",
+    "shareNoClosed": "Aucune échéance clôturée.",
+    "shareRate": "{rate} % de réussite ({completed}/{closed})",
+    "sharePerfect": "Aucun jour parfait | 1 jour parfait | {count} jours parfaits",
+    "shareStreak": "Meilleure série : {count} jours | Meilleure série : {count} jour | Meilleure série : {count} jours"
   }
 }

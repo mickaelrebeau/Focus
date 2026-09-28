@@ -122,6 +122,7 @@ const navDefinition: AppNavItem[] = [
   { to: '/app', labelKey: 'nav.today', icon: 'today' },
   { to: '/app/objectifs', labelKey: 'nav.goals', icon: 'goals' },
   { to: '/app/agenda', labelKey: 'nav.agenda', icon: 'agenda' },
+  { to: '/app/bilan', labelKey: 'nav.review', icon: 'chart' },
   { to: '/app/classement', labelKey: 'nav.ranking', icon: 'ranking' },
   { to: '/app/binome', labelKey: 'nav.partner', icon: 'users' },
   { to: '/cagnottes', labelKey: 'nav.pots', icon: 'heart' },

@@ -30,7 +30,8 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "copyright": "© {year} Focus. All rights reserved.",
-    "partner": "Partner"
+    "partner": "Partner",
+    "review": "Review"
   },
   "offline": {
     "bannerTitle": "Offline.",
@@ -402,5 +403,39 @@
     },
     "dueTime": "Deadline time",
     "onboardingCta": "Continue and pick a template"
+  },
+  "review": {
+    "eyebrow": "Progress",
+    "title": "Weekly review",
+    "weekOf": "{start} – {end}",
+    "previous": "Previous week",
+    "next": "Next week",
+    "inProgress": "In progress",
+    "successRate": "Success rate",
+    "rateDetail": "Done: {completed} of {closed} closed",
+    "perfectDays": "Perfect days",
+    "failedDays": "No failed days | {count} failed day | {count} failed days",
+    "credits": "Credits (net)",
+    "creditsDetail": "+{gained} earned · −{lost} lost",
+    "bestStreak": "Best streak",
+    "bestStreakDetail": "perfect days in a row | perfect day in a row | perfect days in a row",
+    "daysTitle": "Day by day",
+    "day": {
+      "success": "Perfect day",
+      "failed": "Failed day",
+      "paused": "Paused",
+      "neutral": "Nothing closed"
+    },
+    "occurrencesDetail": "{total} deadlines this week, including {pending} upcoming and {paused} paused.",
+    "consequencesTitle": "Consequences triggered",
+    "noConsequences": "No consequences this week.",
+    "share": "Share my review",
+    "exportCsv": "Export as CSV",
+    "copied": "Review copied to the clipboard.",
+    "shareTitle": "My Focus review — {week}",
+    "shareNoClosed": "No closed deadlines.",
+    "shareRate": "{rate}% success ({completed}/{closed})",
+    "sharePerfect": "No perfect days | 1 perfect day | {count} perfect days",
+    "shareStreak": "Best streak: {count} days | Best streak: {count} day | Best streak: {count} days"
   }
 }

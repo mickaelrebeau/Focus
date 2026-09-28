@@ -10,6 +10,7 @@ export type AppIconName =
   | 'bell'
   | 'pause'
   | 'users'
+  | 'chart'
   | 'plus'
   | 'check'
   | 'close'
