@@ -43,7 +43,23 @@ pnpm build:web
 
 4. Décrire le problème résolu, les changements et le plan de test
 
-La CI GitHub Actions relance `pnpm test` et `pnpm lint` sur chaque PR : elle doit être verte pour merger.
+La CI GitHub Actions relance `pnpm test`, `pnpm lint` et les tests E2E sur chaque PR : elle doit être verte pour merger.
+
+## Tests E2E
+
+Un parcours Playwright (`e2e/`) couvre le chemin critique : inscription, onboarding, création d’objectif, validation d’une échéance, agenda (échéance réussie et échéance expirée passée en échec), connexion.
+
+```bash
+docker compose up -d                  # PostgreSQL + Redis
+pnpm exec playwright install chromium # une seule fois
+pnpm test:e2e
+```
+
+`pnpm test:e2e` crée la base `focus_e2e` si besoin, applique les migrations, build l’app puis la lance sur le port 3100.
+
+- **Les E2E n’utilisent jamais votre `.env`**, qui peut pointer vers une base distante. La base et Redis se règlent avec `E2E_DATABASE_URL` (défaut `postgresql://postgres@localhost:5432/focus_e2e`) et `E2E_REDIS_URL` (défaut `redis://localhost:6379/15`). Un hôte autre que `localhost` est refusé, sauf avec `E2E_ALLOW_REMOTE=1`.
+- Si le port 5432 est déjà pris : `POSTGRES_PORT=55432 docker compose up -d`, puis `E2E_DATABASE_URL=postgresql://postgres@localhost:55432/focus_e2e pnpm test:e2e`.
+- En cas d’échec, `pnpm exec playwright show-report` ouvre le rapport avec les traces et captures. En CI, le rapport est publié en artefact.
 
 ## Conventions
 

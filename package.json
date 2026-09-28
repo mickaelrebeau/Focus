@@ -33,6 +33,7 @@
     "worker:consequences": "tsx server/workers/consequences.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "lint": "nuxt typecheck"
   },
   "dependencies": {
@@ -60,6 +61,7 @@
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^26.1.1",
     "@types/sortablejs": "^1.15.9",
     "@vite-pwa/nuxt": "^1.1.1",

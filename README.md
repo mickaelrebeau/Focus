@@ -85,6 +85,7 @@ Voir [`.env.example`](./.env.example). Ne committez jamais de fichier `.env` ré
 |----------|------|
 | `pnpm dev` | Serveur de développement |
 | `pnpm test` | Tests unitaires |
+| `pnpm test:e2e` | Parcours E2E Playwright (voir [CONTRIBUTING](./CONTRIBUTING.md#tests-e2e)) |
 | `pnpm lint` | Typecheck Nuxt |
 | `pnpm build:web` | Build production |
 | `pnpm worker` | Worker d’expiration / streaks |
@@ -92,9 +93,9 @@ Voir [`.env.example`](./.env.example). Ne committez jamais de fichier `.env` ré
 
 ## Intégration continue
 
-Le workflow [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) s’exécute sur chaque `push` et chaque pull request vers `main`. Il installe les dépendances avec pnpm, puis lance `pnpm test` et `pnpm lint` (typecheck Nuxt via `vue-tsc`). Si l’une de ces étapes échoue, la CI échoue.
+Le workflow [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) s’exécute sur chaque `push` et chaque pull request vers `main`. Il installe les dépendances avec pnpm, puis lance `pnpm test` et `pnpm lint` (typecheck Nuxt via `vue-tsc`) dans le job **Tests & typecheck**, et le parcours Playwright dans le job **E2E (Playwright)**, avec PostgreSQL et Redis en services. Si l’une de ces étapes échoue, la CI échoue.
 
-Pour rendre la CI bloquante au merge, activez une règle de protection sur `main` (*Settings → Branches*) avec le check **Tests & typecheck** comme obligatoire.
+Pour rendre la CI bloquante au merge, activez une règle de protection sur `main` (*Settings → Branches*) avec les checks **Tests & typecheck** et **E2E (Playwright)** comme obligatoires.
 
 ## Déploiement Railway
 
