@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Hors ligne — Focus</title>
+  <style>
+    :root { color-scheme: light; }
+    body {
+      margin: 0; min-height: 100dvh; display: grid; place-items: center;
+      background: #FAFAFA; color: #111827;
+      font-family: "Open Sans", system-ui, -apple-system, sans-serif;
+    }
+    main {
+      box-sizing: border-box; width: min(100% - 32px, 420px); padding: 32px 24px;
+      background: #FFFFFF; border: 1px solid #E8E8ED; border-radius: 26px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06); text-align: center;
+    }
+    h1 { margin: 0 0 8px; font-size: 1.375rem; letter-spacing: -0.01em; }
+    p { margin: 0 0 24px; color: #6E6E73; line-height: 1.5; font-size: 0.9375rem; }
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    button, a {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+      padding: 0 20px; border-radius: 16px; font: inherit; font-weight: 600; font-size: 0.9375rem;
+      cursor: pointer; text-decoration: none;
+    }
+    button { border: 0; background: #111827; color: #FFFFFF; }
+    a { border: 1px solid #E8E8ED; background: #FFFFFF; color: #111827; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Vous êtes hors ligne</h1>
+    <p>Cette page n’a pas encore été consultée sur cet appareil, elle n’est donc pas disponible sans connexion. Vos échéances du jour restent accessibles depuis l’accueil si vous l’avez déjà ouvert.</p>
+    <div class="actions">
+      <button type="button" onclick="location.reload()">Réessayer</button>
+      <a href="/app">Accueil</a>
+    </div>
+  </main>
+</body>
+</html>

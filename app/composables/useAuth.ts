@@ -17,6 +17,8 @@ export interface AuthUser {
   paymentMethodExpYear?: number
 }
 
+import { clearOfflineCaches } from '~/utils/offline-cache'
+
 const fetchOptions = { credentials: 'include' as const }
 
 export function useAuth() {
@@ -28,13 +30,19 @@ export function useAuth() {
       const data = await requestFetch<{ user: AuthUser }>('/api/auth/me', fetchOptions)
       user.value = data.user
       return data.user
-    } catch {
+    } catch (error) {
+      // Sans réponse du serveur (hors ligne, serveur injoignable), on garde l'utilisateur
+      // connu : seul un refus explicite du serveur (401…) déconnecte.
+      if (!(error as { response?: unknown }).response) {
+        return user.value
+      }
       user.value = null
       return null
     }
   }
 
   async function login(email: string, password: string) {
+    await clearOfflineCaches()
     const data = await $fetch<{ user: AuthUser }>('/api/auth/login', {
       method: 'POST',
       body: { email, password },
@@ -45,6 +53,7 @@ export function useAuth() {
   }
 
   async function register(email: string, password: string, displayName: string) {
+    await clearOfflineCaches()
     const data = await $fetch<{ user: AuthUser }>('/api/auth/register', {
       method: 'POST',
       body: { email, password, displayName },
@@ -56,11 +65,13 @@ export function useAuth() {
 
   async function logout() {
     await requestFetch('/api/auth/logout', { method: 'POST', ...fetchOptions })
+    await clearOfflineCaches()
     user.value = null
     await navigateTo('/connexion')
   }
 
-  function loginWithGoogle() {
+  async function loginWithGoogle() {
+    await clearOfflineCaches()
     window.location.href = '/api/auth/google'
   }
 
