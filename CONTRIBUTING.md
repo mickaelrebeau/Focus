@@ -27,6 +27,8 @@ Dans un second terminal :
 pnpm worker
 ```
 
+Avant de toucher aux échéances, au streak ou aux conséquences, lisez [docs/architecture.md](./docs/architecture.md).
+
 ## Avant d’ouvrir une PR
 
 1. Créer une branche depuis `main`
