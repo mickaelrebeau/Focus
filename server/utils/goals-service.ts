@@ -219,7 +219,13 @@ export async function generateUpcomingOccurrences(dbInstance?: Db) {
           dueAt: date.dueAt,
           weekKey: date.weekKey,
           status: 'pending',
-        }).onConflictDoNothing()
+        }).onConflictDoNothing({
+          target: [
+            schema.occurrences.goalId,
+            schema.occurrences.dueDate,
+            schema.occurrences.milestoneId,
+          ],
+        })
         created++
       } catch {
         // duplicate occurrence, skip
