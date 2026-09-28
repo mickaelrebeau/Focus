@@ -7,7 +7,7 @@ healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 
-# Ce fichier configure le service web. Les workers ont leur propre config-as-code,
-# sélectionnée dans le réglage « Config file path » de chaque service Railway :
-#   - worker       → /railway/worker.toml        (pnpm worker)
-#   - consequences → /railway/consequences.toml  (pnpm worker:consequences)
+# Ce fichier ne configure que le service web. Railway ne permet plus d'attacher un
+# fichier de config-as-code à un nouveau service (remplacé par .railway/railway.ts) :
+# les workers `worker` et `consequences` sont réglés dans leurs paramètres de service
+# (voir « Déploiement Railway » dans le README).
