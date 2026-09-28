@@ -1,0 +1,46 @@
+# Services locaux pour le développement : `docker compose up -d`
+# Les ports par défaut correspondent à DATABASE_URL et REDIS_URL de .env.example.
+# En cas de conflit (Postgres/Redis déjà installés), surchargez-les :
+#   POSTGRES_PORT=5433 REDIS_PORT=6380 docker compose up -d
+# puis adaptez DATABASE_URL / REDIS_URL dans .env.
+#
+# Usage local uniquement : Postgres accepte les connexions sans mot de passe
+# (trust) et les ports ne sont exposés que sur 127.0.0.1.
+
+name: focus
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: focus
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d focus"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
+  redis-data:
