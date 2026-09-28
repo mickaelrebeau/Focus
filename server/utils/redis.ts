@@ -57,20 +57,45 @@ export async function redisDel(key: string): Promise<void> {
   await r.del(key)
 }
 
-export async function acquireLock(key: string, ttlMs = 30000): Promise<boolean> {
+// Le client attend indéfiniment la reconnexion (maxRetriesPerRequest: null) :
+// sur un chemin de requête HTTP, on borne l'attente pour ne pas bloquer la réponse.
+export function withRedisTimeout<T>(promise: Promise<T>, timeoutMs?: number): Promise<T> {
+  if (!timeoutMs) return promise
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`Redis timeout (${timeoutMs}ms)`)), timeoutMs)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        clearTimeout(timer)
+        reject(error)
+      },
+    )
+  })
+}
+
+export type LockResult = 'acquired' | 'busy' | 'unavailable'
+
+export async function tryAcquireLock(key: string, ttlMs = 30000, timeoutMs?: number): Promise<LockResult> {
   try {
     const r = useRedis()
-    const result = await r.set(`lock:${key}`, '1', 'PX', ttlMs, 'NX')
-    return result === 'OK'
+    const result = await withRedisTimeout(r.set(`lock:${key}`, '1', 'PX', ttlMs, 'NX'), timeoutMs)
+    return result === 'OK' ? 'acquired' : 'busy'
   } catch (error) {
-    console.error('[redis] acquireLock failed:', error)
-    return false
+    console.error('[redis] tryAcquireLock failed:', error)
+    return 'unavailable'
   }
 }
 
-export async function releaseLock(key: string): Promise<void> {
+export async function acquireLock(key: string, ttlMs = 30000): Promise<boolean> {
+  return (await tryAcquireLock(key, ttlMs)) === 'acquired'
+}
+
+export async function releaseLock(key: string, timeoutMs?: number): Promise<void> {
   try {
-    await redisDel(`lock:${key}`)
+    await withRedisTimeout(redisDel(`lock:${key}`), timeoutMs)
   } catch (error) {
     console.error('[redis] releaseLock failed:', error)
   }

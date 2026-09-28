@@ -4,7 +4,7 @@ import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { useDatabase, schema } from '../database'
 import { triggerConsequencesOnFailure } from './consequences-service'
 import { processStreaksForUser, reevaluateUserDay } from './streaks'
-import { acquireLock, releaseLock } from './redis'
+import { acquireLock, redisGet, redisSet, releaseLock, tryAcquireLock, withRedisTimeout } from './redis'
 
 type Db = PostgresJsDatabase<typeof schema>
 
@@ -95,36 +95,69 @@ async function markExpiredOccurrencesAsFailed(
   return processed
 }
 
-export async function processExpiredOccurrencesForUser(userId: string) {
-  const db = useDatabase()
-  const [user] = await db
-    .select({ timezone: schema.users.timezone })
-    .from(schema.users)
-    .where(eq(schema.users.id, userId))
-    .limit(1)
+export const SYNC_LOCK_TTL_MS = 30_000
+export const SYNC_THROTTLE_SECONDS = 60
+const SYNC_REDIS_TIMEOUT_MS = 500
 
-  const timezoneByUserId = new Map<string, string>()
-  if (user?.timezone) {
-    timezoneByUserId.set(userId, user.timezone)
+const syncLockKey = (userId: string) => `sync-deadlines:${userId}`
+const syncThrottleKey = (userId: string) => `sync-deadlines:last:${userId}`
+
+async function wasSyncedRecently(userId: string) {
+  try {
+    return (await withRedisTimeout(redisGet(syncThrottleKey(userId)), SYNC_REDIS_TIMEOUT_MS)) !== null
+  } catch {
+    return false
   }
-
-  const expired = await fetchExpiredOccurrences(db, userId)
-  const processed = await markExpiredOccurrencesAsFailed(db, expired, timezoneByUserId)
-
-  return { processed, skipped: false }
 }
 
-export async function syncUserDeadlines(userId: string, timezone: string) {
+async function markSynced(userId: string) {
   try {
-    const expired = await processExpiredOccurrencesForUser(userId)
-    const streaks = await processStreaksForUser(userId, timezone)
-    return { expired, streaks }
+    await withRedisTimeout(redisSet(syncThrottleKey(userId), '1', SYNC_THROTTLE_SECONDS), SYNC_REDIS_TIMEOUT_MS)
+  } catch {
+    // Sans marqueur, la prochaine lecture resynchronise : pas d'impact métier
+  }
+}
+
+/**
+ * Synchronisation à la lecture API, en complément du worker `deadlines`.
+ * - Une échéance expirée est toujours traitée tout de suite (l'UI reste juste).
+ * - Sinon, la clôture des jours passés n'est rejouée qu'une fois par SYNC_THROTTLE_SECONDS.
+ * - Un verrou Redis par utilisateur empêche deux synchronisations concurrentes.
+ * - Si Redis est indisponible, on synchronise quand même : les verrous `FOR UPDATE` et les
+ *   index uniques de consequence_history évitent déjà tout double traitement.
+ */
+export async function syncUserDeadlines(userId: string, timezone: string) {
+  const skipped = {
+    expired: { processed: 0, skipped: true },
+    streaks: 0,
+  }
+
+  try {
+    const db = useDatabase()
+    const expired = await fetchExpiredOccurrences(db, userId)
+
+    if (expired.length === 0 && await wasSyncedRecently(userId)) {
+      return skipped
+    }
+
+    const lock = await tryAcquireLock(syncLockKey(userId), SYNC_LOCK_TTL_MS, SYNC_REDIS_TIMEOUT_MS)
+    if (lock === 'busy') {
+      return skipped
+    }
+
+    try {
+      const processed = await markExpiredOccurrencesAsFailed(db, expired, new Map([[userId, timezone]]))
+      const streaks = await processStreaksForUser(userId, timezone)
+      await markSynced(userId)
+      return { expired: { processed, skipped: false }, streaks }
+    } finally {
+      if (lock === 'acquired') {
+        await releaseLock(syncLockKey(userId), SYNC_REDIS_TIMEOUT_MS)
+      }
+    }
   } catch (error) {
     console.error('[syncUserDeadlines] Failed:', error)
-    return {
-      expired: { processed: 0, skipped: true },
-      streaks: 0,
-    }
+    return skipped
   }
 }
 
