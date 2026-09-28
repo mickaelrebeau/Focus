@@ -69,6 +69,18 @@ pnpm test:e2e
 - **UI** : l’espace connecté utilise les tokens `app-*` ; landing/auth/admin utilisent `focus-*`
 - **Tests** : ajouter ou mettre à jour des tests unitaires pour toute logique métier non triviale
 
+## Où poser quoi ?
+
+| Besoin | Où |
+|---|---|
+| Question sur l’installation, la configuration ou l’usage | [Discussions → Q&A](https://github.com/mickaelrebeau/Focus/discussions/categories/q-a) |
+| Idée encore floue, envie d’en débattre | [Discussions → Ideas](https://github.com/mickaelrebeau/Focus/discussions/categories/ideas) |
+| Bug reproductible | [Issue « Bug »](https://github.com/mickaelrebeau/Focus/issues/new/choose) |
+| Fonctionnalité précise, prête à être implémentée | [Issue « Idée / Feature »](https://github.com/mickaelrebeau/Focus/issues/new/choose) |
+| Vulnérabilité | [Advisory privé](https://github.com/mickaelrebeau/Focus/security/advisories/new), voir [SECURITY.md](./SECURITY.md) |
+
+Les annonces du projet (versions, changements importants) sont publiées dans [Discussions → Announcements](https://github.com/mickaelrebeau/Focus/discussions/categories/announcements).
+
 ## Signaler un bug
 
 Ouvrir une [issue](https://github.com/mickaelrebeau/Focus/issues) avec :
@@ -79,7 +91,7 @@ Ouvrir une [issue](https://github.com/mickaelrebeau/Focus/issues) avec :
 
 ## Proposer une idée
 
-Ouvrir une issue « feature » avant d’implémenter une grosse fonctionnalité, pour valider le besoin et l’approche.
+Pour une idée encore floue, commencez par une discussion dans [Ideas](https://github.com/mickaelrebeau/Focus/discussions/categories/ideas). Une fois le besoin clarifié, ouvrez une issue « feature » avant d’implémenter une grosse fonctionnalité, pour valider l’approche.
 
 ## Licence
 

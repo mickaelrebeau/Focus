@@ -114,6 +114,7 @@ Pour rendre la CI bloquante au merge, activez une règle de protection sur `main
 Les contributions sont les bienvenues.
 
 - [Guide de contribution](./CONTRIBUTING.md)
+- [Discussions](https://github.com/mickaelrebeau/Focus/discussions) : questions (Q&A), idées, annonces
 - [Architecture](./docs/architecture.md)
 - [Code de conduite](./CODE_OF_CONDUCT.md)
 - [Politique de sécurité](./SECURITY.md)
