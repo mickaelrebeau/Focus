@@ -11,6 +11,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Streak et clôture journalière](#streak-et-clôture-journalière)
 - [Mode pause / vacances](#mode-pause--vacances)
 - [Binôme de responsabilité](#binôme-de-responsabilité)
+- [Défis entre amis](#défis-entre-amis)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
 - [Notifications push](#notifications-push)
 - [Mode hors ligne (PWA)](#mode-hors-ligne-pwa)
@@ -198,6 +199,17 @@ Code : `server/utils/partnerships.ts`, `server/api/partnerships/*`, pages `app/p
 - **Acceptation** en transaction avec verrou sur l’invitation : refusée pour soi-même, si l’un des deux a déjà un binôme actif (un binôme = une paire), si le lien a expiré ou a déjà servi.
 - **Vue mutuelle minimale** (`getPartnerView`) : prénom, statut du jour (`success`, `in_progress`, `late`, `failed`, `rest`, `paused`), nombre d’échéances validées sur le total, streak courant, et 7 derniers jours. **Jamais** les titres d’objectifs, notes, preuves, crédits, paiements ni conséquences. Un test E2E vérifie ces absences dans la réponse de l’API.
 - **Révocation** à tout moment par l’un ou l’autre (`DELETE /api/partnerships/:id`), qui sert aussi à annuler une invitation en attente.
+
+## Défis entre amis
+
+Code : `server/utils/challenges.ts`, `server/api/challenges/*`, pages `app/pages/app/defis/*` et `app/pages/defis/rejoindre/[token].vue`. Tables `challenges` et `challenge_participants` (migration `0016`).
+
+- **Format** : une semaine ISO (lundi → dimanche, courante ou suivante, selon le fuseau du créateur), 2 à 8 participants, mesure `perfect_days` (jours `success` de `user_daily_results`) ou `completed_occurrences` (échéances validées dans la semaine).
+- **Invitation** : lien réutilisable jusqu’à ce que le défi soit complet ; jeton de 32 octets dont seule l’empreinte SHA-256 est stockée. Régénérer le lien invalide le précédent. La page publique n’expose que le nom du défi, le prénom du créateur, la mise et le nombre de places.
+- **Mise en crédits uniquement** (0, 10, 20 ou 50) : prélevée à l’inscription dans la même transaction (`applyCreditOperation(op, tx)`, type `challenge_stake`), refusée si le solde est insuffisant (jamais de dette). Quitter avant le début rembourse (`challenge_refund`) ; ensuite la mise reste dans la cagnotte.
+- **Classement** calculé à la lecture pendant la semaine, figé à la clôture (`final_score`, `final_rank`, `payout`). Les ex æquo partagent le rang ; seuls prénoms et scores sont exposés.
+- **Clôture** par le worker `deadlines` (`closeFinishedChallenges`) à partir du lundi 12:00 UTC suivant la semaine, quand le dimanche est terminé dans tous les fuseaux. Transaction avec verrou sur le défi, ignorée si `closed_at` est renseigné (idempotente). La cagnotte va aux premiers (partage en cas d’égalité, le reste au premier inscrit, `challenge_payout`). Moins de 2 participants restants : défi annulé, mises remboursées.
+- **Notification** de fin : notification in-app et push `challenge_closed` (préférence `challenge_results`).
 
 ## Pipeline des conséquences
 

@@ -97,5 +97,8 @@ describe('non-régression', () => {
     expect(isDebitOperation({ type: 'admin_adjustment', amount: -1 })).toBe(true)
     expect(isDebitOperation({ type: 'admin_adjustment', amount: 1 })).toBe(false)
     expect(isDebitOperation({ type: 'task_reward', amount: 10 })).toBe(false)
+    expect(isDebitOperation({ type: 'challenge_stake', amount: -10 })).toBe(true)
+    expect(isDebitOperation({ type: 'challenge_payout', amount: 30 })).toBe(false)
+    expect(isDebitOperation({ type: 'challenge_refund', amount: 10 })).toBe(false)
   })
 })

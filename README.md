@@ -33,6 +33,7 @@ PWA open source, mobile-first, pour aider à réaliser ses objectifs avec un sys
 - Modèles d’objectifs et packs d’habitudes (catalogue [`shared/goal-templates.json`](./shared/goal-templates.json))
 - Bilan hebdomadaire : taux de réussite, jours parfaits, crédits, conséquences, partage et export CSV
 - Binôme de responsabilité : invitation par lien, statut du jour partagé sans données privées
+- Défis hebdo entre amis : classement en direct, mise optionnelle en crédits, podium et gains à la clôture
 - Interface en français (par défaut) et en anglais ([ajouter une langue](./CONTRIBUTING.md#ajouter-une-langue))
 
 Pour comprendre le flux métier (échéances, workers, streak, conséquences), lire [docs/architecture.md](./docs/architecture.md).

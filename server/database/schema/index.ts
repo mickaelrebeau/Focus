@@ -38,6 +38,9 @@ export const creditEntryTypeEnum = pgEnum('credit_entry_type', [
   'leaderboard_reward',
   'transfer_received',
   'transfer_sent',
+  'challenge_stake',
+  'challenge_refund',
+  'challenge_payout',
 ])
 
 export const dailyResultStatusEnum = pgEnum('daily_result_status', [
@@ -428,6 +431,36 @@ export const notifications = pgTable('notifications', {
   index('notifications_user_read_idx').on(table.userId, table.read),
 ])
 
+export const challenges = pgTable('challenges', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  creatorId: uuid('creator_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  metric: text('metric', { enum: ['perfect_days', 'completed_occurrences'] }).notNull(),
+  weekStart: date('week_start').notNull(),
+  weekEnd: date('week_end').notNull(),
+  stakeCredits: integer('stake_credits').notNull().default(0),
+  maxParticipants: integer('max_participants').notNull().default(8),
+  inviteTokenHash: text('invite_token_hash').notNull().unique(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  closedAt: timestamp('closed_at', { withTimezone: true }),
+  outcome: text('outcome', { enum: ['completed', 'cancelled'] }),
+})
+
+export const challengeParticipants = pgTable('challenge_participants', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  challengeId: uuid('challenge_id').notNull().references(() => challenges.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
+  leftAt: timestamp('left_at', { withTimezone: true }),
+  stakePaid: integer('stake_paid').notNull().default(0),
+  finalScore: integer('final_score'),
+  finalRank: integer('final_rank'),
+  payout: integer('payout').notNull().default(0),
+}, (table) => [
+  uniqueIndex('challenge_participants_unique').on(table.challengeId, table.userId),
+  index('challenge_participants_user_idx').on(table.userId),
+])
+
 export const partnerships = pgTable('partnerships', {
   id: uuid('id').primaryKey().defaultRandom(),
   inviterId: uuid('inviter_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -477,6 +510,7 @@ export const notificationPreferences = pgTable('notification_preferences', {
   streakAtRisk: boolean('streak_at_risk').notNull().default(true),
   consequenceExecuted: boolean('consequence_executed').notNull().default(true),
   milestoneBonus: boolean('milestone_bonus').notNull().default(true),
+  challengeResults: boolean('challenge_results').notNull().default(true),
   locale: text('locale').notNull().default('fr'),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })

@@ -28,6 +28,7 @@ const preferenceToggles = [
   { key: 'streakAtRisk', label: 'notifications.types.streakAtRisk', description: 'notifications.types.streakAtRiskHint' },
   { key: 'consequenceExecuted', label: 'notifications.types.consequenceExecuted', description: 'notifications.types.consequenceExecutedHint' },
   { key: 'milestoneBonus', label: 'notifications.types.milestoneBonus', description: 'notifications.types.milestoneBonusHint' },
+  { key: 'challengeResults', label: 'notifications.types.challengeResults', description: 'notifications.types.challengeResultsHint' },
 ] as const
 
 const preferences = computed(() => status.value?.preferences)

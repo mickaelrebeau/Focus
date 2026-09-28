@@ -31,7 +31,8 @@
     "closeMenu": "Close menu",
     "copyright": "© {year} Focus. All rights reserved.",
     "partner": "Partner",
-    "review": "Review"
+    "review": "Review",
+    "challenges": "Challenges"
   },
   "offline": {
     "bannerTitle": "Offline.",
@@ -266,7 +267,9 @@
       "consequenceExecuted": "Consequence applied",
       "consequenceExecutedHint": "When a consequence runs after a missed goal.",
       "milestoneBonus": "Streak bonus",
-      "milestoneBonusHint": "When you reach a perfect-day milestone."
+      "milestoneBonusHint": "When you reach a perfect-day milestone.",
+      "challengeResults": "Challenge results",
+      "challengeResultsHint": "When a challenge with friends ends: your rank and winnings."
     },
     "reminderDelay": "Reminder timing",
     "minutesBefore": "{n} minutes before",
@@ -444,5 +447,85 @@
     "minutes": "{n} minutes",
     "hint": "A deadline shows as “Overdue” from its time limit, but only fails after this delay: you can still check it in meanwhile.",
     "failsAt": "fails at {time}"
+  },
+  "challenges": {
+    "eyebrow": "With friends",
+    "title": "Challenges",
+    "subtitle": "One week, a few friends, one leaderboard. The most consistent wins.",
+    "activeTitle": "Ongoing challenges",
+    "pastTitle": "Past challenges",
+    "createTitle": "Start a challenge",
+    "name": "Challenge name",
+    "namePlaceholder": "No-excuse week",
+    "weekLabel": "Week",
+    "weeks": {
+      "current": "This week",
+      "next": "Next week"
+    },
+    "metricLabel": "Metric",
+    "metrics": {
+      "perfect_days": "Perfect days",
+      "completed_occurrences": "Completed deadlines"
+    },
+    "score": {
+      "perfect_days": "{n} day | {n} day | {n} days",
+      "completed_occurrences": "{n} completed | {n} completed | {n} completed"
+    },
+    "stakeLabel": "Stake (optional)",
+    "noStake": "No stake, just for glory",
+    "stakeOption": "{n} credits",
+    "stakeHint": "The stake is taken from your balance when you join (current balance: {balance} credits) and the winner takes the pot. Credits only, never real money.",
+    "create": "Create challenge",
+    "week": "{start} to {end}",
+    "participantsCount": "{count} participant | {count} participant | {count} participants",
+    "status": {
+      "upcoming": "Upcoming",
+      "running": "Ongoing",
+      "finishing": "Closing",
+      "closed": "Over",
+      "cancelled": "Cancelled"
+    },
+    "pot": "Pot",
+    "credits": "{n} credits",
+    "participants": "Participants",
+    "liveRanking": "Live leaderboard",
+    "finalRanking": "Final podium",
+    "rank": "Rank {n}",
+    "you": "(you)",
+    "rules": "Stake: {n} credits. First place takes the pot (split on a tie). Leaving before the start refunds your stake; after that it stays in the pot.",
+    "finishing": "The week is over: results and winnings are awarded Monday at noon (UTC).",
+    "cancelledExplain": "Fewer than 2 participants at the end of the week: the challenge is cancelled and stakes are refunded.",
+    "inviteTitle": "Invite friends",
+    "inviteExplain": "Share this link: it stays valid until the challenge is full or you generate a new one. Participants only see first names and scores.",
+    "linkLabel": "Invite link",
+    "copy": "Copy",
+    "copied": "Link copied.",
+    "newLink": "Generate a new link",
+    "leave": "Leave challenge",
+    "confirmLeave": "Leave the challenge? Your stake stays in the pot.",
+    "confirmLeaveRefund": "Leave the challenge? Your stake will be refunded.",
+    "back": "← All challenges",
+    "invite": {
+      "title": "{name} challenges you: “{challenge}”",
+      "explain": "A week of consistency among friends, ranked by {metric}. Other participants only see your first name and score.",
+      "stake": "Stake: {n} credits, taken when you join.",
+      "noStake": "No stake.",
+      "slots": "{count} / {max} participants.",
+      "join": "Join the challenge",
+      "joinWithStake": "Join and stake {n} credits",
+      "loginToJoin": "Log in to join",
+      "signupToJoin": "Create an account",
+      "unavailableTitle": "Challenge unavailable"
+    },
+    "errors": {
+      "invalid_invite": "This invite link is invalid or has been replaced.",
+      "full": "This challenge is full.",
+      "already_joined": "You're already in this challenge.",
+      "ended": "This challenge is over.",
+      "insufficient_credits": "Not enough credits for the stake.",
+      "not_participant": "Challenge not found.",
+      "closed": "This challenge is closed.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

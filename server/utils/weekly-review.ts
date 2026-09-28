@@ -7,19 +7,12 @@ import { expandPauseDates, getEffectivePauses } from './pauses'
 import { calculateStreaksFromDates } from './streaks'
 
 /**
- * Écritures du registre comptées comme gains ou pertes. `debt_created` et `debt_repayment`
- * sont exclues : ce ne sont que la ventilation comptable d'une pénalité ou d'un gain déjà
- * enregistré (les compter doublerait les montants).
+ * Écritures purement comptables, exclues des gains et pertes : ce ne sont que la
+ * ventilation d'une pénalité ou d'un gain déjà enregistré (les compter doublerait les
+ * montants). Les autres écritures sont classées par leur signe : positif = gain,
+ * négatif = perte (pénalité, mise d'un défi, ajustement admin négatif…).
  */
-export const CREDIT_GAIN_TYPES = [
-  'task_reward',
-  'signup_bonus',
-  'streak_bonus',
-  'leaderboard_reward',
-  'transfer_received',
-  'admin_adjustment',
-] as const
-export const CREDIT_LOSS_TYPES = ['task_penalty', 'transfer_sent'] as const
+export const CREDIT_ACCOUNTING_TYPES = ['debt_created', 'debt_repayment'] as const
 
 export interface WeekRange {
   start: string
@@ -60,12 +53,9 @@ export function computeWeeklyReview(input: WeeklyReviewInput) {
   })
   const successDates = days.filter(day => day.status === 'success').map(day => day.date)
 
-  const gained = input.ledger
-    .filter(entry => (CREDIT_GAIN_TYPES as readonly string[]).includes(entry.type))
-    .reduce((sum, entry) => sum + entry.amount, 0)
-  const lost = input.ledger
-    .filter(entry => (CREDIT_LOSS_TYPES as readonly string[]).includes(entry.type))
-    .reduce((sum, entry) => sum + Math.abs(entry.amount), 0)
+  const movements = input.ledger.filter(entry => !(CREDIT_ACCOUNTING_TYPES as readonly string[]).includes(entry.type))
+  const gained = movements.filter(entry => entry.amount > 0).reduce((sum, entry) => sum + entry.amount, 0)
+  const lost = movements.filter(entry => entry.amount < 0).reduce((sum, entry) => sum - entry.amount, 0)
 
   const consequencesByProvider: Record<string, number> = {}
   for (const consequence of input.consequences) {
