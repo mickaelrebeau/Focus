@@ -102,6 +102,8 @@ test.describe('avec un compte connecté', () => {
     expect(updated).toHaveLength(1)
 
     await page.goto('/app/agenda')
+    // Jours de la semaine en français, avec majuscule (formatés par date-fns selon la langue)
+    await expect(page.getByText('Lun', { exact: true })).toBeVisible()
     await expect(occurrenceCard(page, dailyGoal).getByText('Réussi')).toBeVisible()
     await expect(occurrenceCard(page, oneTimeGoal).getByText('Échoué')).toBeVisible()
 

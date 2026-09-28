@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { format, parseISO, startOfMonth } from 'date-fns'
-import { fr } from 'date-fns/locale'
 import OccurrenceCard from '~/components/OccurrenceCard.vue'
 import type { OccurrenceItem } from '~/components/OccurrenceCard.vue'
 import type { CalendarDaySummary } from '~/components/AppAgendaCalendar.vue'
@@ -10,6 +9,8 @@ definePageMeta({ layout: 'app', middleware: 'auth' })
 type StatusFilter = 'all' | 'pending' | 'overdue' | 'completed' | 'failed'
 
 const statusFilter = ref<StatusFilter>('all')
+const { t } = useI18n()
+const { dateLocale } = useLanguage()
 const { data: occurrencesData, isPending } = useOccurrences()
 
 const currentMonth = ref(startOfMonth(new Date()))
@@ -20,13 +21,8 @@ const selectedOccurrenceId = ref('')
 const showCelebration = ref(false)
 const celebrationData = ref<any>(null)
 
-const statusFilters: Array<{ value: StatusFilter, label: string }> = [
-  { value: 'all', label: 'Tous' },
-  { value: 'pending', label: 'À faire' },
-  { value: 'overdue', label: 'En retard' },
-  { value: 'completed', label: 'Réussis' },
-  { value: 'failed', label: 'Échoués' },
-]
+const statusFilters = computed(() => (['all', 'pending', 'overdue', 'completed', 'failed'] as const)
+  .map(value => ({ value, label: t(`agenda.filters.${value}`) })))
 
 function isOverdue(occurrence: OccurrenceItem) {
   return occurrence.status === 'pending' && new Date(occurrence.dueAt) < new Date()
@@ -82,7 +78,7 @@ const selectedDayOccurrences = computed(() =>
 
 const selectedDayLabel = computed(() => {
   const date = parseISO(`${selectedDate.value}T12:00:00`)
-  return format(date, "EEEE d MMMM", { locale: fr })
+  return format(date, t('agenda.dayFormat'), { locale: dateLocale.value })
 })
 
 const monthOccurrenceCount = computed(() =>
@@ -117,10 +113,10 @@ function openComplete(id: string) {
 <template>
   <div class="app-page animate-fade-in">
     <div class="mb-6">
-      <p class="app-eyebrow">Vue d'ensemble</p>
-      <h1 class="app-heading mt-1">Agenda</h1>
+      <p class="app-eyebrow">{{ t('agenda.eyebrow') }}</p>
+      <h1 class="app-heading mt-1">{{ t('agenda.title') }}</h1>
       <p class="mt-1 text-sm text-app-secondary">
-        {{ monthOccurrenceCount }} échéance{{ monthOccurrenceCount > 1 ? 's' : '' }} ce mois-ci
+        {{ t('agenda.monthCount', monthOccurrenceCount) }}
       </p>
     </div>
 
@@ -152,7 +148,7 @@ function openComplete(id: string) {
       <div class="mt-8">
         <div class="mb-4 flex items-center justify-between gap-3">
           <div>
-            <p class="app-eyebrow">Jour sélectionné</p>
+            <p class="app-eyebrow">{{ t('agenda.selectedDay') }}</p>
             <h2 class="app-section-title mt-0.5 capitalize">
               {{ selectedDayLabel }}
             </h2>
@@ -164,8 +160,7 @@ function openComplete(id: string) {
 
         <div v-if="!selectedDayOccurrences.length" class="app-sheet px-6 py-12 text-center">
           <p class="text-sm text-app-secondary">
-            Aucune échéance pour ce jour
-            <span v-if="statusFilter !== 'all'"> avec ce filtre</span>.
+            {{ statusFilter === 'all' ? t('agenda.empty') : t('agenda.emptyWithFilter') }}
           </p>
         </div>
 

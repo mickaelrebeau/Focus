@@ -17,6 +17,7 @@ const emit = defineEmits<{
 }>()
 
 const route = useRoute()
+const { t } = useI18n()
 
 function isNavActive(to: string) {
   if (to === '/app') return route.path === '/app'
@@ -46,7 +47,7 @@ function isNavActive(to: string) {
     <div class="shrink-0 px-4 pb-5 pt-3">
       <div v-if="user" class="mb-3 rounded-app-control bg-app-canvas px-3 py-3">
         <p class="truncate text-sm font-semibold text-app-ink">{{ user.displayName }}</p>
-        <p class="app-chip mt-2">{{ user.credits }} crédits</p>
+        <p class="app-chip mt-2">{{ t('common.credits', user.credits) }}</p>
       </div>
       <NuxtLink
         v-if="isAdmin"
@@ -54,8 +55,9 @@ function isNavActive(to: string) {
         class="app-sidebar-link"
         @click="emit('navigate')"
       >
-        Administration
+        {{ t('nav.administration') }}
       </NuxtLink>
+      <LanguageSwitcher class="mt-3 text-app-secondary" />
     </div>
   </div>
 </template>

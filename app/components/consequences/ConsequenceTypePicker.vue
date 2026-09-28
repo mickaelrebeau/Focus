@@ -15,6 +15,9 @@ const emit = defineEmits<{
   add: [type: string]
 }>()
 
+const { t } = useI18n()
+const { typeName, typeDescription } = useConsequenceText()
+
 const availableTypes = computed(() =>
   props.types.filter(type => type.enabled && !props.configuredTypes.includes(type.key)),
 )
@@ -24,16 +27,16 @@ function addType(type: ConsequenceType) {
 }
 
 function formatDefaultAmount(type: string): string {
-  if (isCreditsConsequenceType(type)) return '20 crédits'
-  if (type === 'custom') return 'Rappel personnalisé'
-  if (isBehaviorConsequenceType(type)) return 'Preuve à la prochaine réussite'
-  if (isMonetaryConsequenceType(type)) return '5 €'
+  if (isCreditsConsequenceType(type)) return t('consequences.defaults.credits')
+  if (type === 'custom') return t('consequences.defaults.custom')
+  if (isBehaviorConsequenceType(type)) return t('consequences.defaults.behavior')
+  if (isMonetaryConsequenceType(type)) return t('consequences.defaults.monetary')
   return ''
 }
 </script>
 
 <template>
-  <AppUiCard v-if="availableTypes.length" title="Ajouter une conséquence">
+  <AppUiCard v-if="availableTypes.length" :title="t('consequences.addTitle')">
     <div class="grid gap-3 sm:grid-cols-2">
       <button
         v-for="type in availableTypes"
@@ -46,10 +49,10 @@ function formatDefaultAmount(type: string): string {
           {{ type.icon }}
         </span>
         <div class="min-w-0">
-          <p class="text-sm font-semibold text-app-ink">{{ type.name }}</p>
-          <p class="mt-1 text-xs text-app-secondary">{{ type.description }}</p>
+          <p class="text-sm font-semibold text-app-ink">{{ typeName(type.key, type) }}</p>
+          <p class="mt-1 text-xs text-app-secondary">{{ typeDescription(type.key, type) }}</p>
           <p class="mt-2 text-xs font-semibold text-app-blue">
-            Par défaut : {{ formatDefaultAmount(type.key) }}
+            {{ t('consequences.defaultValue', { value: formatDefaultAmount(type.key) }) }}
           </p>
         </div>
       </button>

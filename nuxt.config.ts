@@ -13,7 +13,22 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/nuxt',
     '@vite-pwa/nuxt',
+    '@nuxtjs/i18n',
   ],
+
+  i18n: {
+    // Les URLs restent identiques quelle que soit la langue (/connexion, /app/agenda…)
+    strategy: 'no_prefix',
+    defaultLocale: 'fr',
+    locales: [
+      { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+    ],
+    // Pas de détection automatique : tant que toute l'app n'est pas traduite, un navigateur
+    // anglophone verrait une interface mixte. La langue choisie est lue dans le cookie
+    // `focus_locale` par app/plugins/03.locale.ts.
+    detectBrowserLanguage: false,
+  },
 
   css: ['~/assets/css/main.css'],
 

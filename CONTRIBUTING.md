@@ -61,6 +61,30 @@ pnpm test:e2e
 - Si le port 5432 est déjà pris : `POSTGRES_PORT=55432 docker compose up -d`, puis `E2E_DATABASE_URL=postgresql://postgres@localhost:55432/focus_e2e pnpm test:e2e`.
 - En cas d’échec, `pnpm exec playwright show-report` ouvre le rapport avec les traces et captures. En CI, le rapport est publié en artefact.
 
+## Traductions (i18n)
+
+L’interface utilise [`@nuxtjs/i18n`](https://i18n.nuxtjs.org). Le **français est la langue par défaut** et la langue de référence ; l’anglais est disponible via le sélecteur FR / EN (en-tête public, menu de l’espace connecté). Le choix est mémorisé dans le cookie `focus_locale`. Il n’y a pas de détection automatique de la langue du navigateur tant que toute l’interface n’est pas traduite.
+
+Aujourd’hui, les parcours traduits sont l’authentification, l’agenda, la validation d’une échéance, les conséquences et la navigation. Le reste de l’app est encore en français uniquement : toute PR qui étend la couverture est bienvenue.
+
+### Traduire un texte
+
+1. Ajouter la clé dans `i18n/locales/fr.json` **et** `i18n/locales/en.json`, sous la section de l’écran concerné (`auth`, `agenda`, `consequences`…).
+2. Dans le composant : `const { t } = useI18n()`, puis `{{ t('agenda.title') }}` dans le template ou `:label="t('…')"` pour un attribut.
+3. Paramètres : `"Priorité {n}"` → `t('consequences.priority', { n: 2 })`. Pluriel : `"{count} crédit | {count} crédit | {count} crédits"` (zéro | un | plusieurs) → `t('common.credits', 3)`.
+4. Caractères réservés par vue-i18n : écrire `{'@'}` pour un `@` (ex. `vous{'@'}email.com`), et de même pour `{`, `}`, `|` et `$`.
+5. Dates : utiliser `dateLocale` de `useLanguage()` avec date-fns, ou `localeProperties.language` avec `Intl` / `toLocaleDateString`.
+
+Les textes produits par le serveur (erreurs d’API, noms et estimations des conséquences) restent en français. Côté client, ils sont traduits par code HTTP (`useAuthErrorMessage`) ou par clé de type (`useConsequenceText`, sections `consequences.types` et `consequences.estimates`), avec le texte du serveur en repli.
+
+### Ajouter une langue
+
+1. Copier `i18n/locales/en.json` vers `i18n/locales/<code>.json` et traduire toutes les valeurs, sans toucher aux clés.
+2. Déclarer la langue dans `nuxt.config.ts` (`i18n.locales`) : `{ code: 'de', language: 'de-DE', name: 'Deutsch', file: 'de.json' }`.
+3. Ajouter le code à `SUPPORTED_LOCALES` et la locale date-fns correspondante à `DATE_FNS_LOCALES` dans `app/utils/locale.ts`.
+4. Adapter `agenda.dayFormat` au format de date usuel de la langue ([motifs date-fns](https://date-fns.org/docs/format)).
+5. Vérifier les écrans traduits, en mobile comme en desktop, et lancer `pnpm lint` et `pnpm test:e2e`.
+
 ## Conventions
 
 - **Langue** : issues, PR et commits de préférence en français (l’anglais est accepté)

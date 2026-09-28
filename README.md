@@ -28,7 +28,8 @@ PWA open source, mobile-first, pour aider à réaliser ses objectifs avec un sys
 - Conséquences configurables (crédits, don associatif, Stripe, preuve obligatoire, etc.)
 - Validation par déclaration + preuve + modération admin
 - Panel admin (users, modération, cagnottes, audit)
-- PWA installable
+- PWA installable, consultation hors ligne des échéances déjà chargées
+- Interface en français (par défaut) et en anglais ([ajouter une langue](./CONTRIBUTING.md#ajouter-une-langue))
 
 Pour comprendre le flux métier (échéances, workers, streak, conséquences), lire [docs/architecture.md](./docs/architecture.md).
 

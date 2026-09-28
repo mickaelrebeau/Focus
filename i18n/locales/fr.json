@@ -1,0 +1,188 @@
+{
+  "common": {
+    "or": "ou",
+    "loading": "Chargement...",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "back": "Retour",
+    "error": "Erreur",
+    "credits": "{count} crédit | {count} crédit | {count} crédits",
+    "creditsLabel": "crédits"
+  },
+  "language": {
+    "label": "Langue"
+  },
+  "nav": {
+    "today": "Aujourd'hui",
+    "goals": "Objectifs",
+    "agenda": "Agenda",
+    "ranking": "Classement",
+    "pots": "Cagnottes",
+    "history": "Historique",
+    "settings": "Réglages",
+    "admin": "Admin",
+    "administration": "Administration",
+    "mySpace": "Mon espace",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "getStarted": "Commencer",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "copyright": "© {year} Focus. Tous droits réservés."
+  },
+  "offline": {
+    "bannerTitle": "Hors ligne.",
+    "bannerText": "Données de votre dernière connexion ; les validations reprendront au retour du réseau."
+  },
+  "auth": {
+    "emailLabel": "Email",
+    "emailPlaceholder": "vous{'@'}email.com",
+    "passwordLabel": "Mot de passe",
+    "continueWithGoogle": "Continuer avec Google",
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Accédez à votre espace Focus",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "createAccount": "Créer un compte"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "subtitle": "Commencez avec 50 crédits offerts",
+      "displayNameLabel": "Nom d'affichage",
+      "displayNamePlaceholder": "Votre prénom",
+      "passwordPlaceholder": "8 caractères minimum",
+      "submit": "S'inscrire",
+      "alreadyRegistered": "Déjà un compte ?",
+      "login": "Se connecter"
+    },
+    "forgot": {
+      "title": "Mot de passe oublié",
+      "submit": "Envoyer le lien",
+      "sent": "Si cet email existe, un lien de réinitialisation a été envoyé."
+    },
+    "reset": {
+      "title": "Nouveau mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "confirm": "Confirmer",
+      "submit": "Réinitialiser",
+      "success": "Mot de passe mis à jour.",
+      "login": "Se connecter"
+    },
+    "errors": {
+      "generic": "Une erreur est survenue.",
+      "login": "Erreur de connexion",
+      "register": "Erreur lors de l'inscription",
+      "invalidCredentials": "Email ou mot de passe incorrect",
+      "accountSuspended": "Compte suspendu",
+      "emailTaken": "Cet email est déjà utilisé",
+      "tooManyAttempts": "Trop de tentatives. Réessayez plus tard.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "invalidResetLink": "Lien invalide ou expiré",
+      "googleDenied": "Connexion Google annulée",
+      "googleBlocked": "Ce compte est suspendu",
+      "googleEmailUnverified": "Votre email Google n'est pas vérifié",
+      "googleFailed": "Échec de la connexion Google. Réessayez."
+    }
+  },
+  "occurrence": {
+    "status": {
+      "pending": "À faire",
+      "overdue": "En retard",
+      "completed": "Réussi",
+      "failed": "Échoué",
+      "skipped": "Ignoré"
+    },
+    "validate": "Valider {title}"
+  },
+  "complete": {
+    "title": "Valider l'échéance",
+    "subtitle": "Ajoutez une note, un lien ou une photo (facultatif).",
+    "noteLabel": "Note",
+    "notePlaceholder": "Ce que j'ai accompli...",
+    "proofUrlLabel": "Lien de preuve",
+    "proofUrlPlaceholder": "https://... ou example.com",
+    "proofPhotoLabel": "Photo de preuve",
+    "proofPhotoHint": "Facultatif. L'image sera compressée avant envoi.",
+    "proofPreviewAlt": "Aperçu de la preuve",
+    "removePhoto": "Retirer",
+    "submit": "Valider (+{reward})",
+    "offlineHint": "Hors ligne : la validation sera possible au retour du réseau.",
+    "errors": {
+      "offline": "Vous êtes hors ligne : reconnectez-vous pour valider cette échéance.",
+      "unsupportedImage": "Format non supporté. Utilisez JPEG, PNG ou WebP.",
+      "failed": "Impossible de valider l'échéance"
+    }
+  },
+  "agenda": {
+    "eyebrow": "Vue d'ensemble",
+    "title": "Agenda",
+    "monthCount": "{count} échéance ce mois-ci | {count} échéance ce mois-ci | {count} échéances ce mois-ci",
+    "dayFormat": "EEEE d MMMM",
+    "selectedDay": "Jour sélectionné",
+    "empty": "Aucune échéance pour ce jour",
+    "emptyWithFilter": "Aucune échéance pour ce jour avec ce filtre.",
+    "filters": {
+      "all": "Tous",
+      "pending": "À faire",
+      "overdue": "En retard",
+      "completed": "Réussis",
+      "failed": "Échoués"
+    },
+    "calendar": {
+      "previousMonth": "Mois précédent",
+      "nextMonth": "Mois suivant",
+      "today": "Aujourd'hui"
+    }
+  },
+  "consequences": {
+    "back": "← Réglages",
+    "eyebrow": "Automatisations",
+    "title": "Conséquences",
+    "subtitle": "Ce qui se passe automatiquement lorsqu'un objectif échoue.",
+    "priorityHint": "Les conséquences actives s'exécutent dans l'ordre de priorité. Utilisez les flèches pour réorganiser.",
+    "cardRequired": "Carte bancaire requise",
+    "cardRequiredMonetary": "Les conséquences monétaires (don, Stripe) nécessitent une carte enregistrée.",
+    "cardRequiredThis": "Cette conséquence nécessite une carte enregistrée dans vos réglages.",
+    "configureCard": "Configurer ma carte →",
+    "emptyTitle": "Aucune conséquence",
+    "emptyText": "Ajoutez votre première conséquence pour personnaliser les pénalités d'échec.",
+    "addTitle": "Ajouter une conséquence",
+    "defaultValue": "Par défaut : {value}",
+    "defaults": {
+      "credits": "20 crédits",
+      "custom": "Rappel personnalisé",
+      "behavior": "Preuve à la prochaine réussite",
+      "monetary": "5 €"
+    },
+    "defaultCustomMessage": "Faire 100 pompes",
+    "active": "Active",
+    "inactive": "Inactive",
+    "reorder": "Réordonner",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "enable": "Activer cette conséquence",
+    "priority": "Priorité {n}",
+    "amountCredits": "Crédits",
+    "amount": "Montant",
+    "amountEuros": "Montant (€)",
+    "association": "Association",
+    "minimumScore": "Score net minimum du destinataire",
+    "customMessage": "Message d'engagement",
+    "customMessagePlaceholder": "Ex. Faire 100 pompes",
+    "current": "Actuel : {value}",
+    "feedback": {
+      "added": "Conséquence ajoutée.",
+      "updated": "Conséquence mise à jour.",
+      "removed": "Conséquence supprimée."
+    },
+    "errors": {
+      "add": "Impossible d'ajouter la conséquence",
+      "update": "Impossible de mettre à jour la conséquence",
+      "remove": "Impossible de supprimer la conséquence",
+      "reorder": "Impossible de réordonner les conséquences",
+      "cardFirst": "Configurez d'abord une carte bancaire dans vos réglages"
+    }
+  }
+}

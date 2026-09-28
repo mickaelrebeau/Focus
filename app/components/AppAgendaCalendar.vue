@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -12,7 +13,6 @@ import {
   startOfWeek,
   subMonths,
 } from 'date-fns'
-import { fr } from 'date-fns/locale'
 
 export interface CalendarDaySummary {
   total: number
@@ -33,10 +33,20 @@ const emit = defineEmits<{
   'update:selectedDate': [value: string]
 }>()
 
-const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+const { t } = useI18n()
+const { dateLocale } = useLanguage()
+
+// Lundi → dimanche, abrégés dans la langue active (« Lun », « Mon »…)
+const weekDays = computed(() => {
+  const monday = startOfWeek(new Date(), { weekStartsOn: 1 })
+  return Array.from({ length: 7 }, (_, index) => {
+    const label = format(addDays(monday, index), 'EEE', { locale: dateLocale.value }).replace(/\.$/, '')
+    return label.charAt(0).toLocaleUpperCase() + label.slice(1)
+  })
+})
 
 const monthLabel = computed(() =>
-  format(props.month, 'MMMM yyyy', { locale: fr }),
+  format(props.month, 'MMMM yyyy', { locale: dateLocale.value }),
 )
 
 const calendarDays = computed(() => {
@@ -99,7 +109,7 @@ const dotClass: Record<string, string> = {
       <button
         type="button"
         class="flex h-11 w-11 items-center justify-center rounded-full text-app-secondary transition hover:bg-app-mist hover:text-app-ink"
-        aria-label="Mois précédent"
+        :aria-label="t('agenda.calendar.previousMonth')"
         @click="previousMonth"
       >
         ‹
@@ -114,14 +124,14 @@ const dotClass: Record<string, string> = {
           class="mt-1 text-xs font-semibold text-app-ink"
           @click="goToToday"
         >
-          Aujourd'hui
+          {{ t('agenda.calendar.today') }}
         </button>
       </div>
 
       <button
         type="button"
         class="flex h-11 w-11 items-center justify-center rounded-full text-app-secondary transition hover:bg-app-mist hover:text-app-ink"
-        aria-label="Mois suivant"
+        :aria-label="t('agenda.calendar.nextMonth')"
         @click="nextMonth"
       >
         ›
@@ -182,16 +192,16 @@ const dotClass: Record<string, string> = {
 
     <div class="flex flex-wrap items-center justify-center gap-4 px-4 py-3 text-[11px] text-app-secondary">
       <span class="inline-flex items-center gap-1.5">
-        <span class="h-1.5 w-1.5 rounded-full bg-slate-400" /> À faire
+        <span class="h-1.5 w-1.5 rounded-full bg-slate-400" /> {{ t('occurrence.status.pending') }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="h-1.5 w-1.5 rounded-full bg-amber-500" /> En retard
+        <span class="h-1.5 w-1.5 rounded-full bg-amber-500" /> {{ t('occurrence.status.overdue') }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Réussi
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {{ t('occurrence.status.completed') }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="h-1.5 w-1.5 rounded-full bg-red-500" /> Échoué
+        <span class="h-1.5 w-1.5 rounded-full bg-red-500" /> {{ t('occurrence.status.failed') }}
       </span>
     </div>
   </div>

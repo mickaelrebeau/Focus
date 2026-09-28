@@ -7,18 +7,20 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 const { login } = useAuth()
+const { t } = useI18n()
+const authErrorMessage = useAuthErrorMessage()
 
 const oauthErrors: Record<string, string> = {
-  google_denied: 'Connexion Google annulée',
-  google_blocked: 'Ce compte est suspendu',
-  google_email_unverified: 'Votre email Google n\'est pas vérifié',
-  google_failed: 'Échec de la connexion Google. Réessayez.',
+  google_denied: 'auth.errors.googleDenied',
+  google_blocked: 'auth.errors.googleBlocked',
+  google_email_unverified: 'auth.errors.googleEmailUnverified',
+  google_failed: 'auth.errors.googleFailed',
 }
 
 onMounted(() => {
   const oauthError = route.query.error as string | undefined
   if (oauthError && oauthErrors[oauthError]) {
-    error.value = oauthErrors[oauthError]
+    error.value = t(oauthErrors[oauthError])
   }
 })
 
@@ -29,7 +31,7 @@ async function handleLogin() {
     const user = await login(email.value, password.value)
     await navigateTo(user.role === 'admin' ? '/admin' : '/app')
   } catch (e: any) {
-    error.value = e?.data?.message ?? 'Erreur de connexion'
+    error.value = authErrorMessage(e, 'auth.errors.login')
   } finally {
     loading.value = false
   }
@@ -42,8 +44,8 @@ async function handleLogin() {
       <div class="mb-8 flex justify-center">
         <AppLogo to="/" size="lg" />
       </div>
-      <h1 class="focus-heading-lg text-center">Connexion</h1>
-      <p class="focus-body mt-2 text-center">Accédez à votre espace Focus</p>
+      <h1 class="focus-heading-lg text-center">{{ t('auth.login.title') }}</h1>
+      <p class="focus-body mt-2 text-center">{{ t('auth.login.subtitle') }}</p>
 
       <div class="mt-8">
         <GoogleAuthButton />
@@ -54,21 +56,21 @@ async function handleLogin() {
           <div class="w-full border-t border-focus-gray-200" />
         </div>
         <div class="relative flex justify-center text-sm">
-          <span class="bg-white px-3 text-focus-gray-400">ou</span>
+          <span class="bg-white px-3 text-focus-gray-400">{{ t('common.or') }}</span>
         </div>
       </div>
 
       <form class="space-y-5" @submit.prevent="handleLogin">
-        <UiInput v-model="email" label="Email" type="email" required placeholder="vous@email.com" />
-        <UiInput v-model="password" label="Mot de passe" type="password" required placeholder="••••••••" />
+        <UiInput v-model="email" :label="t('auth.emailLabel')" type="email" required :placeholder="t('auth.emailPlaceholder')" />
+        <UiInput v-model="password" :label="t('auth.passwordLabel')" type="password" required placeholder="••••••••" />
         <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
-        <UiButton type="submit" class="w-full" :loading="loading">Se connecter</UiButton>
+        <UiButton type="submit" class="w-full" :loading="loading">{{ t('auth.login.submit') }}</UiButton>
       </form>
 
       <div class="mt-6 text-center text-sm text-focus-gray-400">
-        <NuxtLink to="/mot-de-passe-oublie" class="hover:text-focus-gray-700">Mot de passe oublié ?</NuxtLink>
+        <NuxtLink to="/mot-de-passe-oublie" class="hover:text-focus-gray-700">{{ t('auth.login.forgotPassword') }}</NuxtLink>
         <span class="mx-2">·</span>
-        <NuxtLink to="/inscription" class="hover:text-focus-gray-700">Créer un compte</NuxtLink>
+        <NuxtLink to="/inscription" class="hover:text-focus-gray-700">{{ t('auth.login.createAccount') }}</NuxtLink>
       </div>
     </div>
   </div>

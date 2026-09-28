@@ -25,6 +25,7 @@ const { data: consequencesData,
 } = useUserConsequences()
 
 const { user } = useAuth()
+const { t } = useI18n()
 
 const savingId = ref<string | null>(null)
 const feedback = ref('')
@@ -46,7 +47,7 @@ function defaultAmount(type: string): number {
 function defaultConfig(type: string): Record<string, unknown> {
   if (type === 'donation') return { association: 'wwf' }
   if (type === 'random-user') return { minimumScore: 0 }
-  if (type === 'custom') return { message: 'Faire 100 pompes' }
+  if (type === 'custom') return { message: t('consequences.defaultCustomMessage') }
   return {}
 }
 
@@ -85,10 +86,10 @@ async function handleAdd(type: string) {
       amount: defaultAmount(type),
       config: defaultConfig(type),
     })
-    feedback.value = 'Conséquence ajoutée.'
+    feedback.value = t('consequences.feedback.added')
   } catch (err: unknown) {
     const fetchError = err as { data?: { message?: string } }
-    error.value = fetchError?.data?.message ?? 'Impossible d\'ajouter la conséquence'
+    error.value = fetchError?.data?.message ?? t('consequences.errors.add')
   }
 }
 
@@ -109,10 +110,10 @@ async function handleUpdate(
     if (result.consequence) {
       await refreshEstimate(result.consequence)
     }
-    feedback.value = 'Conséquence mise à jour.'
+    feedback.value = t('consequences.feedback.updated')
   } catch (err: unknown) {
     const fetchError = err as { data?: { message?: string } }
-    error.value = fetchError?.data?.message ?? 'Impossible de mettre à jour la conséquence'
+    error.value = fetchError?.data?.message ?? t('consequences.errors.update')
   } finally {
     savingId.value = null
   }
@@ -125,10 +126,10 @@ async function handleRemove(id: string) {
   try {
     await deleteConsequence.mutateAsync(id)
     delete estimates.value[id]
-    feedback.value = 'Conséquence supprimée.'
+    feedback.value = t('consequences.feedback.removed')
   } catch (err: unknown) {
     const fetchError = err as { data?: { message?: string } }
-    error.value = fetchError?.data?.message ?? 'Impossible de supprimer la conséquence'
+    error.value = fetchError?.data?.message ?? t('consequences.errors.remove')
   }
 }
 
@@ -139,7 +140,7 @@ async function handleReorder(orderedIds: string[]) {
     await reorderConsequences.mutateAsync(orderedIds)
   } catch (err: unknown) {
     const fetchError = err as { data?: { message?: string } }
-    error.value = fetchError?.data?.message ?? 'Impossible de réordonner les conséquences'
+    error.value = fetchError?.data?.message ?? t('consequences.errors.reorder')
   }
 }
 </script>
@@ -151,19 +152,18 @@ async function handleReorder(orderedIds: string[]) {
         to="/app/reglages"
         class="mb-3 inline-flex text-sm font-medium text-app-secondary hover:text-app-blue"
       >
-        ← Réglages
+        {{ t('consequences.back') }}
       </NuxtLink>
-      <p class="app-eyebrow">Automatisations</p>
-      <h1 class="app-heading mt-1">Conséquences</h1>
+      <p class="app-eyebrow">{{ t('consequences.eyebrow') }}</p>
+      <h1 class="app-heading mt-1">{{ t('consequences.title') }}</h1>
       <p class="mt-1 text-sm text-app-secondary">
-        Ce qui se passe automatiquement lorsqu'un objectif échoue.
+        {{ t('consequences.subtitle') }}
       </p>
     </div>
 
     <div class="app-sheet mb-4 p-5">
       <p class="text-sm text-app-secondary">
-        Les conséquences actives s'exécutent dans l'ordre de priorité.
-        Utilisez les flèches pour réorganiser.
+        {{ t('consequences.priorityHint') }}
       </p>
     </div>
 
@@ -171,20 +171,20 @@ async function handleReorder(orderedIds: string[]) {
       v-if="!user?.hasPaymentMethod"
       class="mb-4 rounded-app-card bg-app-mist p-5"
     >
-      <p class="text-sm font-semibold text-app-blue">Carte bancaire requise</p>
+      <p class="text-sm font-semibold text-app-blue">{{ t('consequences.cardRequired') }}</p>
       <p class="mt-1 text-sm text-app-secondary">
-        Les conséquences monétaires (don, Stripe) nécessitent une carte enregistrée.
+        {{ t('consequences.cardRequiredMonetary') }}
       </p>
       <NuxtLink
         to="/app/reglages#paiement"
         class="mt-3 inline-flex text-sm font-semibold text-app-blue"
       >
-        Configurer ma carte →
+        {{ t('consequences.configureCard') }}
       </NuxtLink>
     </div>
 
     <div v-if="isLoading" class="py-12 text-center text-sm text-app-secondary">
-      Chargement...
+      {{ t('common.loading') }}
     </div>
 
     <template v-else>
@@ -199,9 +199,9 @@ async function handleReorder(orderedIds: string[]) {
         @reorder="handleReorder"
       />
 
-      <AppUiCard v-else title="Aucune conséquence">
+      <AppUiCard v-else :title="t('consequences.emptyTitle')">
         <p class="text-sm text-app-secondary">
-          Ajoutez votre première conséquence pour personnaliser les pénalités d'échec.
+          {{ t('consequences.emptyText') }}
         </p>
       </AppUiCard>
 

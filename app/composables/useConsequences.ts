@@ -58,8 +58,8 @@ export function isBehaviorConsequenceType(type: string): boolean {
   return type === 'mandatory-proof'
 }
 
-export function formatEuroFromCents(cents: number): string {
-  return new Intl.NumberFormat('fr-FR', {
+export function formatEuroFromCents(cents: number, languageTag = 'fr-FR'): string {
+  return new Intl.NumberFormat(languageTag, {
     style: 'currency',
     currency: 'EUR',
   }).format(cents / 100)

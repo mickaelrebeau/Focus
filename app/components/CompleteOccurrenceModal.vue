@@ -14,6 +14,7 @@ const emit = defineEmits<{
 
 const { completeOccurrence } = useOccurrences()
 const isOnline = useOnline()
+const { t } = useI18n()
 
 const note = ref('')
 const proofUrl = ref('')
@@ -57,7 +58,7 @@ function onImageSelected(event: Event) {
   if (!file) return
 
   if (!isAcceptedImageType(file.type)) {
-    error.value = 'Format non supporté. Utilisez JPEG, PNG ou WebP.'
+    error.value = t('complete.errors.unsupportedImage')
     input.value = ''
     return
   }
@@ -72,7 +73,7 @@ async function submit() {
   if (!props.occurrenceId || submitting.value) return
 
   if (!isOnline.value) {
-    error.value = 'Vous êtes hors ligne : reconnectez-vous pour valider cette échéance.'
+    error.value = t('complete.errors.offline')
     return
   }
 
@@ -109,7 +110,7 @@ async function submit() {
     close()
     emit('success', { streak: result.streak ?? null })
   } catch (e: any) {
-    error.value = e?.data?.message ?? e?.message ?? 'Impossible de valider l\'échéance'
+    error.value = e?.data?.message ?? e?.message ?? t('complete.errors.failed')
   } finally {
     submitting.value = false
   }
@@ -135,21 +136,21 @@ onBeforeUnmount(() => {
         aria-labelledby="complete-title"
       >
         <div class="mx-auto mb-4 h-1 w-10 rounded-full bg-app-line sm:hidden" />
-        <h2 id="complete-title" class="text-xl font-semibold tracking-tight text-app-ink">Valider l'échéance</h2>
-        <p class="mt-1 text-sm text-app-secondary">Ajoutez une note, un lien ou une photo (facultatif).</p>
+        <h2 id="complete-title" class="text-xl font-semibold tracking-tight text-app-ink">{{ t('complete.title') }}</h2>
+        <p class="mt-1 text-sm text-app-secondary">{{ t('complete.subtitle') }}</p>
 
         <div class="mt-5 space-y-4">
-          <AppUiInput v-model="note" label="Note" placeholder="Ce que j'ai accompli..." />
+          <AppUiInput v-model="note" :label="t('complete.noteLabel')" :placeholder="t('complete.notePlaceholder')" />
 
           <AppUiInput
             v-model="proofUrl"
-            label="Lien de preuve"
+            :label="t('complete.proofUrlLabel')"
             type="text"
-            placeholder="https://... ou example.com"
+            :placeholder="t('complete.proofUrlPlaceholder')"
           />
 
           <div class="space-y-2">
-            <label class="text-sm font-semibold text-app-ink">Photo de preuve</label>
+            <label class="text-sm font-semibold text-app-ink">{{ t('complete.proofPhotoLabel') }}</label>
             <input
               ref="fileInput"
               type="file"
@@ -158,32 +159,32 @@ onBeforeUnmount(() => {
               @change="onImageSelected"
             >
             <p class="text-xs text-app-secondary">
-              Facultatif. L'image sera compressée avant envoi.
+              {{ t('complete.proofPhotoHint') }}
             </p>
             <div v-if="proofImagePreview" class="relative overflow-hidden rounded-app-control">
-              <img :src="proofImagePreview" alt="Aperçu de la preuve" class="max-h-40 w-full object-cover">
+              <img :src="proofImagePreview" :alt="t('complete.proofPreviewAlt')" class="max-h-40 w-full object-cover">
               <button
                 type="button"
                 class="absolute right-2 top-2 rounded-full bg-slate-950/60 px-3 py-1 text-xs text-white"
                 @click="clearProofImage"
               >
-                Retirer
+                {{ t('complete.removePhoto') }}
               </button>
             </div>
           </div>
         </div>
 
         <p v-if="!isOnline && !error" class="mt-4 text-sm text-amber-700">
-          Hors ligne : la validation sera possible au retour du réseau.
+          {{ t('complete.offlineHint') }}
         </p>
         <p v-if="error" class="mt-4 text-sm text-red-500">{{ error }}</p>
 
         <div class="mt-6 flex gap-3">
           <AppUiButton variant="secondary" class="flex-1" :disabled="submitting" @click="close">
-            Annuler
+            {{ t('common.cancel') }}
           </AppUiButton>
           <AppUiButton class="flex-1" :loading="submitting" :disabled="!isOnline" @click="submit">
-            Valider (+{{ rewardLabel }})
+            {{ t('complete.submit', { reward: rewardLabel }) }}
           </AppUiButton>
         </div>
       </div>
