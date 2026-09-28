@@ -12,7 +12,8 @@ Ce guide liste, étape par étape, ce qu’il faut pour faire tourner votre prop
   - [5. Google OAuth (optionnel)](#5-google-oauth-optionnel)
   - [6. Stockage S3 des preuves (optionnel)](#6-stockage-s3-des-preuves-optionnel)
   - [7. Stripe (optionnel)](#7-stripe-optionnel)
-  - [8. Vérifications finales](#8-vérifications-finales)
+  - [8. Notifications push (optionnel)](#8-notifications-push-optionnel)
+  - [9. Vérifications finales](#9-vérifications-finales)
 - [Référence des variables](#référence-des-variables)
 - [Limites connues](#limites-connues)
 
@@ -28,6 +29,7 @@ Ce guide liste, étape par étape, ce qu’il faut pour faire tourner votre prop
 | Google OAuth | Optionnel | Bouton « Continuer avec Google » | Le bouton renvoie une erreur 503 |
 | Bucket S3 | Optionnel | Photos de preuve | Validation par note ou lien uniquement (l’envoi d’une photo échoue) |
 | Stripe | Optionnel | Carte bancaire, conséquences « Paiement Stripe » et « Don à une association » | Ces conséquences ne peuvent pas être activées |
+| Clés VAPID | Optionnel | Notifications push (rappels, streak en danger…) | Réglages → Notifications indique que le serveur n’est pas configuré |
 
 ## Variables : build ou runtime ?
 
@@ -125,7 +127,19 @@ Stripe sert à enregistrer une carte (SetupIntent) puis à débiter l’utilisat
 
 Sans Stripe, les conséquences en crédits, « Utilisateur aléatoire », « Preuve obligatoire » et « Personnalisée » fonctionnent normalement. Les conséquences monétaires ne peuvent pas être activées sans carte enregistrée.
 
-### 8. Vérifications finales
+### 8. Notifications push (optionnel)
+
+Les notifications push (Web Push) préviennent l’utilisateur avant une échéance, le soir si son streak est en danger, quand une conséquence s’exécute et quand il gagne un bonus de palier. Aucun service tiers n’est nécessaire : le serveur signe les envois avec une paire de clés VAPID.
+
+- [ ] Générer une paire de clés, une seule fois : `npx web-push generate-vapid-keys`. **Ne la changez plus ensuite** : les abonnements existants deviendraient invalides.
+- [ ] Définir `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` et `VAPID_SUBJECT` (`mailto:vous@example.org` ou l’URL de l’instance ; à défaut, `APP_URL` est utilisé).
+- [ ] Donner ces trois variables **au service web et aux deux workers** : le web enregistre les abonnements et envoie les bonus de palier, `deadlines` envoie les rappels (toutes les 5 minutes), `consequences` notifie les conséquences exécutées.
+- [ ] Ces variables sont lues au lancement sous leur nom simple (pas de `NUXT_` nécessaire).
+- [ ] Vérifier : Réglages → Notifications → « Activer les notifications », puis « Envoyer une notification de test ».
+
+Sur iPhone et iPad, les notifications ne fonctionnent que si Focus est installé sur l’écran d’accueil (iOS 16.4+).
+
+### 9. Vérifications finales
 
 - [ ] Créer un compte avec `ADMIN_EMAIL` → le menu « Administration » apparaît.
 - [ ] Créer un objectif quotidien → l’échéance du jour apparaît sur l’accueil.
@@ -154,6 +168,9 @@ Sans Stripe, les conséquences en crédits, « Utilisateur aléatoire », « Pre
 | `STRIPE_SECRET_KEY` | Stripe | `STRIPE_SECRET_KEY` | API Stripe (web + worker consequences) |
 | `STRIPE_PUBLISHABLE_KEY` | Stripe | `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Formulaire de carte côté navigateur |
 | `STRIPE_WEBHOOK_SECRET` | Stripe | `STRIPE_WEBHOOK_SECRET` | Signature des webhooks |
+| `VAPID_PUBLIC_KEY` | Push | `VAPID_PUBLIC_KEY` | Clé publique Web Push (web + workers) |
+| `VAPID_PRIVATE_KEY` | Push | `VAPID_PRIVATE_KEY` | Clé privée Web Push (web + workers) |
+| `VAPID_SUBJECT` | Push | `VAPID_SUBJECT` | Contact de l’instance (`mailto:` ou URL), `APP_URL` par défaut |
 | `USERJOT_PROJECT_ID` | — | `NUXT_PUBLIC_USERJOT_PROJECT_ID` | Widget de feedback [UserJot](https://userjot.com) |
 | `USERJOT_SECRET_KEY` | — | `NUXT_USERJOT_SECRET_KEY` | Identification signée des utilisateurs UserJot |
 

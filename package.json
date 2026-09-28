@@ -58,6 +58,7 @@
     "stripe": "^22.3.1",
     "vue": "^3.5.39",
     "vue-router": "^5.1.0",
+    "web-push": "^3.6.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -65,10 +66,12 @@
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.1.1",
     "@types/sortablejs": "^1.15.9",
+    "@types/web-push": "^3.6.4",
     "@vite-pwa/nuxt": "^1.1.1",
     "@vue/test-utils": "^2.4.11",
     "drizzle-kit": "^0.31.10",
     "happy-dom": "^20.10.6",
+    "http_ece": "^1.2.1",
     "tsx": "^4.19.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11",

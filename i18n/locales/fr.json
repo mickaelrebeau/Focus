@@ -184,5 +184,45 @@
       "reorder": "Impossible de réordonner les conséquences",
       "cardFirst": "Configurez d'abord une carte bancaire dans vos réglages"
     }
+  },
+  "notifications": {
+    "eyebrow": "Rappels",
+    "title": "Notifications",
+    "subtitle": "Recevez un rappel avant vos échéances, même quand Focus est fermé.",
+    "deviceTitle": "Cet appareil",
+    "consent": "Aucune notification n'est envoyée sans votre accord. En activant, votre navigateur vous demandera l'autorisation pour cet appareil.",
+    "enable": "Activer les notifications",
+    "disable": "Désactiver sur cet appareil",
+    "sendTest": "Envoyer une notification de test",
+    "activeOnDevice": "Notifications activées sur cet appareil.",
+    "devices": "{count} appareil abonné | {count} appareil abonné | {count} appareils abonnés",
+    "iosInstall": "Sur iPhone et iPad, les notifications ne sont disponibles qu'une fois Focus ajouté à l'écran d'accueil (Partager → Sur l'écran d'accueil).",
+    "unsupported": "Ce navigateur ne prend pas en charge les notifications push.",
+    "notConfigured": "Les notifications push ne sont pas configurées sur ce serveur.",
+    "denied": "Les notifications sont bloquées pour Focus dans votre navigateur. Autorisez-les dans les réglages du site, puis revenez ici.",
+    "typesTitle": "Types de notifications",
+    "typesInactive": "Ces réglages s'appliqueront dès qu'un appareil sera abonné.",
+    "types": {
+      "dueReminder": "Rappel avant échéance",
+      "dueReminderHint": "Une notification avant l'heure limite de chaque échéance à faire.",
+      "streakAtRisk": "Streak en danger",
+      "streakAtRiskHint": "Le soir, s'il reste des échéances à valider pour garder votre série.",
+      "consequenceExecuted": "Conséquence appliquée",
+      "consequenceExecutedHint": "Quand une conséquence s'exécute après un objectif manqué.",
+      "milestoneBonus": "Bonus de streak",
+      "milestoneBonusHint": "Quand vous atteignez un palier de jours parfaits."
+    },
+    "reminderDelay": "Délai du rappel",
+    "minutesBefore": "{n} minutes avant",
+    "hoursBefore": "{count} heure avant | {count} heure avant | {count} heures avant",
+    "saved": "Préférences enregistrées.",
+    "enabled": "Notifications activées.",
+    "disabled": "Notifications désactivées sur cet appareil.",
+    "testSent": "Notification de test envoyée.",
+    "testNotDelivered": "La notification de test n'a pas pu être remise. Réessayez dans quelques instants.",
+    "errors": {
+      "load": "Impossible de charger vos réglages de notifications.",
+      "generic": "Une erreur est survenue."
+    }
   }
 }

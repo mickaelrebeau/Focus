@@ -4,6 +4,7 @@ import { useDatabase, schema } from '../database'
 import { getConsequenceProvider } from '../consequences/registry'
 import { isMonetaryProvider, isCreditsProvider, isNonMonetaryBehaviorProvider, type ConsequenceProviderKey } from '../consequences/types'
 import { enqueueConsequenceJob } from './consequences-queue'
+import { consequenceDetail, notifySafely, pushMessages } from './push'
 
 interface FailureContext {
   userId: string
@@ -144,6 +145,12 @@ export async function executeConsequenceHistory(historyId: string) {
         },
       })
       .where(eq(schema.consequenceHistory.id, historyId))
+
+    await notifySafely(history.userId, 'consequence_executed', history.id, locale => ({
+      ...pushMessages(locale).consequenceExecuted(consequenceDetail(history.provider, history.amount, config, locale)),
+      url: '/app/historique',
+      tag: `consequence-${history.id}`,
+    }))
 
     return { success: true, result }
   } catch (error) {

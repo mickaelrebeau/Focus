@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
-import { E2E_BASE_URL, E2E_DATABASE_URL, E2E_PORT, E2E_REDIS_URL, E2E_TIMEZONE, assertLocalServices } from './e2e/env'
+import { E2E_BASE_URL, E2E_DATABASE_URL, E2E_PORT, E2E_REDIS_URL, E2E_TIMEZONE, assertLocalServices, ensurePushTestAssets } from './e2e/env'
 
 assertLocalServices()
+const pushAssets = ensurePushTestAssets()
 
 export default defineConfig({
   testDir: './e2e',
@@ -42,6 +43,11 @@ export default defineConfig({
       NUXT_GOOGLE_CLIENT_SECRET: '',
       NUXT_S3_SECRET_KEY: '',
       NUXT_USERJOT_SECRET_KEY: '',
+      VAPID_PUBLIC_KEY: pushAssets.vapid.publicKey,
+      VAPID_PRIVATE_KEY: pushAssets.vapid.privateKey,
+      VAPID_SUBJECT: 'mailto:e2e@focus.test',
+      // Faux service push HTTPS des tests (e2e/push.spec.ts)
+      NODE_EXTRA_CA_CERTS: pushAssets.certPath,
     },
   },
 })

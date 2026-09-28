@@ -107,6 +107,30 @@ export const adminReviewSchema = z.object({
   reviewNote: z.string().max(1000).optional(),
 })
 
+export const pushSubscriptionSchema = z.object({
+  subscription: z.object({
+    endpoint: z.string().url().max(2048),
+    keys: z.object({
+      p256dh: z.string().min(1).max(512),
+      auth: z.string().min(1).max(512),
+    }),
+  }),
+  locale: z.enum(['fr', 'en']).optional(),
+})
+
+export const pushUnsubscribeSchema = z.object({
+  endpoint: z.string().url().max(2048),
+})
+
+export const notificationPreferencesSchema = z.object({
+  dueReminder: z.boolean().optional(),
+  dueReminderMinutes: z.union([z.literal(15), z.literal(30), z.literal(60), z.literal(120), z.literal(240)]).optional(),
+  streakAtRisk: z.boolean().optional(),
+  consequenceExecuted: z.boolean().optional(),
+  milestoneBonus: z.boolean().optional(),
+  locale: z.enum(['fr', 'en']).optional(),
+})
+
 export function parseBody<T>(schema: z.ZodSchema<T>, body: unknown): T {
   const result = schema.safeParse(body)
   if (!result.success) {

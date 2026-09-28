@@ -6,6 +6,7 @@ import { Queue, Worker } from 'bullmq'
 import { processExpiredOccurrences, generateUpcomingOccurrences } from '../utils/goals-service'
 import { processStreaksAfterExpiration } from '../utils/streaks'
 import { runLeaderboardJobs } from '../utils/leaderboard'
+import { processPushReminders } from '../utils/push'
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
 
@@ -27,9 +28,24 @@ async function runTick() {
   }
 }
 
-const worker = new Worker('focus-deadlines', async () => {
+async function runPushReminders() {
   try {
-    await runTick()
+    const result = await processPushReminders()
+    if (result.reminders || result.streakWarnings) {
+      console.log('[Worker] Push:', result)
+    }
+  } catch (error) {
+    console.error('[Worker] Push reminders failed:', error)
+  }
+}
+
+const worker = new Worker('focus-deadlines', async (job) => {
+  try {
+    if (job.name === 'push-reminders') {
+      await runPushReminders()
+    } else {
+      await runTick()
+    }
   } catch (error) {
     console.error('[Worker] Job error:', error)
   }
@@ -46,6 +62,13 @@ worker.on('failed', (job, err) => {
 // Schedule recurring job every 15 minutes
 await queue.add('tick', {}, {
   repeat: { every: 15 * 60 * 1000 },
+  removeOnComplete: 100,
+  removeOnFail: 50,
+})
+
+// Rappels push : plus fréquents que le tick, pour respecter le délai choisi par l'utilisateur
+await queue.add('push-reminders', {}, {
+  repeat: { every: 5 * 60 * 1000 },
   removeOnComplete: 100,
   removeOnFail: 50,
 })

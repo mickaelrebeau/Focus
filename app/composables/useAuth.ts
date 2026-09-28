@@ -64,6 +64,8 @@ export function useAuth() {
   }
 
   async function logout() {
+    // Avant la fin de session : la suppression côté serveur exige d'être authentifié
+    await unsubscribeThisDevice()
     await requestFetch('/api/auth/logout', { method: 'POST', ...fetchOptions })
     await clearOfflineCaches()
     user.value = null

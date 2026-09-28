@@ -29,6 +29,7 @@ PWA open source, mobile-first, pour aider à réaliser ses objectifs avec un sys
 - Validation par déclaration + preuve + modération admin
 - Panel admin (users, modération, cagnottes, audit)
 - PWA installable, consultation hors ligne des échéances déjà chargées
+- Notifications push (opt-in) : rappel avant échéance, streak en danger, conséquence appliquée, bonus de palier
 - Interface en français (par défaut) et en anglais ([ajouter une langue](./CONTRIBUTING.md#ajouter-une-langue))
 
 Pour comprendre le flux métier (échéances, workers, streak, conséquences), lire [docs/architecture.md](./docs/architecture.md).
@@ -116,7 +117,7 @@ Pour déployer votre propre instance (variables requises ou optionnelles, worker
      | Build command | `echo Worker` (pas de build Nuxt) | idem |
      | Healthcheck | aucun (pas de port HTTP) | aucun |
      | Restart policy | Always | Always |
-     | Variables | `DATABASE_URL`, `REDIS_URL` | idem + `STRIPE_SECRET_KEY` |
+     | Variables | `DATABASE_URL`, `REDIS_URL` (+ `VAPID_*` pour le push) | idem + `STRIPE_SECRET_KEY` |
 
    Définissez les variables des workers par référence au service web, par exemple `DATABASE_URL=${{web.DATABASE_URL}}`, pour ne pas recopier les secrets. **Ne mettez pas `NODE_ENV=production` sur les workers** : pnpm n’installerait pas les devDependencies, dont `tsx`, qui les exécute.
 4. Configurer les variables d’environnement (voir la [référence](./docs/self-hosting.md#référence-des-variables))
