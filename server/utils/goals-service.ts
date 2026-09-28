@@ -225,7 +225,8 @@ export async function generateUpcomingOccurrences(dbInstance?: Db) {
           dueDate: date.dueDate,
           dueAt: date.dueAt,
           weekKey: date.weekKey,
-          status: 'pending',
+          // Échéance tombant pendant une pause : créée directement « skipped »
+          status: isDateInPauses(date.dueDate, pauses) ? 'skipped' : 'pending',
         }).onConflictDoNothing({
           target: [
             schema.occurrences.goalId,
