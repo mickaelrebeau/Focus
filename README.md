@@ -98,6 +98,10 @@ Le workflow [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) s’exécut
 
 Pour rendre la CI bloquante au merge, activez une règle de protection sur `main` (*Settings → Branches*) avec les checks **Tests & typecheck** et **E2E (Playwright)** comme obligatoires.
 
+## Auto-hébergement
+
+Pour déployer votre propre instance (variables requises ou optionnelles, workers, Google OAuth, bucket S3, webhooks Stripe), suivez la checklist **[docs/self-hosting.md](./docs/self-hosting.md)**.
+
 ## Déploiement Railway
 
 1. Connecter le repo GitHub à Railway
@@ -106,7 +110,7 @@ Pour rendre la CI bloquante au merge, activez une règle de protection sur `main
    - **web** : `node .output/server/index.mjs`
    - **worker** : `npx tsx server/workers/deadlines.ts`
    - **worker:consequences** (optionnel) : `npx tsx server/workers/consequences.ts`
-4. Configurer les variables d’environnement
+4. Configurer les variables d’environnement (voir la [référence](./docs/self-hosting.md#référence-des-variables))
 5. Exécuter les migrations SQL
 6. Le seed admin s’exécute au démarrage si `ADMIN_EMAIL` + `ADMIN_PASSWORD` sont définis
 
@@ -117,6 +121,7 @@ Les contributions sont les bienvenues.
 - [Guide de contribution](./CONTRIBUTING.md)
 - [Discussions](https://github.com/mickaelrebeau/Focus/discussions) : questions (Q&A), idées, annonces
 - [Architecture](./docs/architecture.md)
+- [Auto-hébergement](./docs/self-hosting.md)
 - [Code de conduite](./CODE_OF_CONDUCT.md)
 - [Politique de sécurité](./SECURITY.md)
 

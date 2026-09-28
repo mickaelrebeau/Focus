@@ -1,5 +1,7 @@
 # Architecture de Focus
 
+Pour installer une instance, voir [self-hosting.md](./self-hosting.md).
+
 Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : comment une échéance naît, expire, déclenche des conséquences et alimente le streak. Pour chaque notion, il pointe vers les fichiers de référence plutôt que de recopier le code.
 
 - [Vue d’ensemble](#vue-densemble)
