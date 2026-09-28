@@ -1,6 +1,7 @@
 import type { H3Event } from 'h3'
 import { eq, or } from 'drizzle-orm'
 import { useDatabase, schema } from '../database'
+import { isConfiguredAdminEmail } from './auth'
 import { generateToken } from './password'
 import { redisGet, redisDel, redisSet } from './redis'
 
@@ -100,7 +101,6 @@ export async function findOrCreateGoogleUser(profile: GoogleProfile) {
   }
 
   const db = useDatabase()
-  const config = useRuntimeConfig()
   const email = profile.email.toLowerCase()
   const googleId = profile.sub
 
@@ -144,7 +144,7 @@ export async function findOrCreateGoogleUser(profile: GoogleProfile) {
     email,
     googleId,
     displayName: profile.name || email.split('@')[0]!,
-    role: email === config.adminEmail.toLowerCase() ? 'admin' : 'user',
+    role: isConfiguredAdminEmail(email) ? 'admin' : 'user',
   }).returning())[0]!
 
   await db.insert(schema.wallets).values({

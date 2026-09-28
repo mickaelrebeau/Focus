@@ -1,6 +1,6 @@
 import { registerSchema, parseBody } from '../../utils/validation'
 import { hashPassword } from '../../utils/password'
-import { createSession, setSessionCookie } from '../../utils/auth'
+import { createSession, isConfiguredAdminEmail, setSessionCookie } from '../../utils/auth'
 import { useDatabase, schema } from '../../database'
 import { eq } from 'drizzle-orm'
 import { redisIncr } from '../../utils/redis'
@@ -28,14 +28,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const passwordHash = await hashPassword(data.password)
-  const config = useRuntimeConfig()
 
   const user = (await db.insert(schema.users).values({
     email: data.email.toLowerCase(),
     passwordHash,
     displayName: data.displayName,
     timezone: data.timezone ?? 'Europe/Paris',
-    role: data.email.toLowerCase() === config.adminEmail.toLowerCase() ? 'admin' : 'user',
+    role: isConfiguredAdminEmail(data.email) ? 'admin' : 'user',
   }).returning())[0]!
 
   await db.insert(schema.wallets).values({

@@ -105,3 +105,10 @@ export function clearSessionCookie(event: H3Event) {
     sameSite: 'lax',
   })
 }
+
+// L'email qui reçoit le rôle administrateur à l'inscription (email ou Google).
+// Sans ADMIN_EMAIL configuré, personne ne devient administrateur.
+export function isConfiguredAdminEmail(email: string) {
+  const adminEmail = (useRuntimeConfig().adminEmail ?? '').trim().toLowerCase()
+  return adminEmail !== '' && email.trim().toLowerCase() === adminEmail
+}
