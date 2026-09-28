@@ -26,14 +26,24 @@ interface CreditOperation {
  * est négatif : sans cette règle, sa valeur absolue était ajoutée au solde.
  */
 export function isDebitOperation(op: Pick<CreditOperation, 'type' | 'amount'>) {
-  if (op.type === 'task_penalty' || op.type === 'transfer_sent') return true
+  if (op.type === 'task_penalty' || op.type === 'transfer_sent' || op.type === 'challenge_stake') return true
   return op.type === 'admin_adjustment' && op.amount < 0
 }
 
-export async function applyCreditOperation(op: CreditOperation) {
-  const db = useDatabase()
+type Db = ReturnType<typeof useDatabase>
+type Tx = Parameters<Parameters<Db['transaction']>[0]>[0]
 
-  return db.transaction(async (tx) => {
+/**
+ * Applique une opération au portefeuille et au registre. `tx` permet de l'inclure dans une
+ * transaction plus large (ex. inscription à un défi et prélèvement de la mise, atomiques).
+ */
+export async function applyCreditOperation(op: CreditOperation, tx?: Tx) {
+  if (tx) return applyCreditOperationInTx(tx, op)
+  return useDatabase().transaction(inner => applyCreditOperationInTx(inner, op))
+}
+
+async function applyCreditOperationInTx(tx: Tx, op: CreditOperation) {
+  {
     const [wallet] = await tx
       .select()
       .from(schema.wallets)
@@ -55,6 +65,8 @@ export async function applyCreditOperation(op: CreditOperation) {
       case 'streak_bonus':
       case 'leaderboard_reward':
       case 'transfer_received':
+      case 'challenge_refund':
+      case 'challenge_payout':
       case 'admin_adjustment': {
         let remaining = absAmount
         if (debt > 0) {
@@ -124,7 +136,7 @@ export async function applyCreditOperation(op: CreditOperation) {
     }).returning()
 
     return { wallet: { balance, debt }, entry: entry! }
-  })
+  }
 }
 
 export function calculateNetScore(balance: number, debt: number): number {

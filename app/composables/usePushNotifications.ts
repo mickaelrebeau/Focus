@@ -4,6 +4,7 @@ export interface NotificationPreferences {
   streakAtRisk: boolean
   consequenceExecuted: boolean
   milestoneBonus: boolean
+  challengeResults: boolean
   locale: 'fr' | 'en'
 }
 

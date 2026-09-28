@@ -31,7 +31,8 @@
     "closeMenu": "Fermer le menu",
     "copyright": "© {year} Focus. Tous droits réservés.",
     "partner": "Binôme",
-    "review": "Bilan"
+    "review": "Bilan",
+    "challenges": "Défis"
   },
   "offline": {
     "bannerTitle": "Hors ligne.",
@@ -212,7 +213,9 @@
       "consequenceExecuted": "Conséquence appliquée",
       "consequenceExecutedHint": "Quand une conséquence s'exécute après un objectif manqué.",
       "milestoneBonus": "Bonus de streak",
-      "milestoneBonusHint": "Quand vous atteignez un palier de jours parfaits."
+      "milestoneBonusHint": "Quand vous atteignez un palier de jours parfaits.",
+      "challengeResults": "Résultats des défis",
+      "challengeResultsHint": "À la fin d'un défi entre amis : votre rang et vos gains."
     },
     "reminderDelay": "Délai du rappel",
     "minutesBefore": "{n} minutes avant",
@@ -390,5 +393,85 @@
     "minutes": "{n} minutes",
     "hint": "Une échéance passe « En retard » dès l'heure limite, mais n'échoue qu'après ce délai : vous pouvez encore la valider entre-temps.",
     "failsAt": "échec à {time}"
+  },
+  "challenges": {
+    "eyebrow": "Entre amis",
+    "title": "Défis",
+    "subtitle": "Une semaine, quelques amis, un classement. Le plus régulier l'emporte.",
+    "activeTitle": "Défis en cours",
+    "pastTitle": "Défis terminés",
+    "createTitle": "Lancer un défi",
+    "name": "Nom du défi",
+    "namePlaceholder": "Semaine sans excuse",
+    "weekLabel": "Semaine",
+    "weeks": {
+      "current": "Cette semaine",
+      "next": "La semaine prochaine"
+    },
+    "metricLabel": "Mesure",
+    "metrics": {
+      "perfect_days": "Jours parfaits",
+      "completed_occurrences": "Échéances validées"
+    },
+    "score": {
+      "perfect_days": "{n} jour | {n} jour | {n} jours",
+      "completed_occurrences": "{n} validée | {n} validée | {n} validées"
+    },
+    "stakeLabel": "Mise (optionnelle)",
+    "noStake": "Sans mise, pour l'honneur",
+    "stakeOption": "{n} crédits",
+    "stakeHint": "La mise est prélevée sur votre solde à l'inscription (solde actuel : {balance} crédits) et le premier remporte la cagnotte. Uniquement des crédits, jamais d'argent réel.",
+    "create": "Créer le défi",
+    "week": "Du {start} au {end}",
+    "participantsCount": "{count} participant | {count} participant | {count} participants",
+    "status": {
+      "upcoming": "À venir",
+      "running": "En cours",
+      "finishing": "Clôture en cours",
+      "closed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "pot": "Cagnotte",
+    "credits": "{n} crédits",
+    "participants": "Participants",
+    "liveRanking": "Classement en direct",
+    "finalRanking": "Podium final",
+    "rank": "Rang {n}",
+    "you": "(vous)",
+    "rules": "Mise : {n} crédits. Le 1er remporte la cagnotte (partagée en cas d'égalité). Quitter avant le début rembourse la mise, ensuite elle reste dans la cagnotte.",
+    "finishing": "La semaine est terminée : résultats et gains sont attribués lundi à midi (UTC).",
+    "cancelledExplain": "Moins de 2 participants à la fin de la semaine : le défi est annulé et les mises sont remboursées.",
+    "inviteTitle": "Inviter des amis",
+    "inviteExplain": "Partagez ce lien : il reste valable jusqu'à ce que le défi soit complet ou que vous en génériez un nouveau. Les participants voient uniquement prénoms et scores.",
+    "linkLabel": "Lien d'invitation",
+    "copy": "Copier",
+    "copied": "Lien copié.",
+    "newLink": "Générer un nouveau lien",
+    "leave": "Quitter le défi",
+    "confirmLeave": "Quitter le défi ? Votre mise reste dans la cagnotte.",
+    "confirmLeaveRefund": "Quitter le défi ? Votre mise vous sera remboursée.",
+    "back": "← Tous les défis",
+    "invite": {
+      "title": "{name} vous défie : « {challenge} »",
+      "explain": "Une semaine de régularité entre amis, classée par {metric}. Seuls votre prénom et votre score sont visibles des autres participants.",
+      "stake": "Mise : {n} crédits, prélevés à l'inscription.",
+      "noStake": "Sans mise.",
+      "slots": "{count} / {max} participants.",
+      "join": "Rejoindre le défi",
+      "joinWithStake": "Rejoindre et miser {n} crédits",
+      "loginToJoin": "Se connecter pour rejoindre",
+      "signupToJoin": "Créer un compte",
+      "unavailableTitle": "Défi indisponible"
+    },
+    "errors": {
+      "invalid_invite": "Ce lien d'invitation n'est pas valide ou a été remplacé.",
+      "full": "Ce défi est complet.",
+      "already_joined": "Vous participez déjà à ce défi.",
+      "ended": "Ce défi est terminé.",
+      "insufficient_credits": "Crédits insuffisants pour la mise.",
+      "not_participant": "Défi introuvable.",
+      "closed": "Ce défi est clôturé.",
+      "generic": "Une erreur est survenue. Réessayez."
+    }
   }
 }

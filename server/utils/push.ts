@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import { useDatabase, schema } from '../database'
 
-export type PushKind = 'due_reminder' | 'streak_at_risk' | 'consequence_executed' | 'milestone_bonus' | 'test'
+export type PushKind = 'due_reminder' | 'streak_at_risk' | 'consequence_executed' | 'milestone_bonus' | 'challenge_closed' | 'test'
 export type PushLocale = 'fr' | 'en'
 
 export interface PushPayload {
@@ -24,6 +24,7 @@ const PREFERENCE_BY_KIND = {
   streak_at_risk: 'streakAtRisk',
   consequence_executed: 'consequenceExecuted',
   milestone_bonus: 'milestoneBonus',
+  challenge_closed: 'challengeResults',
 } as const
 
 export const DEFAULT_NOTIFICATION_PREFERENCES = {
@@ -32,6 +33,7 @@ export const DEFAULT_NOTIFICATION_PREFERENCES = {
   streakAtRisk: true,
   consequenceExecuted: true,
   milestoneBonus: true,
+  challengeResults: true,
   locale: 'fr' as PushLocale,
 }
 
@@ -98,6 +100,12 @@ const MESSAGES = {
       title: `${milestone} jours parfaits d'affilée !`,
       body: `Bonus de ${bonus} crédits ajouté à votre portefeuille.`,
     }),
+    challengeClosed: (name: string, rank: number | null, payout: number) => ({
+      title: 'Défi terminé',
+      body: rank === null
+        ? `Le défi « ${name} » est annulé faute de participants. Votre mise est remboursée.`
+        : `Le défi « ${name} » est terminé : vous finissez ${rank === 1 ? '1er' : `${rank}e`}${payout > 0 ? ` et gagnez ${payout} crédits` : ''}.`,
+    }),
     test: () => ({
       title: 'Notifications activées',
       body: 'Vous recevrez vos rappels Focus sur cet appareil.',
@@ -119,6 +127,12 @@ const MESSAGES = {
     milestoneBonus: (milestone: number, bonus: number) => ({
       title: `${milestone} perfect days in a row!`,
       body: `A ${bonus}-credit bonus was added to your wallet.`,
+    }),
+    challengeClosed: (name: string, rank: number | null, payout: number) => ({
+      title: 'Challenge over',
+      body: rank === null
+        ? `“${name}” was cancelled (not enough participants). Your stake is refunded.`
+        : `“${name}” is over: you finished #${rank}${payout > 0 ? ` and won ${payout} credits` : ''}.`,
     }),
     test: () => ({
       title: 'Notifications enabled',

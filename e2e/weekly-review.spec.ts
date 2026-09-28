@@ -47,9 +47,9 @@ test('agrégats conformes au registre, export CSV, navigation et partage', async
       (SELECT count(*) FILTER (WHERE status = 'completed') FROM occurrences WHERE user_id = (SELECT id FROM u))::int AS completed,
       (SELECT count(*) FILTER (WHERE status = 'failed') FROM occurrences WHERE user_id = (SELECT id FROM u) AND due_date <= ${today})::int AS failed,
       (SELECT coalesce(sum(amount), 0) FROM credit_ledger WHERE user_id = (SELECT id FROM u)
-        AND type IN ('task_reward', 'signup_bonus', 'streak_bonus', 'leaderboard_reward', 'transfer_received', 'admin_adjustment'))::int AS gained,
+        AND amount > 0 AND type NOT IN ('debt_created', 'debt_repayment'))::int AS gained,
       (SELECT coalesce(sum(abs(amount)), 0) FROM credit_ledger WHERE user_id = (SELECT id FROM u)
-        AND type IN ('task_penalty', 'transfer_sent'))::int AS lost,
+        AND amount < 0 AND type NOT IN ('debt_created', 'debt_repayment'))::int AS lost,
       (SELECT count(*) FROM consequence_history WHERE user_id = (SELECT id FROM u) AND status <> 'cancelled')::int AS consequences,
       (SELECT status::text FROM user_daily_results WHERE user_id = (SELECT id FROM u) AND date_key = ${today}) AS today_status
   `

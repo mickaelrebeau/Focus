@@ -129,6 +129,7 @@ export const notificationPreferencesSchema = z.object({
   streakAtRisk: z.boolean().optional(),
   consequenceExecuted: z.boolean().optional(),
   milestoneBonus: z.boolean().optional(),
+  challengeResults: z.boolean().optional(),
   locale: z.enum(['fr', 'en']).optional(),
 })
 
@@ -138,6 +139,13 @@ export const createPauseSchema = z.object({
   startDate: localDateSchema,
   endDate: localDateSchema,
   reason: z.string().trim().max(200).optional(),
+})
+
+export const createChallengeSchema = z.object({
+  name: z.string().trim().min(2, 'Minimum 2 caractères').max(60),
+  week: z.enum(['current', 'next']),
+  metric: z.enum(['perfect_days', 'completed_occurrences']),
+  stakeCredits: z.union([z.literal(0), z.literal(10), z.literal(20), z.literal(50)]),
 })
 
 export function parseBody<T>(schema: z.ZodSchema<T>, body: unknown): T {

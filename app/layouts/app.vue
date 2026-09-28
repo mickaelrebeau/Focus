@@ -125,6 +125,7 @@ const navDefinition: AppNavItem[] = [
   { to: '/app/bilan', labelKey: 'nav.review', icon: 'chart' },
   { to: '/app/classement', labelKey: 'nav.ranking', icon: 'ranking' },
   { to: '/app/binome', labelKey: 'nav.partner', icon: 'users' },
+  { to: '/app/defis', labelKey: 'nav.challenges', icon: 'trophy' },
   { to: '/cagnottes', labelKey: 'nav.pots', icon: 'heart' },
   { to: '/app/historique', labelKey: 'nav.history', icon: 'history' },
   { to: '/app/reglages', labelKey: 'nav.settings', icon: 'settings' },
