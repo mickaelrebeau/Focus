@@ -6,16 +6,17 @@ Merci de contribuer à Focus. Ce guide explique comment participer au projet ope
 
 - Node.js 22
 - pnpm 10
-- PostgreSQL et Redis (locaux ou distants)
+- PostgreSQL et Redis : via Docker Compose (recommandé) ou installés localement / distants
 
 ## Mise en place
 
 ```bash
 git clone https://github.com/mickaelrebeau/Focus.git
 cd Focus
+docker compose up -d   # PostgreSQL + Redis (optionnel si déjà installés)
 pnpm install
 cp .env.example .env
-# Renseigner DATABASE_URL, REDIS_URL et SESSION_SECRET
+# Valeurs par défaut alignées avec Docker Compose ; renseigner SESSION_SECRET
 pnpm db:migrate
 pnpm dev
 ```

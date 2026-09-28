@@ -30,7 +30,25 @@ PWA open source, mobile-first, pour aider à réaliser ses objectifs avec un sys
 - Panel admin (users, modération, cagnottes, audit)
 - PWA installable
 
+## Démarrage avec Docker
+
+Le plus simple pour contribuer : PostgreSQL et Redis tournent dans Docker, l’app tourne en local.
+
+```bash
+docker compose up -d
+cp .env.example .env
+pnpm install && pnpm db:migrate && pnpm dev
+```
+
+Les valeurs de `.env.example` (`DATABASE_URL`, `REDIS_URL`) pointent déjà vers les services Compose. Si les ports 5432 ou 6379 sont déjà pris sur votre machine, lancez `POSTGRES_PORT=5433 REDIS_PORT=6380 docker compose up -d` et adaptez `.env` en conséquence.
+
+- `docker compose ps` : état des services
+- `docker compose down` : arrêt (les données sont conservées)
+- `docker compose down -v` : arrêt et suppression des données
+
 ## Installation locale
+
+Sans Docker, avec vos propres PostgreSQL et Redis :
 
 ```bash
 pnpm install
