@@ -1,6 +1,26 @@
 import { spawnSync } from 'node:child_process'
+import Redis from 'ioredis'
 import postgres from 'postgres'
-import { E2E_DATABASE_URL, assertLocalServices } from './env'
+import { E2E_DATABASE_URL, E2E_REDIS_URL, assertLocalServices } from './env'
+
+// Les routes d'inscription et de connexion limitent les tentatives par IP (compteurs Redis) :
+// plusieurs exécutions locales rapprochées finiraient en 429. On ne supprime que ces compteurs.
+async function resetAuthRateLimits() {
+  const redis = new Redis(E2E_REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 1 })
+  try {
+    await redis.connect()
+    for (const pattern of ['register:*', 'login:*']) {
+      let cursor = '0'
+      do {
+        const [next, keys] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100)
+        cursor = next
+        if (keys.length) await redis.del(...keys)
+      } while (cursor !== '0')
+    }
+  } finally {
+    redis.disconnect()
+  }
+}
 
 export default async function globalSetup() {
   assertLocalServices()
@@ -27,4 +47,6 @@ export default async function globalSetup() {
   if (migration.status !== 0) {
     throw new Error('Échec des migrations de la base E2E')
   }
+
+  await resetAuthRateLimits()
 }

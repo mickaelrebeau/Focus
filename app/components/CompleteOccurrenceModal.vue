@@ -13,6 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const { completeOccurrence } = useOccurrences()
+const isOnline = useOnline()
 
 const note = ref('')
 const proofUrl = ref('')
@@ -69,6 +70,11 @@ function onImageSelected(event: Event) {
 
 async function submit() {
   if (!props.occurrenceId || submitting.value) return
+
+  if (!isOnline.value) {
+    error.value = 'Vous êtes hors ligne : reconnectez-vous pour valider cette échéance.'
+    return
+  }
 
   submitting.value = true
   error.value = ''
@@ -167,13 +173,16 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
+        <p v-if="!isOnline && !error" class="mt-4 text-sm text-amber-700">
+          Hors ligne : la validation sera possible au retour du réseau.
+        </p>
         <p v-if="error" class="mt-4 text-sm text-red-500">{{ error }}</p>
 
         <div class="mt-6 flex gap-3">
           <AppUiButton variant="secondary" class="flex-1" :disabled="submitting" @click="close">
             Annuler
           </AppUiButton>
-          <AppUiButton class="flex-1" :loading="submitting" @click="submit">
+          <AppUiButton class="flex-1" :loading="submitting" :disabled="!isOnline" @click="submit">
             Valider (+{{ rewardLabel }})
           </AppUiButton>
         </div>

@@ -75,6 +75,9 @@
     </header>
 
     <main class="lg:pl-64">
+      <ClientOnly>
+        <AppOfflineBanner />
+      </ClientOnly>
       <div class="pb-28 lg:pb-8">
         <slot />
       </div>

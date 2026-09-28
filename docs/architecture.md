@@ -8,6 +8,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Expiration des échéances](#expiration-des-échéances)
 - [Streak et clôture journalière](#streak-et-clôture-journalière)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
+- [Mode hors ligne (PWA)](#mode-hors-ligne-pwa)
 - [Design tokens `app-*` vs `focus-*`](#design-tokens-app--vs-focus-)
 
 ## Vue d’ensemble
@@ -233,6 +234,21 @@ Les providers monétaires passent par `chargeUserForConsequence` (`server/utils/
 - `executeConsequenceHistory` verrouille la ligne et ne l’exécute que si elle n’est ni `processing`, ni `completed`, ni `cancelled`.
 - Au démarrage, le worker ré-enfile toutes les lignes `pending` (`recoverPendingConsequenceJobs`), par exemple si Redis a été vidé ou si le worker était arrêté.
 - Les effets de bord portent eux aussi des contraintes uniques, par exemple `donation_executions.consequence_history_id`.
+
+## Mode hors ligne (PWA)
+
+Le service worker est généré par `@vite-pwa/nuxt` (config `pwa.workbox` dans `nuxt.config.ts`). Les pages `/app` étant rendues côté serveur, il n’y a pas de coquille d’application à précacher : l’app met en cache ce que l’utilisateur a **déjà consulté**.
+
+| Requête | Stratégie | Cache |
+|---|---|---|
+| Assets (`js`, `css`, icônes), `/`, `/offline` | Précache | `workbox-precache-*` |
+| Navigation vers `/app/**` | NetworkFirst, puis `/offline` si la page n’a jamais été consultée | `focus-pages` |
+| `GET /api/auth/me`, `/api/occurrences`, `/api/streak`, `/api/goals` | NetworkFirst (réponses 200 uniquement) | `focus-api` |
+
+- **Données personnelles** : `focus-pages` et `focus-api` sont vidés à la connexion, à l’inscription et à la déconnexion (`app/utils/offline-cache.ts`), pour qu’un appareil partagé ne montre jamais les données d’un autre compte.
+- **Session** : `fetchUser` ne déconnecte que sur une réponse explicite du serveur (401…) ; une erreur réseau conserve l’utilisateur connu.
+- **Écritures** : aucune file d’attente. La validation d’une échéance est désactivée hors ligne (bannière `AppOfflineBanner` + message dans la modale), et la mutation utilise `networkMode: 'always'` pour échouer tout de suite plutôt que d’être rejouée à l’insu de l’utilisateur à la reconnexion.
+- **Précache et URLs** : `@vite-pwa/nuxt` réécrit `x.html` en `/x` dans le manifeste de précache. Une page statique doit donc être placée en `public/<nom>/index.html` pour être servie à l’URL précachée, sinon l’installation du service worker échoue (404).
 
 ## Design tokens `app-*` vs `focus-*`
 

@@ -47,7 +47,7 @@ La CI GitHub Actions relance `pnpm test`, `pnpm lint` et les tests E2E sur chaqu
 
 ## Tests E2E
 
-Un parcours Playwright (`e2e/`) couvre le chemin critique : inscription, onboarding, création d’objectif, validation d’une échéance, agenda (échéance réussie et échéance expirée passée en échec), connexion.
+Un parcours Playwright (`e2e/`) couvre le chemin critique : inscription, onboarding, création d’objectif, validation d’une échéance, agenda (échéance réussie et échéance expirée passée en échec), connexion, et le mode hors ligne de la PWA (`e2e/offline.spec.ts`, service worker actif).
 
 ```bash
 docker compose up -d                  # PostgreSQL + Redis

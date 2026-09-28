@@ -66,6 +66,9 @@ export function useOccurrences(filter?: Ref<string | undefined>) {
   })
 
   const completeOccurrence = useMutation({
+    // Par défaut, une mutation hors ligne est mise en pause puis rejouée à la reconnexion,
+    // à l'insu de l'utilisateur : on préfère un échec immédiat et explicite.
+    networkMode: 'always',
     mutationFn: ({ id, ...body }: { id: string; note?: string; proofType?: string; proofContent?: string; proofUrl?: string }) =>
       apiFetch<{ success: boolean; creditsEarned: number; streak: any }>(`/api/occurrences/${id}/complete`, { method: 'POST', body, ...fetchOptions }),
     onSuccess: () => {

@@ -89,10 +89,35 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      navigateFallback: '/app',
-      navigateFallbackAllowlist: [/^\/app(\/|$)/],
-      navigateFallbackDenylist: [/^\/api\//],
+      // Les pages /app sont rendues côté serveur : il n'existe pas de coquille /app à
+      // précacher. Elles sont mises en cache à la consultation (voir runtimeCaching).
+      navigateFallback: null,
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+      // Noms de cache aussi utilisés par app/utils/offline-cache.ts (vidage à la déconnexion)
+      runtimeCaching: [
+        {
+          // Pages de l'espace connecté : réseau d'abord, dernière version consultée hors ligne
+          urlPattern: ({ request, url }) => request.mode === 'navigate' && /^\/app(\/|$)/.test(url.pathname),
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'focus-pages',
+            cacheableResponse: { statuses: [200] },
+            expiration: { maxEntries: 30, maxAgeSeconds: 7 * 24 * 60 * 60 },
+            precacheFallback: { fallbackURL: '/offline' },
+          },
+        },
+        {
+          // Lectures nécessaires à l'agenda et au tableau de bord (GET uniquement)
+          urlPattern: ({ url }) => /^\/api\/(auth\/me|occurrences|streak|goals)(\/|$)/.test(url.pathname),
+          method: 'GET',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'focus-api',
+            cacheableResponse: { statuses: [200] },
+            expiration: { maxEntries: 60, maxAgeSeconds: 7 * 24 * 60 * 60 },
+          },
+        },
+      ],
     },
     client: {
       installPrompt: true,
