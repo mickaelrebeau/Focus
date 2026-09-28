@@ -9,3 +9,8 @@ dist/
 !.env.example
 .DS_Store
 *.log
+
+# Playwright
+/playwright-report/
+/test-results/
+/blob-report/
