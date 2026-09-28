@@ -98,7 +98,7 @@ Consomme la file `focus-consequences` (concurrence 5). Chaque job porte un `hist
 
 ## Expiration des échéances
 
-Une échéance `pending` dont le `dueAt` est passé doit devenir `failed`. Cela arrive par **deux chemins** qui partagent le même code (`markExpiredOccurrencesAsFailed` dans `server/utils/goals-service.ts`) :
+Une échéance `pending` dont le `dueAt` **plus le délai de grâce de l’utilisateur** (`users.grace_minutes` : 0, 15, 30 ou 60 min, 0 par défaut) est passé doit devenir `failed`. Pendant la grâce, l’interface affiche « En retard » avec l’heure d’échec, et l’échéance reste validable (`server/utils/grace.ts`). Cela arrive par **deux chemins** qui partagent le même code (`markExpiredOccurrencesAsFailed` dans `server/utils/goals-service.ts`) :
 
 ```mermaid
 sequenceDiagram
@@ -131,6 +131,7 @@ sequenceDiagram
   - sinon, la clôture des jours passés n’est rejouée qu’une fois par minute et par utilisateur (marqueur Redis `sync-deadlines:last:<userId>`, `SYNC_THROTTLE_SECONDS`) ;
   - un verrou Redis `lock:sync-deadlines:<userId>` empêche deux synchronisations concurrentes du même utilisateur : la seconde lecture répond sans synchroniser ;
   - si Redis est indisponible, la synchronisation a lieu quand même (voir « Concurrence »). Chaque opération Redis de ce chemin est bornée à 500 ms, car le client attend sinon indéfiniment la reconnexion.
+- **Délai de grâce** : `fetchExpiredOccurrences` compare `due_at + grace_minutes` à maintenant, pour le tick comme pour la lecture. La clôture des jours passés (`processStreaksForUser`) ne clôt pas en échec un jour dont une échéance est encore dans sa grâce, par exemple une échéance à 23:59 avec 60 min de grâce, vue à 00:30.
 - **Concurrence** : chaque échéance est reverrouillée (`FOR UPDATE`) et son statut revérifié dans une transaction. Si les deux chemins tombent sur la même échéance, un seul la passe en `failed` et déclenche les conséquences.
 
 ## Streak et clôture journalière

@@ -16,7 +16,10 @@ const { data: consequenceStatsData } = useConsequenceStats()
 
 const displayName = ref('')
 const timezone = ref(DEFAULT_TIMEZONE)
+const { t } = useI18n()
 const leaderboardOptIn = ref(true)
+const graceMinutes = ref('0')
+const graceChoices = [0, 15, 30, 60]
 const profileLoading = ref(false)
 const passwordLoading = ref(false)
 const profileSaved = ref(false)
@@ -82,6 +85,7 @@ function syncFormFromUser() {
     ? user.value.timezone
     : DEFAULT_TIMEZONE
   leaderboardOptIn.value = user.value.leaderboardOptIn ?? true
+  graceMinutes.value = String(user.value.graceMinutes ?? 0)
 }
 
 watch(user, syncFormFromUser, { immediate: true })
@@ -98,6 +102,7 @@ async function saveProfile() {
         displayName: displayName.value,
         timezone: timezone.value,
         leaderboardOptIn: leaderboardOptIn.value,
+        graceMinutes: Number(graceMinutes.value),
       },
       credentials: 'include',
     })
@@ -271,6 +276,14 @@ async function changePassword() {
             label="Participer au classement"
             description="Votre score net apparaît dans le classement public. Vous pouvez le désactiver à tout moment."
           />
+          <div>
+            <AppUiSelect v-model="graceMinutes" :label="t('grace.label')">
+              <option v-for="minutes in graceChoices" :key="minutes" :value="String(minutes)">
+                {{ minutes === 0 ? t('grace.none') : t('grace.minutes', { n: minutes }) }}
+              </option>
+            </AppUiSelect>
+            <p class="mt-1.5 text-xs text-app-secondary">{{ t('grace.hint') }}</p>
+          </div>
           <div class="rounded-app-control bg-app-canvas px-4 py-3 text-sm text-app-secondary">
             <span class="font-semibold text-app-ink">{{ activeGoalsCount }}</span>
             objectif{{ activeGoalsCount > 1 ? 's' : '' }} actif{{ activeGoalsCount > 1 ? 's' : '' }}

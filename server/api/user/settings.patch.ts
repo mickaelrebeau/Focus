@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
       displayName: data.displayName ?? user.displayName,
       timezone: data.timezone ?? user.timezone,
       leaderboardOptIn: data.leaderboardOptIn ?? user.leaderboardOptIn,
+      graceMinutes: data.graceMinutes ?? user.graceMinutes,
       onboardingCompleted: true,
       updatedAt: new Date(),
     })
@@ -27,6 +28,7 @@ export default defineEventHandler(async (event) => {
       displayName: updated.displayName,
       timezone: updated.timezone,
       leaderboardOptIn: updated.leaderboardOptIn,
+      graceMinutes: updated.graceMinutes,
       onboardingCompleted: updated.onboardingCompleted,
     },
   }

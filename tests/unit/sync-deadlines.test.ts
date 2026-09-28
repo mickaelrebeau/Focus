@@ -50,8 +50,11 @@ vi.mock('../../server/database', () => ({
   useDatabase: vi.fn(() => ({
     select: vi.fn(() => ({
       from: vi.fn(() => ({
+        // occurrences ⋈ goals ⋈ users (délai de grâce)
         innerJoin: vi.fn(() => ({
-          where: vi.fn(async () => [...state.pending]),
+          innerJoin: vi.fn(() => ({
+            where: vi.fn(async () => [...state.pending]),
+          })),
         })),
       })),
     })),
@@ -90,6 +93,7 @@ vi.mock('../../server/database', () => ({
       status: 'occurrences.status',
     },
     goals: { id: 'goals.id', isActive: 'goals.is_active' },
+    users: { id: 'users.id', graceMinutes: 'users.grace_minutes' },
   },
 }))
 

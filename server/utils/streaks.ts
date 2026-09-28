@@ -5,6 +5,7 @@ import { awardStreakBonus } from './credits'
 import { getTodayInTimezone } from './occurrences'
 import { notifySafely, pushMessages } from './push'
 import { expandPauseDates, getEffectivePauses } from './pauses'
+import { isExpired } from './grace'
 
 export const STREAK_MILESTONE_DAYS = 7
 export const STREAK_MILESTONE_REWARD = 10
@@ -374,7 +375,15 @@ export async function getStreakForUser(userId: string): Promise<StreakState> {
 export async function processStreaksForUser(userId: string, timezone: string) {
   const db = useDatabase()
   const userToday = getTodayInTimezone(timezone)
+  const now = new Date()
   let processed = 0
+
+  const [settings] = await db
+    .select({ graceMinutes: schema.users.graceMinutes })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .limit(1)
+  const graceMinutes = settings?.graceMinutes ?? 0
 
   const datesWithOccurrences = await db
     .selectDistinct({ dueDate: schema.occurrences.dueDate })
@@ -401,6 +410,19 @@ export async function processStreaksForUser(userId: string, timezone: string) {
     if (existing?.status === 'success' || existing?.status === 'failed') continue
 
     if (evaluation.status === 'neutral') {
+      // Jour passé mais échéance encore dans son délai de grâce (ex. 23:59 + 60 min, vu à 00:30) :
+      // on attend la fin de la grâce, l'expiration normale clôturera alors le jour.
+      if (graceMinutes > 0) {
+        const pending = await db
+          .select({ dueAt: schema.occurrences.dueAt })
+          .from(schema.occurrences)
+          .where(and(
+            eq(schema.occurrences.userId, userId),
+            eq(schema.occurrences.dueDate, dueDate),
+            eq(schema.occurrences.status, 'pending'),
+          ))
+        if (pending.some(occurrence => !isExpired(occurrence.dueAt, graceMinutes, now))) continue
+      }
       await closePendingDayAsFailed(userId, dueDate, timezone)
     } else {
       await updateStreakForDate(userId, dueDate, timezone)

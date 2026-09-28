@@ -95,8 +95,11 @@ vi.mock('../../server/database', () => ({
       }
       return {
         from: vi.fn(() => ({
+          // occurrences ⋈ goals ⋈ users (délai de grâce)
           innerJoin: vi.fn(() => ({
-            where: vi.fn(async () => dbState.expiredOccurrences),
+            innerJoin: vi.fn(() => ({
+              where: vi.fn(async () => dbState.expiredOccurrences),
+            })),
           })),
           where: vi.fn(() => createQueryChain('users')),
         })),
@@ -148,7 +151,7 @@ vi.mock('../../server/database', () => ({
       status: 'occurrences.status',
     },
     goals: { id: 'goals.id', isActive: 'goals.is_active' },
-    users: { id: 'users.id', timezone: 'users.timezone', isBlocked: 'users.is_blocked' },
+    users: { id: 'users.id', timezone: 'users.timezone', isBlocked: 'users.is_blocked', graceMinutes: 'users.grace_minutes' },
     userDailyResults: {
       userId: 'user_daily_results.user_id',
       dateKey: 'user_daily_results.date_key',
