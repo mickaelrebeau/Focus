@@ -95,34 +95,29 @@ export async function executeConsequenceHistory(historyId: string) {
   const db = useDatabase()
   const now = new Date()
 
-  let shouldExecute = false
-  let historyRow: typeof schema.consequenceHistory.$inferSelect | null = null
-
-  await db.transaction(async (tx) => {
-    const [history] = await tx
+  const history = await db.transaction(async (tx) => {
+    const [row] = await tx
       .select()
       .from(schema.consequenceHistory)
       .where(eq(schema.consequenceHistory.id, historyId))
       .for('update')
 
-    if (!history) return
-    if (history.status === 'completed' || history.status === 'cancelled') return
-    if (history.status === 'processing') return
+    if (!row) return null
+    if (row.status === 'completed' || row.status === 'cancelled') return null
+    if (row.status === 'processing') return null
 
     await tx
       .update(schema.consequenceHistory)
       .set({ status: 'processing' })
       .where(eq(schema.consequenceHistory.id, historyId))
 
-    historyRow = history
-    shouldExecute = true
+    return row
   })
 
-  if (!shouldExecute || !historyRow) {
+  if (!history) {
     return { skipped: true }
   }
 
-  const history = historyRow
   const config = (history.metadata?.config ?? {}) as Record<string, unknown>
 
   try {

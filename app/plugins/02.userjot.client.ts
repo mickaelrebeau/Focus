@@ -1,4 +1,5 @@
 import type { AuthUser } from '~/composables/useAuth'
+import type { UserjotSDK } from '~~/types/userjot'
 
 function loadUserjotSdk() {
   if (document.querySelector('script[data-userjot]')) return

@@ -23,7 +23,7 @@ export const customProvider: ConsequenceProvider<CustomConfig> = {
     const db = useDatabase()
     const message = `Tu t'étais engagé à :\n\n${payload.config.message}`
 
-    const [notification] = await db.insert(schema.notifications).values({
+    const notification = (await db.insert(schema.notifications).values({
       userId: payload.userId,
       title: 'Conséquence personnalisée',
       message,
@@ -33,7 +33,7 @@ export const customProvider: ConsequenceProvider<CustomConfig> = {
         consequenceHistoryId: payload.historyId,
         customMessage: payload.config.message,
       },
-    }).returning()
+    }).returning())[0]!
 
     return {
       notificationId: notification.id,

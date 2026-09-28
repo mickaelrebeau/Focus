@@ -40,6 +40,8 @@ pnpm build:web
 
 4. Décrire le problème résolu, les changements et le plan de test
 
+La CI GitHub Actions relance `pnpm test` et `pnpm lint` sur chaque PR : elle doit être verte pour merger.
+
 ## Conventions
 
 - **Langue** : issues, PR et commits de préférence en français (l’anglais est accepté)

@@ -25,7 +25,7 @@ export const communityPotProvider: ConsequenceProvider<CommunityPotConfig> = {
     const payment = await chargeUserForConsequence('community-pot', payload)
     const db = useDatabase()
 
-    const [transaction] = await db.insert(schema.communityPotTransactions).values({
+    const transaction = (await db.insert(schema.communityPotTransactions).values({
       userId: payload.userId,
       amount: payload.amount,
       currency: 'EUR',
@@ -35,7 +35,7 @@ export const communityPotProvider: ConsequenceProvider<CommunityPotConfig> = {
         occurrenceId: payload.occurrenceId,
         paymentIntentId: payment.paymentIntentId,
       },
-    }).returning()
+    }).returning())[0]!
 
     return {
       transactionId: transaction.id,

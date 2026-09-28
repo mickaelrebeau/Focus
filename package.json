@@ -67,8 +67,9 @@
     "drizzle-kit": "^0.31.10",
     "happy-dom": "^20.10.6",
     "tsx": "^4.19.0",
-    "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11",
+    "vue-tsc": "^3.3.11"
   },
   "pnpm": {
     "overrides": {

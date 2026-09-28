@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const data = parseBody(createGoalSchema, body)
 
-    const [goal] = await db.insert(schema.goals).values({
+    const goal = (await db.insert(schema.goals).values({
       userId: user.id,
       title: data.title,
       description: data.description,
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
         : data.type === 'one_time'
           ? { dueTime: data.dueTime ?? '23:59' }
           : undefined,
-    }).returning()
+    }).returning())[0]!
 
     if (data.type === 'project') {
       for (const [index, milestone] of data.milestones.entries()) {

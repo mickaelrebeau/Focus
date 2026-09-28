@@ -6,15 +6,15 @@ export default defineEventHandler(async (event) => {
   const user = requireAdmin(requireAuth(await getUserFromEvent(event)))
   const db = useDatabase()
 
-  const [userCount] = await db.select({ count: count() }).from(schema.users)
-  const [goalCount] = await db.select({ count: count() }).from(schema.goals).where(eq(schema.goals.isActive, true))
-  const [pendingValidations] = await db.select({ count: count() }).from(schema.validations).where(eq(schema.validations.status, 'pending_review'))
-  const [failedToday] = await db.select({ count: count() }).from(schema.occurrences).where(eq(schema.occurrences.status, 'failed'))
+  const userCount = (await db.select({ count: count() }).from(schema.users))[0]!
+  const goalCount = (await db.select({ count: count() }).from(schema.goals).where(eq(schema.goals.isActive, true)))[0]!
+  const pendingValidations = (await db.select({ count: count() }).from(schema.validations).where(eq(schema.validations.status, 'pending_review')))[0]!
+  const failedToday = (await db.select({ count: count() }).from(schema.occurrences).where(eq(schema.occurrences.status, 'failed')))[0]!
 
-  const [totalCredits] = await db.select({
+  const totalCredits = (await db.select({
     total: sql<number>`coalesce(sum(${schema.wallets.balance}), 0)`,
     totalDebt: sql<number>`coalesce(sum(${schema.wallets.debt}), 0)`,
-  }).from(schema.wallets)
+  }).from(schema.wallets))[0]!
 
   return {
     stats: {

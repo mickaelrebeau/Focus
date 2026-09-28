@@ -1,3 +1,4 @@
+import type { H3Event } from 'h3'
 import { eq, and, gt } from 'drizzle-orm'
 import { useDatabase, schema } from '../database'
 import { generateToken } from './password'
@@ -16,7 +17,7 @@ export async function createSession(userId: string) {
     expiresAt,
   }).returning()
 
-  return session
+  return session!
 }
 
 export async function getSessionByToken(token: string) {

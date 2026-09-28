@@ -87,10 +87,10 @@ export async function seedDemoData(db: Db, adminEmail: string, force = false) {
     throw new Error(`Compte admin introuvable (${adminEmail}). Lancez d'abord l'app pour créer l'admin.`)
   }
 
-  const [existingGoals] = await db
+  const existingGoals = (await db
     .select({ count: count() })
     .from(schema.goals)
-    .where(eq(schema.goals.userId, admin.id))
+    .where(eq(schema.goals.userId, admin.id)))[0]!
 
   if (existingGoals.count > 0 && !force) {
     return { skipped: true, reason: 'Objectifs démo déjà présents pour l\'admin' }
@@ -108,7 +108,7 @@ export async function seedDemoData(db: Db, adminEmail: string, force = false) {
   let goalsCreated = 0
 
   for (const demo of DEMO_GOALS) {
-    const [goal] = await db.insert(schema.goals).values({
+    const goal = (await db.insert(schema.goals).values({
       userId: admin.id,
       title: demo.title,
       description: demo.description,
@@ -121,7 +121,7 @@ export async function seedDemoData(db: Db, adminEmail: string, force = false) {
           ? demo.recurrenceConfig
           : undefined,
       dueDate: demo.type === 'one_time' ? demo.dueDate : undefined,
-    }).returning()
+    }).returning())[0]!
 
     if (demo.type === 'project' && demo.milestones) {
       await db.insert(schema.projectMilestones).values(

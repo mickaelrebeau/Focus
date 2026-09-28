@@ -1,3 +1,4 @@
+import type { H3Event } from 'h3'
 import { eq, or } from 'drizzle-orm'
 import { useDatabase, schema } from '../database'
 import { generateToken } from './password'
@@ -139,12 +140,12 @@ export async function findOrCreateGoogleUser(profile: GoogleProfile) {
     }
   }
 
-  const [user] = await db.insert(schema.users).values({
+  const user = (await db.insert(schema.users).values({
     email,
     googleId,
     displayName: profile.name || email.split('@')[0]!,
     role: email === config.adminEmail.toLowerCase() ? 'admin' : 'user',
-  }).returning()
+  }).returning())[0]!
 
   await db.insert(schema.wallets).values({
     userId: user.id,

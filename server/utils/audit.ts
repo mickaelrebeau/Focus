@@ -41,13 +41,13 @@ export async function seedAdminIfNeeded() {
   const { hashPassword } = await import('./password')
   const passwordHash = await hashPassword(config.adminPassword)
 
-  const [admin] = await db.insert(schema.users).values({
+  const admin = (await db.insert(schema.users).values({
     email: config.adminEmail,
     passwordHash,
     displayName: 'Administrateur',
     role: 'admin',
     onboardingCompleted: true,
-  }).returning()
+  }).returning())[0]!
 
   await db.insert(schema.wallets).values({
     userId: admin.id,

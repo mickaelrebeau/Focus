@@ -15,5 +15,5 @@ export async function createNotification(input: {
     metadata: input.metadata,
   }).returning()
 
-  return notification
+  return notification!
 }
