@@ -437,5 +437,12 @@
     "shareRate": "{rate}% success ({completed}/{closed})",
     "sharePerfect": "No perfect days | 1 perfect day | {count} perfect days",
     "shareStreak": "Best streak: {count} days | Best streak: {count} day | Best streak: {count} days"
+  },
+  "grace": {
+    "label": "Grace period before failure",
+    "none": "None (fails at the deadline)",
+    "minutes": "{n} minutes",
+    "hint": "A deadline shows as “Overdue” from its time limit, but only fails after this delay: you can still check it in meanwhile.",
+    "failsAt": "fails at {time}"
   }
 }

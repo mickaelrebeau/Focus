@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { eq, and, lte } from 'drizzle-orm'
+import { eq, and, sql } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { useDatabase, schema } from '../database'
 import { triggerConsequencesOnFailure } from './consequences-service'
@@ -14,10 +14,12 @@ type ExpiredOccurrenceRow = {
   goal: typeof schema.goals.$inferSelect
 }
 
+// Utilisée par le worker et par la synchronisation à la lecture : une échéance n'expire
+// qu'une fois l'heure limite et le délai de grâce de l'utilisateur dépassés.
 async function fetchExpiredOccurrences(db: Db, userId?: string, now = new Date()) {
   const conditions = [
     eq(schema.occurrences.status, 'pending'),
-    lte(schema.occurrences.dueAt, now),
+    sql`${schema.occurrences.dueAt} + ${schema.users.graceMinutes} * interval '1 minute' <= ${now.toISOString()}::timestamptz`,
     eq(schema.goals.isActive, true),
   ]
 
@@ -32,6 +34,7 @@ async function fetchExpiredOccurrences(db: Db, userId?: string, now = new Date()
     })
     .from(schema.occurrences)
     .innerJoin(schema.goals, eq(schema.occurrences.goalId, schema.goals.id))
+    .innerJoin(schema.users, eq(schema.occurrences.userId, schema.users.id))
     .where(and(...conditions))
 }
 

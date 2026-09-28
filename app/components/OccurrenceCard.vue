@@ -25,6 +25,7 @@ const emit = defineEmits<{
 }>()
 
 const { t, te, localeProperties } = useI18n()
+const { user } = useAuth()
 
 const isOverdue = computed(() => {
   if (props.occurrence.status !== 'pending') return false
@@ -44,6 +45,15 @@ const statusClass = computed(() => {
     case 'pending': return isOverdue.value ? 'text-amber-600' : 'text-app-secondary'
     default: return 'text-app-secondary'
   }
+})
+
+// Pendant le délai de grâce : « En retard », mais l'échec réel n'intervient qu'à cette heure
+const graceDeadline = computed(() => {
+  const grace = user.value?.graceMinutes ?? 0
+  if (!isOverdue.value || grace <= 0) return null
+  const failAt = new Date(new Date(props.occurrence.dueAt).getTime() + grace * 60_000)
+  if (failAt.getTime() <= Date.now()) return null
+  return failAt.toLocaleTimeString(localeProperties.value.language ?? 'fr-FR', { hour: '2-digit', minute: '2-digit' })
 })
 
 const isDone = computed(() =>
@@ -82,6 +92,7 @@ const dueLabel = computed(() =>
     <div class="min-w-0 flex-1">
       <div class="flex items-center gap-2">
         <span class="text-xs font-medium" :class="statusClass">{{ statusLabel }}</span>
+        <span v-if="graceDeadline" class="text-xs text-amber-700">· {{ t('grace.failsAt', { time: graceDeadline }) }}</span>
         <span v-if="occurrence.goal.category" class="text-xs text-slate-400">· {{ occurrence.goal.category }}</span>
       </div>
       <h3

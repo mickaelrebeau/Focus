@@ -87,6 +87,7 @@ export const updateSettingsSchema = z.object({
   displayName: z.string().min(2).max(50).optional(),
   timezone: timezoneSchema.optional(),
   leaderboardOptIn: z.boolean().optional(),
+  graceMinutes: z.union([z.literal(0), z.literal(15), z.literal(30), z.literal(60)]).optional(),
 })
 
 export const changePasswordSchema = z.object({

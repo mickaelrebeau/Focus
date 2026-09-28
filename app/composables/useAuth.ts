@@ -9,6 +9,7 @@ export interface AuthUser {
   netScore: number
   onboardingCompleted: boolean
   leaderboardOptIn?: boolean
+  graceMinutes?: number
   hasPassword?: boolean
   hasPaymentMethod?: boolean
   paymentMethodBrand?: string

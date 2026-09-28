@@ -383,5 +383,12 @@
     "shareRate": "{rate} % de réussite ({completed}/{closed})",
     "sharePerfect": "Aucun jour parfait | 1 jour parfait | {count} jours parfaits",
     "shareStreak": "Meilleure série : {count} jours | Meilleure série : {count} jour | Meilleure série : {count} jours"
+  },
+  "grace": {
+    "label": "Délai de grâce avant échec",
+    "none": "Aucun (échec dès l'heure limite)",
+    "minutes": "{n} minutes",
+    "hint": "Une échéance passe « En retard » dès l'heure limite, mais n'échoue qu'après ce délai : vous pouvez encore la valider entre-temps.",
+    "failsAt": "échec à {time}"
   }
 }

@@ -65,6 +65,8 @@ export const users = pgTable('users', {
   timezone: text('timezone').notNull().default('Europe/Paris'),
   isBlocked: boolean('is_blocked').notNull().default(false),
   leaderboardOptIn: boolean('leaderboard_opt_in').notNull().default(true),
+  // Délai de grâce avant échec, en minutes (0, 15, 30 ou 60) : voir 0015_grace_minutes.sql
+  graceMinutes: integer('grace_minutes').notNull().default(0),
   onboardingCompleted: boolean('onboarding_completed').notNull().default(false),
   stripeCustomerId: text('stripe_customer_id').unique(),
   stripePaymentMethodId: text('stripe_payment_method_id'),
