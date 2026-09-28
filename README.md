@@ -106,10 +106,19 @@ Pour déployer votre propre instance (variables requises ou optionnelles, worker
 
 1. Connecter le repo GitHub à Railway
 2. Ajouter PostgreSQL et Redis
-3. Créer les services à partir du repo :
-   - **web** : `node .output/server/index.mjs`
-   - **worker** : `npx tsx server/workers/deadlines.ts`
-   - **worker:consequences** (optionnel) : `npx tsx server/workers/consequences.ts`
+3. Créer trois services à partir du repo :
+   - **web** : configuré par `/railway.toml` (`node .output/server/index.mjs`, healthcheck sur `/`)
+   - **worker** et **consequences** : réglés dans les paramètres du service (Railway ne permet plus d’attacher un fichier de config à un nouveau service) :
+
+     | Réglage | worker | consequences |
+     |---|---|---|
+     | Start command | `pnpm worker` | `pnpm worker:consequences` |
+     | Build command | `echo Worker` (pas de build Nuxt) | idem |
+     | Healthcheck | aucun (pas de port HTTP) | aucun |
+     | Restart policy | Always | Always |
+     | Variables | `DATABASE_URL`, `REDIS_URL` | idem + `STRIPE_SECRET_KEY` |
+
+   Définissez les variables des workers par référence au service web, par exemple `DATABASE_URL=${{web.DATABASE_URL}}`, pour ne pas recopier les secrets. **Ne mettez pas `NODE_ENV=production` sur les workers** : pnpm n’installerait pas les devDependencies, dont `tsx`, qui les exécute.
 4. Configurer les variables d’environnement (voir la [référence](./docs/self-hosting.md#référence-des-variables))
 5. Exécuter les migrations SQL
 6. Le seed admin s’exécute au démarrage si `ADMIN_EMAIL` + `ADMIN_PASSWORD` sont définis

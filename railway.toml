@@ -7,46 +7,7 @@ healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 
-[[services]]
-name = "web"
-source = "."
-
-[services.web]
-startCommand = "node .output/server/index.mjs"
-watchPatterns = [
-  "app/**",
-  "server/**",
-  "shared/**",
-  "public/**",
-  "scripts/**",
-  "nuxt.config.ts",
-  "package.json",
-  "pnpm-lock.yaml",
-]
-
-[[services]]
-name = "worker"
-source = "."
-
-[services.worker]
-startCommand = "npx tsx server/workers/deadlines.ts"
-watchPatterns = [
-  "server/workers/**",
-  "server/utils/**",
-  "package.json",
-  "pnpm-lock.yaml",
-]
-
-[[services]]
-name = "consequences"
-source = "."
-
-[services.consequences]
-startCommand = "npx tsx server/workers/consequences.ts"
-watchPatterns = [
-  "server/workers/**",
-  "server/utils/**",
-  "server/consequences/**",
-  "package.json",
-  "pnpm-lock.yaml",
-]
+# Ce fichier ne configure que le service web. Railway ne permet plus d'attacher un
+# fichier de config-as-code à un nouveau service (remplacé par .railway/railway.ts) :
+# les workers `worker` et `consequences` sont réglés dans leurs paramètres de service
+# (voir « Déploiement Railway » dans le README).
