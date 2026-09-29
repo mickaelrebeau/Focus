@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { getUserFromEvent, requireAuth } from '../../utils/auth'
 import { useDatabase, schema } from '../../database'
 import { requireOwnedGoal, syncUserDeadlines } from '../../utils/goals-service'
+import { goalLockState, milestoneLocks } from '../../utils/dependency-service'
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(await getUserFromEvent(event))
@@ -9,9 +10,17 @@ export default defineEventHandler(async (event) => {
   const db = useDatabase()
 
   await syncUserDeadlines(user.id, user.timezone)
+  // Jalons avec leur verrou : `locked` (attend le précédent) ou `blocked` (le précédent a échoué)
   const milestones = goal.type === 'project'
-    ? await db.select().from(schema.projectMilestones).where(eq(schema.projectMilestones.goalId, goal.id))
+    ? await milestoneLocks(goal.id).then(({ milestones, locks }) => milestones.map(milestone => ({ ...milestone, lockState: locks.get(milestone.id)! })))
     : []
+
+  const prerequisite = goal.dependsOnGoalId
+    ? (await db.select({ id: schema.goals.id, title: schema.goals.title }).from(schema.goals).where(eq(schema.goals.id, goal.dependsOnGoalId)).limit(1))[0]
+    : undefined
+  const dependency = prerequisite
+    ? { goal: prerequisite, mode: goal.dependencyMode, lockState: await goalLockState(goal.dependsOnGoalId) }
+    : null
 
   const occurrences = await db
     .select()
@@ -19,5 +28,5 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.occurrences.goalId, goal.id))
     .orderBy(schema.occurrences.dueAt)
 
-  return { goal: { ...goal, milestones }, occurrences }
+  return { goal: { ...goal, milestones, dependency }, occurrences }
 })

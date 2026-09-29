@@ -3,6 +3,7 @@ import { getUserFromEvent, requireAuth } from '../../utils/auth'
 import { useDatabase, schema } from '../../database'
 import { createGoalSchema, parseBody } from '../../utils/validation'
 import { generateUpcomingOccurrences } from '../../utils/goals-service'
+import { assertValidGoalDependency, goalLockState } from '../../utils/dependency-service'
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(await getUserFromEvent(event))
@@ -17,13 +18,15 @@ export default defineEventHandler(async (event) => {
 
     const goalsWithMilestones = await Promise.all(
       goals.map(async (goal) => {
-        if (goal.type !== 'project') return { ...goal, milestones: [] }
+        // Liste : l'état de verrouillage suffit (le détail est dans GET /api/goals/:id)
+        const lockState = await goalLockState(goal.dependsOnGoalId)
+        if (goal.type !== 'project') return { ...goal, lockState, milestones: [] }
         const milestones = await db
           .select()
           .from(schema.projectMilestones)
           .where(eq(schema.projectMilestones.goalId, goal.id))
           .orderBy(schema.projectMilestones.orderIndex)
-        return { ...goal, milestones }
+        return { ...goal, lockState, milestones }
       }),
     )
 
@@ -33,6 +36,7 @@ export default defineEventHandler(async (event) => {
   if (event.method === 'POST') {
     const body = await readBody(event)
     const data = parseBody(createGoalSchema, body)
+    if (data.dependsOnGoalId) await assertValidGoalDependency(user.id, null, data.dependsOnGoalId)
 
     const goal = (await db.insert(schema.goals).values({
       userId: user.id,
@@ -40,6 +44,8 @@ export default defineEventHandler(async (event) => {
       description: data.description,
       category: data.category,
       type: data.type,
+      dependsOnGoalId: data.dependsOnGoalId,
+      dependencyMode: data.dependencyMode,
       dueDate: data.type === 'one_time' ? data.dueDate : undefined,
       recurrenceType: data.type === 'recurring' ? data.recurrenceType : undefined,
       recurrenceConfig: data.type === 'recurring'
@@ -50,18 +56,22 @@ export default defineEventHandler(async (event) => {
     }).returning())[0]!
 
     if (data.type === 'project') {
+      let previousId: string | undefined
       for (const [index, milestone] of data.milestones.entries()) {
-        await db.insert(schema.projectMilestones).values({
+        const [inserted] = await db.insert(schema.projectMilestones).values({
           goalId: goal.id,
           title: milestone.title,
           description: milestone.description,
           dueDate: milestone.dueDate,
           orderIndex: index,
-        })
+          // Chaîne : chaque jalon attend la réussite du précédent
+          dependsOnMilestoneId: data.sequentialMilestones ? previousId : undefined,
+        }).returning({ id: schema.projectMilestones.id })
+        previousId = inserted!.id
       }
     }
 
-    await generateUpcomingOccurrences()
+    await generateUpcomingOccurrences(undefined, { userId: user.id })
 
     const milestones = data.type === 'project'
       ? await db.select().from(schema.projectMilestones).where(eq(schema.projectMilestones.goalId, goal.id))

@@ -12,7 +12,7 @@ import {
 
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
-const { createGoal } = useGoals()
+const { data: goalsData, createGoal } = useGoals()
 const route = useRoute()
 const { t, locale } = useI18n()
 
@@ -27,6 +27,13 @@ const recurrenceType = ref<'daily' | 'weekly_days' | 'weekly_count'>('daily')
 const daysOfWeek = ref<number[]>([1, 3, 5])
 const timesPerWeek = ref(3)
 const milestones = ref([{ title: '', dueDate: '' }])
+// Dépendances : jalons en chaîne, objectif « débloqué après » un autre, et mode strict / indicatif
+const sequentialMilestones = ref(true)
+const dependsOnGoalId = ref('')
+const dependencyMode = ref<'hard' | 'soft'>('hard')
+// Un objectif récurrent n'est jamais terminé : il ne peut pas servir de prérequis
+const prerequisiteChoices = computed(() => (goalsData.value?.goals ?? []).filter((goal: { type: string }) => goal.type !== 'recurring'))
+const showDependencyMode = computed(() => Boolean(dependsOnGoalId.value) || (goalType.value === 'project' && sequentialMilestones.value))
 const dueTime = ref('23:59')
 const error = ref('')
 const selectedTemplate = ref<GoalTemplate | null>(null)
@@ -118,6 +125,8 @@ async function handleSubmit() {
       title: title.value,
       description: description.value || undefined,
       category: category.value || undefined,
+      dependsOnGoalId: dependsOnGoalId.value || undefined,
+      dependencyMode: showDependencyMode.value ? dependencyMode.value : undefined,
     }
 
     if (goalType.value === 'one_time') {
@@ -132,6 +141,7 @@ async function handleSubmit() {
       }
     } else {
       payload.milestones = milestones.value.filter(m => m.title)
+      payload.sequentialMilestones = sequentialMilestones.value
     }
 
     await createGoal.mutateAsync(payload)
@@ -274,7 +284,33 @@ async function handleSubmit() {
           <AppUiInput v-model="m.dueDate" label="Date" type="date" />
         </div>
         <AppUiButton type="button" variant="secondary" @click="addMilestone">+ Ajouter un jalon</AppUiButton>
+        <label class="flex items-start gap-3 rounded-app-control bg-app-canvas p-4 text-sm text-app-ink">
+          <input v-model="sequentialMilestones" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-app-ink">
+          <span>
+            <span class="font-semibold">{{ t('dependencies.form.sequential') }}</span>
+            <span class="mt-0.5 block text-xs text-app-secondary">{{ t('dependencies.form.sequentialHint') }}</span>
+          </span>
+        </label>
       </div>
+
+      <div v-if="prerequisiteChoices.length" class="space-y-1.5">
+        <AppUiSelect v-model="dependsOnGoalId" :label="t('dependencies.form.after')">
+          <option value="">{{ t('dependencies.form.none') }}</option>
+          <option v-for="goal in prerequisiteChoices" :key="goal.id" :value="goal.id">{{ goal.title }}</option>
+        </AppUiSelect>
+        <p class="text-xs text-app-secondary">{{ t('dependencies.form.afterHint') }}</p>
+      </div>
+
+      <fieldset v-if="showDependencyMode" class="space-y-2">
+        <legend class="text-sm font-semibold text-app-ink">{{ t('dependencies.form.mode') }}</legend>
+        <label v-for="mode in (['hard', 'soft'] as const)" :key="mode" class="flex items-start gap-3 rounded-app-control bg-app-canvas p-4 text-sm">
+          <input v-model="dependencyMode" type="radio" name="dependency-mode" :value="mode" class="mt-0.5 h-4 w-4 shrink-0 accent-app-ink">
+          <span>
+            <span class="font-semibold text-app-ink">{{ t(`dependencies.mode.${mode}`) }}</span>
+            <span class="mt-0.5 block text-xs text-app-secondary">{{ t(`dependencies.mode.${mode}Hint`) }}</span>
+          </span>
+        </label>
+      </fieldset>
 
       <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
 

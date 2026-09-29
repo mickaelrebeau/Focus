@@ -6,6 +6,8 @@ import { triggerConsequencesOnFailure } from './consequences-service'
 import { processStreaksForUser, reevaluateUserDay } from './streaks'
 import { acquireLock, redisGet, redisSet, releaseLock, tryAcquireLock, withRedisTimeout } from './redis'
 import { getEffectivePauses, isDateInPauses } from './pauses'
+import { effectiveDueDate } from './dependencies'
+import { goalLockState, milestoneLocks } from './dependency-service'
 
 type Db = PostgresJsDatabase<typeof schema>
 
@@ -180,14 +182,16 @@ export async function processExpiredOccurrences() {
   }
 }
 
-export async function generateUpcomingOccurrences(dbInstance?: Db) {
+export async function generateUpcomingOccurrences(dbInstance?: Db, options: { userId?: string } = {}) {
   const db = dbInstance ?? useDatabase()
-  const { generateOccurrenceDates, generateMilestoneOccurrences, getDateRange } = await import('./occurrences')
+  const { generateOccurrenceDates, generateMilestoneOccurrences, getDateRange, getTodayInTimezone } = await import('./occurrences')
 
   const activeGoals = await db
     .select()
     .from(schema.goals)
-    .where(eq(schema.goals.isActive, true))
+    .where(options.userId
+      ? and(eq(schema.goals.isActive, true), eq(schema.goals.userId, options.userId))
+      : eq(schema.goals.isActive, true))
 
   let created = 0
   const pausesByUser = new Map<string, Awaited<ReturnType<typeof getEffectivePauses>>>()
@@ -201,15 +205,28 @@ export async function generateUpcomingOccurrences(dbInstance?: Db) {
 
     if (!user) continue
 
+    const hard = goal.dependencyMode === 'hard'
+    // Dépendance stricte : aucune échéance tant que le prérequis n'est pas réussi
+    if (hard && goal.dependsOnGoalId && await goalLockState(goal.dependsOnGoalId, db) !== 'unlocked') continue
+
     const { from, to } = getDateRange(30, user.timezone)
+    const today = getTodayInTimezone(user.timezone)
     let dates: Array<{ dueDate: string; dueAt: Date; weekKey?: string; milestoneId?: string }> = []
 
     if (goal.type === 'project') {
-      const milestones = await db
-        .select()
-        .from(schema.projectMilestones)
-        .where(eq(schema.projectMilestones.goalId, goal.id))
-      dates = generateMilestoneOccurrences(milestones, user.timezone, from, to)
+      const { milestones, occurrences: existing, locks } = await milestoneLocks(goal.id, db)
+      const generated = new Set(existing.map(occurrence => occurrence.milestoneId))
+      const unlocked = milestones
+        // Jalon d'une chaîne stricte : attendre la réussite du précédent
+        .filter(milestone => !hard || locks.get(milestone.id) === 'unlocked')
+        // Débloqué après sa date : échéance ramenée à aujourd'hui, une seule fois
+        .map(milestone => milestone.dueDate && !generated.has(milestone.id)
+          ? { ...milestone, dueDate: effectiveDueDate(milestone.dueDate, today, hard && Boolean(milestone.dependsOnMilestoneId || goal.dependsOnGoalId)) }
+          : milestone)
+      dates = generateMilestoneOccurrences(unlocked, user.timezone, from, to)
+    } else if (goal.type === 'one_time' && goal.dueDate && hard && goal.dependsOnGoalId) {
+      const [existing] = await db.select({ id: schema.occurrences.id }).from(schema.occurrences).where(eq(schema.occurrences.goalId, goal.id)).limit(1)
+      dates = existing ? [] : generateOccurrenceDates({ ...goal, dueDate: effectiveDueDate(goal.dueDate, today, true) }, user.timezone, from, to)
     } else {
       dates = generateOccurrenceDates(goal, user.timezone, from, to)
     }

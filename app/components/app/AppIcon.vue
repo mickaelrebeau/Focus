@@ -23,6 +23,7 @@ const paths: Record<AppIconName, string[]> = {
   check: ['M5 13l4 4L19 7'],
   close: ['M6 6l12 12', 'M18 6 6 18'],
   menu: ['M4 7h16', 'M4 12h16', 'M4 17h16'],
+  lock: ['M7 11V8a5 5 0 0 1 10 0v3', 'M6 11h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1Z'],
 }
 </script>
 

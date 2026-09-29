@@ -635,5 +635,41 @@
       "notFound": "This link doesn't exist or is no longer valid.",
       "error": "Could not save your answer, please try again."
     }
+  },
+  "dependencies": {
+    "mode": {
+      "hard": "Strict",
+      "hardHint": "Nothing is due (or can fail) until the prerequisite succeeds. If a date passes meanwhile, the deadline moves to the unlock day.",
+      "soft": "Indicative",
+      "softHint": "The order is only shown: all deadlines are created as usual."
+    },
+    "form": {
+      "sequential": "Milestones in order",
+      "sequentialHint": "Each milestone waits for the previous one to succeed.",
+      "after": "Unlocked after",
+      "none": "No prerequisite",
+      "afterHint": "This goal starts once that one succeeds. Recurring goals can't be prerequisites: they never finish.",
+      "mode": "Locking"
+    },
+    "list": {
+      "locked": "Locked",
+      "blocked": "Blocked"
+    },
+    "goal": {
+      "locked": "Locked until “{title}” succeeds.",
+      "lockedSoft": "Recommended after “{title}”.",
+      "blocked": "Blocked: “{title}” did not succeed.",
+      "unlocked": "Unlocked: “{title}” succeeded.",
+      "view": "View goal"
+    },
+    "milestone": {
+      "locked": "Locked",
+      "lockedHint": "After step {n} succeeds.",
+      "lockedSoft": "Recommended after step {n}",
+      "blocked": "Blocked",
+      "blockedHint": "Step {n} failed."
+    },
+    "unlockAnyway": "Unlock anyway",
+    "unlockError": "Could not unlock"
   }
 }

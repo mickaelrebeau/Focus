@@ -10,6 +10,7 @@ import {
   date,
   index,
   uniqueIndex,
+  type AnyPgColumn,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
@@ -151,6 +152,10 @@ export const goals = pgTable('goals', {
   rewardCredits: integer('reward_credits').notNull().default(10),
   penaltyCredits: integer('penalty_credits').notNull().default(20),
   isActive: boolean('is_active').notNull().default(true),
+  // Dépendances (0021_goal_dependencies.sql) : objectif prérequis, et mode soft / hard
+  // appliqué aussi à la chaîne des jalons
+  dependsOnGoalId: uuid('depends_on_goal_id').references((): AnyPgColumn => goals.id, { onDelete: 'set null' }),
+  dependencyMode: text('dependency_mode', { enum: ['soft', 'hard'] }).notNull().default('hard'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
@@ -165,6 +170,7 @@ export const projectMilestones = pgTable('project_milestones', {
   description: text('description'),
   orderIndex: integer('order_index').notNull().default(0),
   dueDate: date('due_date'),
+  dependsOnMilestoneId: uuid('depends_on_milestone_id').references((): AnyPgColumn => projectMilestones.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   index('project_milestones_goal_id_idx').on(table.goalId),

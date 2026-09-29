@@ -53,7 +53,43 @@ const statusLabels: Record<string, string> = {
   skipped: 'En pause',
 }
 
+const { t } = useI18n()
 const goal = computed(() => data.value?.goal)
+
+// Dépendances : milestone précédent (numéro affiché) et déblocage manuel en cas de blocage
+// Projet verrouillé par son prérequis (strict) : tous ses jalons le sont aussi
+const sortedMilestones = computed(() => {
+  const goalLock = goal.value?.dependencyMode === 'hard' ? goal.value?.dependency?.lockState : undefined
+  return [...(goal.value?.milestones ?? [])]
+    .sort((a, b) => a.orderIndex - b.orderIndex)
+    .map(milestone => ({
+      ...milestone,
+      lockState: goalLock && goalLock !== 'unlocked' && milestone.lockState === 'unlocked' ? 'locked' as const : milestone.lockState,
+    }))
+})
+function previousStep(dependsOnMilestoneId: string | null) {
+  const index = sortedMilestones.value.findIndex(m => m.id === dependsOnMilestoneId)
+  return index + 1
+}
+const unlocking = ref(false)
+const unlockError = ref('')
+
+async function unlock(target: { milestoneId?: string }) {
+  unlockError.value = ''
+  unlocking.value = true
+  try {
+    if (target.milestoneId) {
+      await $fetch(`/api/goals/${id.value}/milestones/${target.milestoneId}`, { method: 'PATCH', body: { dependsOnMilestoneId: null }, credentials: 'include' })
+    } else {
+      await $fetch(`/api/goals/${id.value}`, { method: 'PATCH', body: { dependsOnGoalId: null }, credentials: 'include' })
+    }
+    await refresh()
+  } catch (error: any) {
+    unlockError.value = error?.data?.message ?? t('dependencies.unlockError')
+  } finally {
+    unlocking.value = false
+  }
+}
 const occurrences = computed(() => data.value?.occurrences ?? [])
 
 function isOverdue(occurrence: { status: string, dueAt: string }) {
@@ -237,6 +273,29 @@ async function archiveGoal() {
           {{ goal.description }}
         </p>
 
+        <div
+          v-if="goal.dependency"
+          class="mt-4 rounded-app-control px-4 py-3 text-sm"
+          :class="goal.dependency.lockState === 'blocked' ? 'bg-red-50 text-red-700' : 'bg-app-canvas text-app-secondary'"
+          data-testid="goal-dependency"
+        >
+          <p>
+            <AppIcon v-if="goal.dependency.lockState !== 'unlocked'" name="lock" class="mr-1 inline h-4 w-4 align-[-2px]" />
+            {{ t(`dependencies.goal.${goal.dependency.lockState === 'locked' && goal.dependency.mode === 'soft' ? 'lockedSoft' : goal.dependency.lockState}`, { title: goal.dependency.goal.title }) }}
+            <NuxtLink :to="`/app/objectifs/${goal.dependency.goal.id}`" class="font-semibold underline underline-offset-2">{{ t('dependencies.goal.view') }}</NuxtLink>
+          </p>
+          <AppUiButton
+            v-if="goal.dependency.lockState === 'blocked' && goal.dependency.mode === 'hard'"
+            variant="secondary"
+            class="mt-3"
+            :loading="unlocking"
+            @click="unlock({})"
+          >
+            {{ t('dependencies.unlockAnyway') }}
+          </AppUiButton>
+        </div>
+        <p v-if="unlockError" class="mt-2 text-sm text-red-500">{{ unlockError }}</p>
+
         <div v-if="recurrenceLabel || dueDateLabel" class="mt-4 flex flex-wrap gap-2">
           <span v-if="recurrenceLabel" class="app-chip-neutral">{{ recurrenceLabel }}</span>
           <span v-if="dueDateLabel" class="app-chip-neutral">{{ dueDateLabel }}</span>
@@ -281,20 +340,40 @@ async function archiveGoal() {
 
         <div class="mt-4 space-y-3">
           <div
-            v-for="(milestone, index) in [...goal.milestones].sort((a, b) => a.orderIndex - b.orderIndex)"
+            v-for="(milestone, index) in sortedMilestones"
             :key="milestone.id"
             class="app-row flex items-start gap-4"
+            :class="{ 'opacity-70': milestone.lockState !== 'unlocked' && goal.dependencyMode === 'hard' }"
+            :data-testid="`milestone-${index + 1}`"
           >
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-app-mist text-sm font-semibold text-app-blue">
-              {{ index + 1 }}
+              <AppIcon v-if="milestone.lockState !== 'unlocked' && goal.dependencyMode === 'hard'" name="lock" class="h-4 w-4" />
+              <template v-else>{{ index + 1 }}</template>
             </div>
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
                 <h3 class="font-semibold text-app-ink">{{ milestone.title }}</h3>
-                <AppUiBadge :variant="milestoneBadgeVariant(milestoneStatus(milestone.id, milestone.dueDate))">
+                <AppUiBadge v-if="milestone.lockState !== 'unlocked' && goal.dependencyMode === 'hard'" :variant="milestone.lockState === 'blocked' ? 'danger' : 'neutral'">
+                  {{ t(`dependencies.milestone.${milestone.lockState}`) }}
+                </AppUiBadge>
+                <AppUiBadge v-else :variant="milestoneBadgeVariant(milestoneStatus(milestone.id, milestone.dueDate))">
                   {{ milestoneStatusLabel(milestoneStatus(milestone.id, milestone.dueDate)) }}
                 </AppUiBadge>
               </div>
+              <p v-if="milestone.lockState !== 'unlocked' && milestone.dependsOnMilestoneId" class="mt-1 text-xs text-app-secondary">
+                {{ goal.dependencyMode === 'soft'
+                  ? t('dependencies.milestone.lockedSoft', { n: previousStep(milestone.dependsOnMilestoneId) })
+                  : t(`dependencies.milestone.${milestone.lockState}Hint`, { n: previousStep(milestone.dependsOnMilestoneId) }) }}
+              </p>
+              <AppUiButton
+                v-if="milestone.lockState === 'blocked' && goal.dependencyMode === 'hard' && milestone.dependsOnMilestoneId"
+                variant="secondary"
+                class="mt-2"
+                :loading="unlocking"
+                @click="unlock({ milestoneId: milestone.id })"
+              >
+                {{ t('dependencies.unlockAnyway') }}
+              </AppUiButton>
               <p v-if="milestone.description" class="mt-1 text-sm text-app-secondary">
                 {{ milestone.description }}
               </p>

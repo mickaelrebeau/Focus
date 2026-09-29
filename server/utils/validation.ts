@@ -39,12 +39,19 @@ export const milestoneSchema = z.object({
   dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 })
 
+// Dépendance : « débloqué après » un autre objectif (voir server/utils/dependencies.ts)
+const dependencyFields = {
+  dependsOnGoalId: z.string().uuid().optional(),
+  dependencyMode: z.enum(['soft', 'hard']).optional(),
+}
+
 export const createGoalSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('one_time'),
     title: z.string().min(1).max(200),
     description: z.string().max(1000).optional(),
     category: z.string().max(50).optional(),
+    ...dependencyFields,
     dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     dueTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
   }),
@@ -53,6 +60,7 @@ export const createGoalSchema = z.discriminatedUnion('type', [
     title: z.string().min(1).max(200),
     description: z.string().max(1000).optional(),
     category: z.string().max(50).optional(),
+    ...dependencyFields,
     recurrenceType: z.enum(['daily', 'weekly_days', 'weekly_count']),
     recurrenceConfig: recurrenceConfigSchema,
   }),
@@ -61,9 +69,21 @@ export const createGoalSchema = z.discriminatedUnion('type', [
     title: z.string().min(1).max(200),
     description: z.string().max(1000).optional(),
     category: z.string().max(50).optional(),
+    ...dependencyFields,
     milestones: z.array(milestoneSchema).min(1),
+    // Jalons en chaîne : chacun attend la réussite du précédent
+    sequentialMilestones: z.boolean().optional(),
   }),
 ])
+
+export const updateGoalSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(1000).nullable().optional(),
+  isActive: z.boolean().optional(),
+  // null : retire la dépendance (« débloquer quand même »)
+  dependsOnGoalId: z.string().uuid().nullable().optional(),
+  dependencyMode: z.enum(['soft', 'hard']).optional(),
+})
 
 function normalizeOptionalUrl(value: unknown) {
   if (typeof value !== 'string') return value

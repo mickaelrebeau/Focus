@@ -13,6 +13,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Binôme de responsabilité](#binôme-de-responsabilité)
 - [Défis entre amis](#défis-entre-amis)
 - [Heure limite : créneaux et report](#heure-limite-créneaux-et-report)
+- [Dépendances entre objectifs et jalons](#dépendances-entre-objectifs-et-jalons)
 - [Profil public et carte de partage](#profil-public-et-carte-de-partage)
 - [Export et suppression de compte](#export-et-suppression-de-compte)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
@@ -222,6 +223,17 @@ Code : `server/utils/challenges.ts`, `server/api/challenges/*`, pages `app/pages
 - **Réussite par créneau** (`GET /api/time-slots?category=`, `server/utils/time-slots.ts`) : échéances `completed` / `failed` des 90 derniers jours, classées selon l’heure prévue **avant report** (`coalesce(original_due_at, due_at)`), dans le fuseau de l’utilisateur. Un taux n’apparaît qu’à partir de 5 échéances dans le créneau, et une suggestion qu’avec au moins deux créneaux comparables : le meilleur taux, à l’heure qui y a le plus souvent réussi. Les statistiques se limitent à la catégorie saisie quand elle suffit à une suggestion, sinon elles portent sur tous les objectifs.
 - **Report d’un jour** (`POST /api/occurrences/:id/postpone`, `server/utils/postpone.ts`) : une fois par semaine ISO (lundi dans le fuseau de l’utilisateur), sur une échéance `pending` pas encore expirée (heure limite + grâce) et jamais reportée. `due_at` avance de 24 h, l’heure d’origine va dans `original_due_at` ; **`due_date` ne change pas**. L’échéance reste donc rattachée à son jour pour le streak, les défis et le bilan, et la génération des échéances (unicité `goal_id, due_date, milestone_id`) ne la recrée pas. Le jour reste ouvert jusqu’à la nouvelle heure limite, puis l’expiration normale s’applique. Comme le report est refusé après expiration, aucune conséquence n’a pu partir : il ne peut ni annuler ni doubler une sanction. Le quota tient à la contrainte `UNIQUE (user_id, week_start)` de `occurrence_postponements` (migration `0018`), sûre même en cas de requêtes simultanées. Chaque report est aussi tracé dans `audit_logs` (`occurrence.postpone`) et figure dans l’export RGPD.
 - **Affichage** : le filtre `today` inclut les échéances d’hier reportées, et le rappel push avant échéance repart pour la nouvelle heure limite (clé de déduplication distincte).
+
+## Dépendances entre objectifs et jalons
+
+Code : `server/utils/dependencies.ts` (règles pures, testées), `server/utils/dependency-service.ts` (accès base), migration `0021`.
+
+- **Modèle** : `goals.depends_on_goal_id` (« débloqué après » un autre objectif) et `project_milestones.depends_on_milestone_id` (chaîne de jalons ; « Jalons dans l’ordre » relie chaque jalon au précédent à la création). `goals.dependency_mode` vaut `hard` (par défaut) ou `soft`, et s’applique aux deux. Supprimer un prérequis débloque ce qui en dépendait (`ON DELETE SET NULL`).
+- **Strict (`hard`)** : `generateUpcomingOccurrences` ne crée aucune échéance tant que le prérequis n’est pas réussi. Rien ne peut donc échouer ni déclencher de conséquence. À la réussite d’un prérequis, `complete` régénère aussitôt les échéances de l’utilisateur (`hasDependents`). Un élément débloqué après sa date prévue reçoit une échéance le jour même (`effectiveDueDate`), une seule fois : sans cela, il ne serait jamais généré et bloquerait toute la suite.
+- **Indicatif (`soft`)** : les échéances sont générées normalement, et l’ordre est seulement affiché (« Recommandé après… »).
+- **Réussi** : un ponctuel dont l’échéance est `completed`, ou un projet dont chaque jalon a une échéance `completed` (les échéances en pause ne comptent pas). Une échéance réussie puis rejetée en modération ne reverrouille pas ce qu’elle a débloqué.
+- **Pas de deadlock** : un objectif **récurrent ne peut pas être un prérequis**, car il n’est jamais terminé (`recurring_prerequisite`). Il peut en revanche dépendre d’un ponctuel ou d’un projet, et commence alors à la réussite de celui-ci. Les **cycles** sont refusés à la création comme à la modification (`cycle`, en suivant la chaîne). Un prérequis **échoué ou archivé** passe l’élément en `blocked` plutôt que de le laisser verrouillé à vie. « Débloquer quand même » retire alors la dépendance (`PATCH /api/goals/:id`, `PATCH /api/goals/:id/milestones/:milestoneId`), et ce déblocage est tracé dans `audit_logs`.
+- **États renvoyés** : `lockState` (`unlocked`, `locked`, `blocked`) sur chaque objectif de la liste, sur chaque jalon et dans `goal.dependency` du détail.
 
 ## Profil public et carte de partage
 
