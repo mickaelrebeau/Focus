@@ -48,7 +48,7 @@ export function useOccurrences(filter?: Ref<string | undefined>) {
 
   const queryKey = computed(() => ['occurrences', filter?.value ?? 'all'])
 
-  const queryFn = () => apiFetch<{ occurrences: any[] }>('/api/occurrences', {
+  const queryFn = () => apiFetch<{ occurrences: any[], postpone: { weekStart: string, remaining: number } }>('/api/occurrences', {
     query: filter?.value ? { filter: filter.value } : undefined,
     ...fetchOptions,
   })
@@ -80,6 +80,18 @@ export function useOccurrences(filter?: Ref<string | undefined>) {
   })
 
   return { ...occurrencesQuery, completeOccurrence }
+}
+
+// Report d'un jour (1 par semaine) : la liste et le quota sont relus ensuite
+export function usePostponeOccurrence() {
+  const queryClient = useQueryClient()
+  const apiFetch = createApiFetch()
+  return useMutation({
+    networkMode: 'always',
+    mutationFn: (id: string) =>
+      apiFetch<{ dueAt: string, originalDueAt: string }>(`/api/occurrences/${id}/postpone`, { method: 'POST', ...fetchOptions }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['occurrences'] }),
+  })
 }
 
 export function useLeaderboard() {

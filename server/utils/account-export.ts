@@ -35,6 +35,7 @@ export async function buildAccountExport(userId: string) {
     goals,
     milestones,
     occurrences,
+    postponements,
     validations,
     ledger,
     consequences,
@@ -65,6 +66,13 @@ export async function buildAccountExport(userId: string) {
       .where(eq(t.goals.userId, userId))
       .orderBy(asc(t.projectMilestones.orderIndex)),
     db.select().from(t.occurrences).where(eq(t.occurrences.userId, userId)).orderBy(asc(t.occurrences.dueAt)),
+    db.select({
+      occurrenceId: t.occurrencePostponements.occurrenceId,
+      weekStart: t.occurrencePostponements.weekStart,
+      originalDueAt: t.occurrencePostponements.originalDueAt,
+      newDueAt: t.occurrencePostponements.newDueAt,
+      createdAt: t.occurrencePostponements.createdAt,
+    }).from(t.occurrencePostponements).where(eq(t.occurrencePostponements.userId, userId)),
     // Sans l'identifiant du modérateur : c'est une donnée d'un autre compte
     db.select({
       id: t.validations.id,
@@ -214,6 +222,7 @@ export async function buildAccountExport(userId: string) {
       milestones: milestones.filter(row => row.milestone.goalId === goal.id).map(row => row.milestone),
     })),
     occurrences,
+    postponements,
     validations,
     creditLedger: ledger,
     consequences,

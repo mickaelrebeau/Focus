@@ -1,8 +1,10 @@
-import { eq, and, gte, lte, desc } from 'drizzle-orm'
+import { eq, and, lte, or, isNotNull } from 'drizzle-orm'
+import { format, parseISO, subDays } from 'date-fns'
 import { getUserFromEvent, requireAuth } from '../../utils/auth'
 import { useDatabase, schema } from '../../database'
 import { getTodayInTimezone } from '../../utils/occurrences'
 import { syncUserDeadlines } from '../../utils/goals-service'
+import { getPostponeQuota } from '../../utils/postpone'
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(await getUserFromEvent(event))
@@ -16,7 +18,12 @@ export default defineEventHandler(async (event) => {
   let conditions = [eq(schema.occurrences.userId, user.id)]
 
   if (filter === 'today') {
-    conditions.push(eq(schema.occurrences.dueDate, today))
+    // Une échéance d'hier reportée d'un jour se fait aujourd'hui
+    const yesterday = format(subDays(parseISO(today), 1), 'yyyy-MM-dd')
+    conditions.push(or(
+      eq(schema.occurrences.dueDate, today),
+      and(eq(schema.occurrences.dueDate, yesterday), isNotNull(schema.occurrences.originalDueAt)),
+    )!)
   } else if (filter === 'pending') {
     conditions.push(eq(schema.occurrences.status, 'pending'))
   } else if (filter === 'overdue') {
@@ -39,6 +46,7 @@ export default defineEventHandler(async (event) => {
     .orderBy(schema.occurrences.dueAt)
 
   return {
+    postpone: await getPostponeQuota(user),
     occurrences: occurrences.map(({ occurrence, goal, validation, milestone }) => ({
       ...occurrence,
       goal: {

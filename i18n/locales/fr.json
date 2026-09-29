@@ -98,7 +98,12 @@
       "failed": "Échoué",
       "skipped": "En pause"
     },
-    "validate": "Valider {title}"
+    "validate": "Valider {title}",
+    "postpone": "Reporter d'un jour",
+    "postponeHint": "1 report par semaine : l'heure limite passe à demain, même heure.",
+    "postponeConfirm": "Confirmer le report",
+    "postponed": "Reportée d'un jour",
+    "postponeError": "Impossible de reporter cette échéance"
   },
   "complete": {
     "title": "Valider l'échéance",
@@ -490,5 +495,22 @@
     "deleteConfirm": "Supprimer définitivement",
     "deleteError": "Impossible de supprimer le compte",
     "adminBlocked": "Les comptes administrateur ne peuvent pas être supprimés depuis l'application."
+  },
+  "dueTimes": {
+    "suggested": "Créneaux suggérés",
+    "forCategory": "Pour « {category} »",
+    "slots": {
+      "morning": "Matin",
+      "midday": "Midi",
+      "afternoon": "Après-midi",
+      "evening": "Soir",
+      "night": "Nuit"
+    },
+    "statsTitle": "Votre réussite par créneau",
+    "statsScopeCategory": "sur vos objectifs « {category} », {days} derniers jours",
+    "statsScopeAll": "sur tous vos objectifs, {days} derniers jours",
+    "suggestion": "Suggestion : {time} ({slot}, {rate} % de réussite)",
+    "notEnoughData": "Pas encore assez d'historique pour comparer vos créneaux.",
+    "samples": "{count} échéance | {count} échéance | {count} échéances"
   }
 }

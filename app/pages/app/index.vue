@@ -187,6 +187,7 @@ const streakProgressPercent = computed(() => {
           v-for="occ in todayOccurrences"
           :key="occ.id"
           :occurrence="occ"
+          :postpone-remaining="occurrencesData?.postpone?.remaining ?? 0"
           @complete="openComplete"
         />
       </div>

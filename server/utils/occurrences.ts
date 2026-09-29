@@ -103,9 +103,8 @@ export function isOccurrenceExpired(dueAt: Date, now = new Date()): boolean {
   return isAfter(now, dueAt)
 }
 
-export function getTodayInTimezone(timezone: string): string {
-  const now = toZonedTime(new Date(), timezone)
-  return format(now, 'yyyy-MM-dd')
+export function getTodayInTimezone(timezone: string, now = new Date()): string {
+  return format(toZonedTime(now, timezone), 'yyyy-MM-dd')
 }
 
 export function getDateRange(days: number, timezone: string): { from: Date; to: Date } {

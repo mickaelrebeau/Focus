@@ -8,7 +8,7 @@ const dbState = vi.hoisted(() => ({
   users: [] as Array<{ id: string, timezone: string, isBlocked: boolean }>,
   pastDueDates: [] as Array<{ dueDate: string }>,
   dailyResults: [] as Array<{ userId: string, dateKey: string, status: string }>,
-  occurrenceStatuses: [] as Array<{ status: string }>,
+  occurrenceStatuses: [] as Array<{ status: string, dueAt?: Date }>,
   streaks: [] as Array<{ userId: string, currentStreak: number, longestStreak: number, lastSuccessDate: string | null }>,
   occurrenceUpdates: 0,
 }))
@@ -83,6 +83,10 @@ vi.mock('../../server/database', () => ({
       }
       if (fields && 'status' in fields && Object.keys(fields).length === 1) {
         return { from: vi.fn(() => ({ where: vi.fn(() => createQueryChain('occurrences')) })) }
+      }
+      // Échéances encore à faire d'un jour passé (grâce ou report) : filtrées par le mock sur le statut
+      if (fields && 'dueAt' in fields && Object.keys(fields).length === 1) {
+        return { from: vi.fn(() => ({ where: vi.fn(async () => dbState.occurrenceStatuses.filter(row => row.status === 'pending')) })) }
       }
       if (fields && 'dateKey' in fields && 'status' in fields) {
         return { from: vi.fn(() => ({ where: vi.fn(() => createQueryChain('daily')) })) }
@@ -221,11 +225,22 @@ describe('processStreaksAfterExpiration backlog', () => {
   })
 
   it('processes multiple unclosed days instead of only yesterday', async () => {
-    dbState.occurrenceStatuses = [{ status: 'pending' }]
+    // Échéance restée « à faire » d'un jour passé, heure limite dépassée
+    dbState.occurrenceStatuses = [{ status: 'pending', dueAt: new Date('2026-07-07T21:59:00Z') }]
 
     const processed = await processStreaksAfterExpiration()
 
     expect(processed).toBe(2)
+  })
+
+  it('keeps a past day open while a postponed deadline is still ahead, even without grace', async () => {
+    dbState.pastDueDates = [{ dueDate: '2026-07-10' }]
+    // Échéance du 10 reportée d'un jour : nouvelle heure limite le 11 au soir
+    dbState.occurrenceStatuses = [{ status: 'pending', dueAt: new Date(Date.now() + 60 * 60 * 1000) }]
+
+    const processed = await processStreaksAfterExpiration()
+
+    expect(processed).toBe(0)
   })
 
   it('skips days already closed as failed', async () => {

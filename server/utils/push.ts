@@ -297,6 +297,7 @@ export async function processPushReminders(now = new Date()) {
       occurrenceId: schema.occurrences.id,
       userId: schema.occurrences.userId,
       dueAt: schema.occurrences.dueAt,
+      originalDueAt: schema.occurrences.originalDueAt,
       title: schema.goals.title,
       minutes: schema.notificationPreferences.dueReminderMinutes,
     })
@@ -316,7 +317,9 @@ export async function processPushReminders(now = new Date()) {
   for (const row of upcoming) {
     if (!isReminderDue(row.dueAt, row.minutes, now)) continue
     const minutesLeft = Math.max(1, Math.round((row.dueAt.getTime() - now.getTime()) / 60_000))
-    const result = await notifySafely(row.userId, 'due_reminder', row.occurrenceId, locale => ({
+    // Échéance reportée : nouveau rappel avant la nouvelle heure limite
+    const refKey = row.originalDueAt ? `${row.occurrenceId}:postponed` : row.occurrenceId
+    const result = await notifySafely(row.userId, 'due_reminder', refKey, locale => ({
       ...pushMessages(locale).dueReminder(row.title, minutesLeft),
       url: '/app',
       tag: `due-${row.occurrenceId}`,

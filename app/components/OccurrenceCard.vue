@@ -4,6 +4,7 @@ export interface OccurrenceItem {
   status: string
   dueAt: string
   dueDate: string
+  originalDueAt?: string | null
   goal: {
     id: string
     title: string
@@ -16,9 +17,11 @@ export interface OccurrenceItem {
   validation?: { status: string } | null
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   occurrence: OccurrenceItem
-}>()
+  /** Reports encore disponibles cette semaine (0 : bouton masqué) */
+  postponeRemaining?: number
+}>(), { postponeRemaining: 0 })
 
 const emit = defineEmits<{
   complete: [id: string]
@@ -55,6 +58,27 @@ const graceDeadline = computed(() => {
   if (failAt.getTime() <= Date.now()) return null
   return failAt.toLocaleTimeString(localeProperties.value.language ?? 'fr-FR', { hour: '2-digit', minute: '2-digit' })
 })
+
+// Report possible tant que l'échéance n'a pas expiré (heure limite + grâce) : aucune conséquence n'est partie
+const canPostpone = computed(() => {
+  if (props.occurrence.status !== 'pending' || props.occurrence.originalDueAt || props.postponeRemaining <= 0) return false
+  const failAt = new Date(props.occurrence.dueAt).getTime() + (user.value?.graceMinutes ?? 0) * 60_000
+  return failAt > Date.now()
+})
+
+const postpone = usePostponeOccurrence()
+const confirmingPostpone = ref(false)
+const postponeError = ref('')
+
+async function confirmPostpone() {
+  postponeError.value = ''
+  try {
+    await postpone.mutateAsync(props.occurrence.id)
+    confirmingPostpone.value = false
+  } catch (error: any) {
+    postponeError.value = error?.data?.message ?? t('occurrence.postponeError')
+  }
+}
 
 const isDone = computed(() =>
   props.occurrence.status === 'completed' || props.occurrence.status === 'failed',
@@ -93,6 +117,7 @@ const dueLabel = computed(() =>
       <div class="flex items-center gap-2">
         <span class="text-xs font-medium" :class="statusClass">{{ statusLabel }}</span>
         <span v-if="graceDeadline" class="text-xs text-amber-700">· {{ t('grace.failsAt', { time: graceDeadline }) }}</span>
+        <span v-if="occurrence.originalDueAt" class="text-xs text-app-secondary">· {{ t('occurrence.postponed') }}</span>
         <span v-if="occurrence.goal.category" class="text-xs text-slate-400">· {{ occurrence.goal.category }}</span>
       </div>
       <h3
@@ -109,6 +134,23 @@ const dueLabel = computed(() =>
         <span class="text-slate-300"> · </span>
         +{{ occurrence.goal.rewardCredits }} / −{{ occurrence.goal.penaltyCredits }}
       </p>
+      <div v-if="canPostpone" class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+        <template v-if="!confirmingPostpone">
+          <button type="button" class="font-semibold text-app-secondary underline-offset-2 hover:text-app-ink hover:underline" @click="confirmingPostpone = true">
+            {{ t('occurrence.postpone') }}
+          </button>
+        </template>
+        <template v-else>
+          <span class="text-app-secondary">{{ t('occurrence.postponeHint') }}</span>
+          <button type="button" class="font-semibold text-app-ink underline underline-offset-2" :disabled="postpone.isPending.value" @click="confirmPostpone">
+            {{ t('occurrence.postponeConfirm') }}
+          </button>
+          <button type="button" class="text-app-secondary hover:text-app-ink" @click="confirmingPostpone = false">
+            {{ t('common.cancel') }}
+          </button>
+        </template>
+      </div>
+      <p v-if="postponeError" class="mt-1 text-xs text-red-500">{{ postponeError }}</p>
     </div>
   </div>
 </template>
