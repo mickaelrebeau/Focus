@@ -63,6 +63,7 @@ export async function getUserFromEvent(event: H3Event) {
     onboardingCompleted: session.user.onboardingCompleted,
     leaderboardOptIn: session.user.leaderboardOptIn,
     graceMinutes: session.user.graceMinutes,
+    publicSlug: session.user.publicSlug,
     hasPassword: !!session.user.passwordHash,
     credits: session.wallet?.balance ?? 0,
     debt: session.wallet?.debt ?? 0,

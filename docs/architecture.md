@@ -13,6 +13,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Binôme de responsabilité](#binôme-de-responsabilité)
 - [Défis entre amis](#défis-entre-amis)
 - [Heure limite : créneaux et report](#heure-limite-créneaux-et-report)
+- [Profil public et carte de partage](#profil-public-et-carte-de-partage)
 - [Export et suppression de compte](#export-et-suppression-de-compte)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
 - [Notifications push](#notifications-push)
@@ -221,6 +222,13 @@ Code : `server/utils/challenges.ts`, `server/api/challenges/*`, pages `app/pages
 - **Réussite par créneau** (`GET /api/time-slots?category=`, `server/utils/time-slots.ts`) : échéances `completed` / `failed` des 90 derniers jours, classées selon l’heure prévue **avant report** (`coalesce(original_due_at, due_at)`), dans le fuseau de l’utilisateur. Un taux n’apparaît qu’à partir de 5 échéances dans le créneau, et une suggestion qu’avec au moins deux créneaux comparables : le meilleur taux, à l’heure qui y a le plus souvent réussi. Les statistiques se limitent à la catégorie saisie quand elle suffit à une suggestion, sinon elles portent sur tous les objectifs.
 - **Report d’un jour** (`POST /api/occurrences/:id/postpone`, `server/utils/postpone.ts`) : une fois par semaine ISO (lundi dans le fuseau de l’utilisateur), sur une échéance `pending` pas encore expirée (heure limite + grâce) et jamais reportée. `due_at` avance de 24 h, l’heure d’origine va dans `original_due_at` ; **`due_date` ne change pas**. L’échéance reste donc rattachée à son jour pour le streak, les défis et le bilan, et la génération des échéances (unicité `goal_id, due_date, milestone_id`) ne la recrée pas. Le jour reste ouvert jusqu’à la nouvelle heure limite, puis l’expiration normale s’applique. Comme le report est refusé après expiration, aucune conséquence n’a pu partir : il ne peut ni annuler ni doubler une sanction. Le quota tient à la contrainte `UNIQUE (user_id, week_start)` de `occurrence_postponements` (migration `0018`), sûre même en cas de requêtes simultanées. Chaque report est aussi tracé dans `audit_logs` (`occurrence.postpone`) et figure dans l’export RGPD.
 - **Affichage** : le filtre `today` inclut les échéances d’hier reportées, et le rappel push avant échéance repart pour la nouvelle heure limite (clé de déduplication distincte).
+
+## Profil public et carte de partage
+
+- **Opt-in strict** : `users.public_slug` (migration `0019`) vaut `NULL` par défaut, et le profil n'existe que s'il est renseigné. Réglages → Profil public l'active (`PATCH /api/user/public-profile`). Le lien est un préfixe tiré du nom plus 8 caractères aléatoires, pour qu'on ne puisse pas le deviner. Désactiver efface le lien, et « Changer de lien » en génère un nouveau : l'ancien renvoie 404 immédiatement (`Cache-Control: no-store`). Chaque changement est tracé dans `audit_logs`.
+- **Données exposées** (`GET /api/public/profiles/:slug`, `server/utils/public-profile.ts`) : nom d'affichage, série actuelle, record et badges de paliers (`shared/streak-badges.ts` : 7, 30, 100 et 365 jours, atteints d'après le record). La requête sélectionne uniquement ces colonnes : jamais de crédits, de dette, de conséquences, d'objectifs ni d'email. Les comptes bloqués ou supprimés n'ont pas de profil.
+- **Page `/u/:slug`** : publique, en `noindex` (partager un lien n'est pas demander à être indexé). Aperçu de lien : titre « Nom · 30 jours de Focus » et logo.
+- **Carte de partage** (`app/utils/share-card.ts`) : PNG carré de 1080 px dessiné en canvas dans le navigateur, sans service tiers. Sur mobile, la feuille de partage native envoie l'image quand le navigateur accepte les fichiers, sinon le lien ; sur desktop, copie du lien et téléchargement de l'image. La célébration de streak propose le partage le jour exact d'un palier.
 
 ## Export et suppression de compte
 

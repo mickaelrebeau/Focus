@@ -566,5 +566,37 @@
     "suggestion": "Suggestion: {time} ({slot}, {rate}% success)",
     "notEnoughData": "Not enough history yet to compare your time slots.",
     "samples": "{count} deadline | {count} deadline | {count} deadlines"
+  },
+  "publicProfile": {
+    "days": "{count} day of Focus | {count} day of Focus | {count} days of Focus",
+    "noStreak": "Ready for a new streak",
+    "record": "Best: {count} day | Best: {count} day | Best: {count} days",
+    "badge": "{days} d",
+    "badgesLabel": "Streak milestones",
+    "badgeReached": "{days}-day milestone reached",
+    "badgeLocked": "{days}-day milestone not reached yet",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "copied": "Link copied.",
+    "download": "Download image",
+    "manage": "Manage my public profile",
+    "join": "Create my Focus account",
+    "discover": "Discover Focus",
+    "notFoundTitle": "Profile not found",
+    "notFound": "This profile doesn't exist or is no longer public.",
+    "celebrate": {
+      "share": "Share my {count} days | Share my {count} day | Share my {count} days",
+      "enable": "Turn on my public profile to share"
+    },
+    "settings": {
+      "title": "Public profile",
+      "toggle": "Make my profile public",
+      "hint": "Off by default. A public page shows your display name, current streak, best streak and badges. Never your credits, debt, consequences or goals.",
+      "link": "Your profile link",
+      "view": "View my card",
+      "regenerate": "Change link",
+      "regenerateHint": "Changing the link or turning the profile off makes the old link stop working immediately.",
+      "error": "Could not update the public profile"
+    }
   }
 }

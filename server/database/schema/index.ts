@@ -77,6 +77,8 @@ export const users = pgTable('users', {
   stripePaymentMethodLast4: text('stripe_payment_method_last4'),
   stripePaymentMethodExpMonth: integer('stripe_payment_method_exp_month'),
   stripePaymentMethodExpYear: integer('stripe_payment_method_exp_year'),
+  // Profil public opt-in : lien /u/:slug, NULL = privé (0019_public_profile.sql)
+  publicSlug: text('public_slug').unique(),
   // Suppression demandée : compte inaccessible, purge par le worker (0017_account_deletion.sql)
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

@@ -512,5 +512,37 @@
     "suggestion": "Suggestion : {time} ({slot}, {rate} % de réussite)",
     "notEnoughData": "Pas encore assez d'historique pour comparer vos créneaux.",
     "samples": "{count} échéance | {count} échéance | {count} échéances"
+  },
+  "publicProfile": {
+    "days": "{count} jour de Focus | {count} jour de Focus | {count} jours de Focus",
+    "noStreak": "Prêt pour une nouvelle série",
+    "record": "Record : {count} jour | Record : {count} jour | Record : {count} jours",
+    "badge": "{days} j",
+    "badgesLabel": "Paliers de série",
+    "badgeReached": "Palier de {days} jours atteint",
+    "badgeLocked": "Palier de {days} jours pas encore atteint",
+    "share": "Partager",
+    "copyLink": "Copier le lien",
+    "copied": "Lien copié.",
+    "download": "Télécharger l'image",
+    "manage": "Gérer mon profil public",
+    "join": "Créer mon compte Focus",
+    "discover": "Découvrir Focus",
+    "notFoundTitle": "Profil introuvable",
+    "notFound": "Ce profil n'existe pas ou n'est plus public.",
+    "celebrate": {
+      "share": "Partager mes {count} jours | Partager mon {count} jour | Partager mes {count} jours",
+      "enable": "Activer mon profil public pour partager"
+    },
+    "settings": {
+      "title": "Profil public",
+      "toggle": "Rendre mon profil public",
+      "hint": "Désactivé par défaut. Une page publique montre votre nom d'affichage, votre série actuelle, votre record et vos badges. Jamais vos crédits, votre dette, vos conséquences ni vos objectifs.",
+      "link": "Lien de votre profil",
+      "view": "Voir ma carte",
+      "regenerate": "Changer de lien",
+      "regenerateHint": "Changer de lien ou désactiver le profil rend l'ancien lien inutilisable immédiatement.",
+      "error": "Impossible de mettre à jour le profil public"
+    }
   }
 }

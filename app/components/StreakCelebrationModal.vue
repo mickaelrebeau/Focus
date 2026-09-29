@@ -18,7 +18,11 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
 }>()
 
+import { isBadgeDay } from '#shared/streak-badges'
+
 const { burst } = useCelebration()
+const { user } = useAuth()
+const { t } = useI18n()
 const modalRef = ref<HTMLElement | null>(null)
 
 watch(() => props.modelValue, (open) => {
@@ -90,6 +94,16 @@ const progressPercent = computed(() => {
         <p v-if="data.bonusAwarded" class="mt-4 rounded-app-control bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           Bonus streak : +{{ data.bonusAwarded }} crédits pour {{ data.milestoneReached }} jours consécutifs !
         </p>
+
+        <!-- Palier de badge (7, 30, 100, 365 jours) : proposer le partage, via le profil public s'il est activé -->
+        <NuxtLink
+          v-if="isBadgeDay(data.currentStreak)"
+          :to="user?.publicSlug ? `/u/${user.publicSlug}` : '/app/reglages#profil-public'"
+          class="app-button-secondary mt-4 flex w-full justify-center"
+          @click="close"
+        >
+          {{ user?.publicSlug ? t('publicProfile.celebrate.share', data.currentStreak) : t('publicProfile.celebrate.enable') }}
+        </NuxtLink>
 
         <AppUiButton class="mt-6 w-full" @click="close">
           Continuer
