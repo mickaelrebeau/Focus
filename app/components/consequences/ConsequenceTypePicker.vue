@@ -31,6 +31,7 @@ function addType(type: ConsequenceType) {
 function formatDefaultAmount(type: string): string {
   if (isCreditsConsequenceType(type)) return t('consequences.defaults.credits')
   if (type === 'custom') return t('consequences.defaults.custom')
+  if (type === 'accountability-message') return t('accountability.defaultLabel')
   if (isBehaviorConsequenceType(type)) return t('consequences.defaults.behavior')
   if (isMonetaryConsequenceType(type)) return t('consequences.defaults.monetary')
   return ''

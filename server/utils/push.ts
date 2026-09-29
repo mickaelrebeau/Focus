@@ -161,6 +161,7 @@ export function consequenceDetail(
     case 'donation': return fr ? `don de ${euros}` : `${euros} donation`
     case 'stripe': return fr ? `prélèvement de ${euros}` : `${euros} charge`
     case 'mandatory-proof': return fr ? 'preuve obligatoire à la prochaine réussite' : 'proof required on your next check-in'
+    case 'accountability-message': return fr ? 'message envoyé à votre contact de confiance' : 'message sent to your accountability contact'
     case 'custom': return String(config.message ?? (fr ? 'rappel personnalisé' : 'custom reminder'))
     default: return provider
   }

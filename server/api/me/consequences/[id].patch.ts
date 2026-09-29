@@ -10,6 +10,7 @@ import {
 } from '../../../utils/consequences-service'
 import { assertPaymentMethodForMonetaryConsequence } from '../../../utils/user-payment-method'
 import type { ConsequenceProviderKey } from '../../../consequences/types'
+import { ensureAccountabilityContact, toAccountabilityHttpError } from '../../../utils/accountability'
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(await getUserFromEvent(event))
@@ -56,6 +57,15 @@ export default defineEventHandler(async (event) => {
     await assertPaymentMethodForMonetaryConsequence(user.id, type, nextEnabled)
   } catch (error) {
     toHttpError(error)
+  }
+
+  // Message à un proche : invitation du contact (second opt-in) avant tout enregistrement
+  if (type === 'accountability-message' && nextEnabled) {
+    try {
+      await ensureAccountabilityContact(user, validatedConfig as { contactEmail: string, contactName: string })
+    } catch (error) {
+      toAccountabilityHttpError(error)
+    }
   }
 
   const [consequence] = await db

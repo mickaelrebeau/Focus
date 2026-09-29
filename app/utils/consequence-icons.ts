@@ -4,6 +4,7 @@ import {
   Coins01Icon,
   CreditCardIcon,
   FavouriteIcon,
+  Mail01Icon,
   MoneyBag01Icon,
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons'
@@ -18,6 +19,7 @@ const CONSEQUENCE_ICONS: Record<string, typeof Coins01Icon> = {
   'random-user': ArrowDataTransferHorizontalIcon,
   'custom': PencilEdit01Icon,
   'mandatory-proof': Camera01Icon,
+  'accountability-message': Mail01Icon,
 }
 
 export function consequenceIcon(type: string) {

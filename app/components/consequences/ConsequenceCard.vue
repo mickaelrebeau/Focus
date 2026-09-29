@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { HugeiconsIcon } from '@hugeicons/vue'
 import { consequenceIcon } from '~/utils/consequence-icons'
+import AccountabilityContactForm from '~/components/consequences/AccountabilityContactForm.vue'
 import type { ConsequenceType, UserConsequence } from '~/composables/useConsequences'
 import {
   centsToEuros,
@@ -268,6 +269,19 @@ function onToggle(value: boolean) {
         :step="1"
       />
 
+      <div v-if="consequence.type === 'accountability-message'" class="space-y-4">
+        <p class="rounded-app-control bg-app-canvas px-4 py-3 text-sm" data-testid="contact-status">
+          <span class="font-semibold text-app-ink">{{ t(`accountability.status.${consequence.contact?.status ?? 'pending'}`) }}</span>
+          <span class="mt-1 block text-xs text-app-secondary">{{ t(`accountability.statusHint.${consequence.contact?.status ?? 'pending'}`) }}</span>
+        </p>
+        <AccountabilityContactForm
+          :initial="consequence.config"
+          :submit-label="t('common.save')"
+          :loading="saving"
+          @submit="emit('update', { enabled, config: $event })"
+        />
+      </div>
+
       <AppUiInput
         v-if="consequence.type === 'custom'"
         v-model="customMessage"
@@ -287,6 +301,7 @@ function onToggle(value: boolean) {
 
       <div class="flex flex-wrap items-center gap-3">
         <AppUiButton
+          v-if="consequence.type !== 'accountability-message'"
           variant="secondary"
           :loading="saving"
           @click="saveChanges"

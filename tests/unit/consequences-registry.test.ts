@@ -4,7 +4,7 @@ import { getConsequenceProvider, isKnownProviderType, listConsequenceProviders }
 describe('consequences registry', () => {
   it('returns all registered providers', () => {
     const providers = listConsequenceProviders()
-    expect(providers).toHaveLength(6)
+    expect(providers).toHaveLength(7)
     expect(providers.map(provider => provider.type)).toEqual([
       'credits',
       'donation',
@@ -12,6 +12,7 @@ describe('consequences registry', () => {
       'random-user',
       'custom',
       'mandatory-proof',
+      'accountability-message',
     ])
   })
 

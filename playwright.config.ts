@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-import { E2E_BASE_URL, E2E_DATABASE_URL, E2E_PORT, E2E_REDIS_URL, E2E_TIMEZONE, assertLocalServices, ensurePushTestAssets } from './e2e/env'
+import { E2E_BASE_URL, E2E_DATABASE_URL, E2E_MAIL_DIR, E2E_PORT, E2E_REDIS_URL, E2E_TIMEZONE, assertLocalServices, ensurePushTestAssets } from './e2e/env'
 
 assertLocalServices()
 const pushAssets = ensurePushTestAssets()
@@ -46,6 +46,8 @@ export default defineConfig({
       // La suite crée plus de comptes que la limite de production (10 / heure / IP)
       REGISTER_RATE_LIMIT: '500',
       LOGIN_RATE_LIMIT: '500',
+      MAIL_OUTBOX_DIR: E2E_MAIL_DIR,
+      APP_URL: E2E_BASE_URL,
       VAPID_PUBLIC_KEY: pushAssets.vapid.publicKey,
       VAPID_PRIVATE_KEY: pushAssets.vapid.privateKey,
       VAPID_SUBJECT: 'mailto:e2e@focus.test',
