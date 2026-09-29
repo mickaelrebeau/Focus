@@ -331,6 +331,22 @@ export const consequenceHistory = pgTable('consequence_history', {
   uniqueIndex('consequence_history_occurrence_user_consequence_unique').on(table.occurrenceId, table.userConsequenceId),
 ])
 
+export const accountabilityContacts = pgTable('accountability_contacts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  name: text('name'),
+  status: text('status', { enum: ['pending', 'confirmed', 'declined'] }).notNull().default('pending'),
+  manageToken: text('manage_token').notNull().unique(),
+  invitedAt: timestamp('invited_at', { withTimezone: true }).notNull().defaultNow(),
+  confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
+  declinedAt: timestamp('declined_at', { withTimezone: true }),
+  lastMessageDate: date('last_message_date'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('accountability_contacts_user_email_unique').on(table.userId, table.email),
+])
+
 export const communityPotTransactions = pgTable('community_pot_transactions', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),

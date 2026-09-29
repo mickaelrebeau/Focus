@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
+import AccountabilityContactForm from '~/components/consequences/AccountabilityContactForm.vue'
 import ConsequenceList from '~/components/consequences/ConsequenceList.vue'
 import ConsequenceTypePicker from '~/components/consequences/ConsequenceTypePicker.vue'
 import {
@@ -75,18 +76,26 @@ watch(consequences, async (items) => {
   }
 }, { immediate: true, deep: true })
 
-async function handleAdd(type: string) {
+// Message à un proche : contact et consentement sont saisis avant la création
+const settingUpAccountability = ref(false)
+
+async function handleAdd(type: string, config?: Record<string, unknown>) {
   error.value = ''
   feedback.value = ''
+  if (type === 'accountability-message' && !config) {
+    settingUpAccountability.value = true
+    return
+  }
 
   try {
     await createConsequence.mutateAsync({
       type,
       enabled: !isMonetaryConsequenceType(type),
       amount: defaultAmount(type),
-      config: defaultConfig(type),
+      config: config ?? defaultConfig(type),
     })
-    feedback.value = t('consequences.feedback.added')
+    settingUpAccountability.value = false
+    feedback.value = type === 'accountability-message' ? t('accountability.invited') : t('consequences.feedback.added')
   } catch (err: unknown) {
     const fetchError = err as { data?: { message?: string } }
     error.value = fetchError?.data?.message ?? t('consequences.errors.add')
@@ -205,7 +214,19 @@ async function handleReorder(orderedIds: string[]) {
         </p>
       </AppUiCard>
 
+      <AppUiCard v-if="settingUpAccountability" class="mt-6" :title="t('accountability.setupTitle')">
+        <p class="mb-4 text-sm text-app-secondary">{{ t('accountability.setupHint') }}</p>
+        <AccountabilityContactForm
+          :submit-label="t('accountability.sendInvitation')"
+          :loading="createConsequence.isPending.value"
+          cancellable
+          @submit="handleAdd('accountability-message', $event)"
+          @cancel="settingUpAccountability = false"
+        />
+      </AppUiCard>
+
       <ConsequenceTypePicker
+        v-else
         class="mt-6"
         :types="types"
         :configured-types="configuredTypes"

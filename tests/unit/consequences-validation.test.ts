@@ -51,3 +51,13 @@ describe('consequences validation schemas', () => {
     expect(mandatoryProofConfigSchema.parse({})).toEqual({})
   })
 })
+
+describe('consequences validation errors', () => {
+  it('turns a provider schema error into a 400 with its message', async () => {
+    const { toHttpError } = await import('../../server/consequences/errors')
+    vi.stubGlobal('createError', (input: Record<string, unknown>) => Object.assign(new Error(String(input.message)), input))
+    const error = await getConsequenceProvider('custom').validate({ message: '' }).catch(caught => caught)
+    expect(() => toHttpError(error)).toThrow(expect.objectContaining({ statusCode: 400, message: 'Message requis' }))
+    vi.unstubAllGlobals()
+  })
+})

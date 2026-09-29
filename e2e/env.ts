@@ -12,6 +12,8 @@ export const E2E_REDIS_URL = process.env.E2E_REDIS_URL ?? 'redis://localhost:637
 export const E2E_PORT = Number(process.env.E2E_PORT ?? 3100)
 export const E2E_BASE_URL = `http://localhost:${E2E_PORT}`
 export const E2E_TIMEZONE = 'Europe/Paris'
+// Emails écrits en JSON au lieu d'être envoyés (server/utils/mailer.ts)
+export const E2E_MAIL_DIR = join(tmpdir(), 'focus-e2e-mail')
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', 'postgres', 'redis'])
 

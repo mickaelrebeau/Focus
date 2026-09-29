@@ -13,7 +13,8 @@ Ce guide liste, étape par étape, ce qu’il faut pour faire tourner votre prop
   - [6. Stockage S3 des preuves (optionnel)](#6-stockage-s3-des-preuves-optionnel)
   - [7. Stripe (optionnel)](#7-stripe-optionnel)
   - [8. Notifications push (optionnel)](#8-notifications-push-optionnel)
-  - [9. Vérifications finales](#9-vérifications-finales)
+  - [9. Emails (optionnel)](#9-emails-optionnel)
+  - [10. Vérifications finales](#10-vérifications-finales)
 - [Données personnelles (RGPD)](#données-personnelles-rgpd)
 - [Référence des variables](#référence-des-variables)
 - [Limites connues](#limites-connues)
@@ -30,6 +31,7 @@ Ce guide liste, étape par étape, ce qu’il faut pour faire tourner votre prop
 | Google OAuth | Optionnel | Bouton « Continuer avec Google » | Le bouton renvoie une erreur 503 |
 | Bucket S3 | Optionnel | Photos de preuve | Validation par note ou lien uniquement (l’envoi d’une photo échoue) |
 | Stripe | Optionnel | Carte bancaire, conséquences « Paiement Stripe » et « Don à une association » | Ces conséquences ne peuvent pas être activées |
+| Serveur SMTP | Optionnel | Conséquence « Message à un proche » (invitation du contact, puis messages) | Cette conséquence ne peut pas être activée |
 | Clés VAPID | Optionnel | Notifications push (rappels, streak en danger…) | Réglages → Notifications indique que le serveur n’est pas configuré |
 
 ## Variables : build ou runtime ?
@@ -76,7 +78,7 @@ En local, `docker compose up -d` fournit les deux (voir le [README](../README.md
 Les deux workers se lancent depuis le **dépôt complet** (ils s’exécutent avec `tsx`, pas depuis `.output`). Ils ont besoin de `DATABASE_URL` et `REDIS_URL`, et lisent aussi un fichier `.env` dans le répertoire courant s’il existe.
 
 - [ ] **deadlines** : `pnpm worker`. Un passage au démarrage, puis toutes les 15 minutes : expiration des échéances, génération des 30 prochains jours, clôture des jours passés (streaks), classement quotidien et bonus du lundi, purge des comptes supprimés (voir [RGPD](#données-personnelles-rgpd)).
-- [ ] **consequences** : `pnpm worker:consequences`. Exécute les conséquences mises en file lors d’un échec (5 en parallèle, 3 tentatives). Il a besoin de `STRIPE_SECRET_KEY` si Stripe est activé. Au démarrage, il reprend les conséquences restées en attente.
+- [ ] **consequences** : `pnpm worker:consequences`. Exécute les conséquences mises en file lors d’un échec (5 en parallèle, 3 tentatives). Il a besoin de `STRIPE_SECRET_KEY` si Stripe est activé, et de `SMTP_URL`, `MAIL_FROM` et `APP_URL` pour la conséquence « Message à un proche ». Au démarrage, il reprend les conséquences restées en attente.
 - [ ] Un seul exemplaire de chaque worker suffit. Un verrou Redis évite de toute façon un double traitement des échéances.
 
 **Railway** : le dépôt décrit l’infrastructure complète dans `.railway/railway.ts` (Infrastructure as Code). Sur votre propre projet Railway, adaptez le nom du dépôt GitHub dans ce fichier, liez le dossier (`railway link`), puis `railway config plan` et `railway config apply` créent les services web, `worker` et `consequences`, PostgreSQL et Redis. Les workers reçoivent les variables du web par référence. Ne leur donnez pas `NODE_ENV=production`, qui priverait le build de `tsx`.
@@ -140,7 +142,20 @@ Les notifications push (Web Push) préviennent l’utilisateur avant une échéa
 
 Sur iPhone et iPad, les notifications ne fonctionnent que si Focus est installé sur l’écran d’accueil (iOS 16.4+).
 
-### 9. Vérifications finales
+### 9. Emails (optionnel)
+
+La conséquence « Message à un proche » envoie un email à une personne de confiance choisie par l'utilisateur. Elle fonctionne avec n'importe quel fournisseur SMTP (Resend, Brevo, Amazon SES, Mailgun, votre propre serveur…).
+
+- [ ] Définir `SMTP_URL`, par exemple `smtps://utilisateur:motdepasse@smtp.exemple.com:465` (ou `smtp://…:587` pour STARTTLS), et `MAIL_FROM`, par exemple `Focus <no-reply@exemple.com>`. Configurez SPF et DKIM pour ce domaine chez votre fournisseur, sinon les messages finiront en spam.
+- [ ] Donner ces deux variables **au service web** (il envoie l'invitation au contact) **et au worker consequences** (il envoie les messages), ainsi que `APP_URL` au worker : les liens des emails en dépendent.
+- [ ] Ces variables sont lues au lancement sous leur nom simple.
+- [ ] Sans ces variables, la conséquence ne peut pas être activée (erreur 503 à l'enregistrement), et le worker ignore les messages en attente.
+
+Garde-fous : double opt-in (l'utilisateur coche son consentement, puis le contact accepte depuis l'invitation), au plus un message par jour et par contact, un lien de désinscription dans chaque email (avec l'en-tête `List-Unsubscribe`), et une invitation renvoyée au plus une fois par 24 h.
+
+En développement, `MAIL_OUTBOX_DIR=/tmp/focus-mail` écrit chaque email dans un fichier JSON au lieu de l'envoyer (c'est ce qu'utilisent les tests E2E).
+
+### 10. Vérifications finales
 
 - [ ] Créer un compte avec `ADMIN_EMAIL` → le menu « Administration » apparaît.
 - [ ] Créer un objectif quotidien → l’échéance du jour apparaît sur l’accueil.
@@ -172,6 +187,9 @@ Sur iPhone et iPad, les notifications ne fonctionnent que si Focus est installé
 | `VAPID_PUBLIC_KEY` | Push | `VAPID_PUBLIC_KEY` | Clé publique Web Push (web + workers) |
 | `VAPID_PRIVATE_KEY` | Push | `VAPID_PRIVATE_KEY` | Clé privée Web Push (web + workers) |
 | `VAPID_SUBJECT` | Push | `VAPID_SUBJECT` | Contact de l’instance (`mailto:` ou URL), `APP_URL` par défaut |
+| `SMTP_URL` | Emails | `SMTP_URL` | Serveur SMTP (web + worker consequences) |
+| `MAIL_FROM` | Emails | `MAIL_FROM` | Expéditeur des emails, par exemple `Focus <no-reply@exemple.com>` |
+| `MAIL_OUTBOX_DIR` | — | `MAIL_OUTBOX_DIR` | Dev / tests : écrit les emails en JSON dans ce dossier au lieu de les envoyer |
 | `REGISTER_RATE_LIMIT` | — | `REGISTER_RATE_LIMIT` | Inscriptions par heure et par IP (10 par défaut) |
 | `LOGIN_RATE_LIMIT` | — | `LOGIN_RATE_LIMIT` | Tentatives de connexion par quart d’heure et par IP (20 par défaut) |
 | `DELETE_ACCOUNT_RATE_LIMIT` | — | `DELETE_ACCOUNT_RATE_LIMIT` | Tentatives de suppression de compte par quart d’heure et par compte (5 par défaut) |
@@ -202,6 +220,8 @@ Ce qui reste après la purge, sans lien avec la personne :
 - les validations qu’elle a modérées, si elle était administratrice (modérateur à `NULL`) ;
 - les sauvegardes de la base : elles suivent **votre** politique de rétention. Documentez-la, et ne restaurez pas une sauvegarde sans repurger les comptes supprimés depuis.
 
+**Contact de confiance.** Quand un utilisateur configure « Message à un proche », Focus conserve l'email (et le prénom facultatif) de son contact, l'état du consentement et ses dates (`accountability_contacts`). Le contact n'a pas de compte. Il reçoit une seule invitation (au plus une par 24 h), et rien d'autre tant qu'il n'a pas accepté. Il peut refuser ou se désinscrire à tout moment depuis le lien présent dans chaque email, et l'utilisateur ne peut alors plus lui écrire. Acceptations et refus sont tracés dans le journal d'audit, avec l'adresse IP. Ces données sont supprimées avec le compte de l'utilisateur.
+
 **Profil public.** Désactivé par défaut pour chaque compte. Une fois activé par l'utilisateur, la page `/u/:slug` montre à quiconque a le lien le nom d'affichage, la série et les badges, rien d'autre. Elle est marquée `noindex` ; le lien s'invalide dès que l'utilisateur le change ou désactive le profil.
 
 Chez Stripe, les paiements déjà effectués restent dans votre compte Stripe, qui les conserve pour ses propres obligations légales.
@@ -210,6 +230,6 @@ Les comptes administrateur ne peuvent pas se supprimer depuis l’app : retirez 
 
 ## Limites connues
 
-- **Pas d’envoi d’email.** « Mot de passe oublié » crée bien un jeton, mais le lien n’est envoyé à personne, et n’est affiché dans les logs qu’en développement. Tant que ce n’est pas implémenté, un administrateur doit aider l’utilisateur (connexion Google, ou réinitialisation en base).
+- **Pas d’email de réinitialisation du mot de passe.** L’instance sait envoyer des emails ([section 9](#9-emails-optionnel)), mais « Mot de passe oublié » ne s’en sert pas encore : il crée bien un jeton, que personne ne reçoit, et qui n’est affiché dans les logs qu’en développement. Tant que ce n’est pas implémenté, un administrateur doit aider l’utilisateur (connexion Google, ou réinitialisation en base).
 - **Pas de `Dockerfile` officiel** : voir la [section Workers](#4-workers).
 - **URL publique des preuves** : elle est toujours `S3_ENDPOINT/S3_BUCKET/<clé>`, sans domaine de CDN configurable.

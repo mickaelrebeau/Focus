@@ -6,6 +6,7 @@ import { stripeProvider } from './providers/stripe'
 import { randomUserProvider } from './providers/random-user'
 import { customProvider } from './providers/custom'
 import { mandatoryProofProvider } from './providers/mandatory-proof'
+import { accountabilityMessageProvider } from './providers/accountability-message'
 
 const providers = new Map<ConsequenceProviderKey, ConsequenceProvider>([
   ['credits', creditsProvider],
@@ -14,6 +15,7 @@ const providers = new Map<ConsequenceProviderKey, ConsequenceProvider>([
   ['random-user', randomUserProvider],
   ['custom', customProvider],
   ['mandatory-proof', mandatoryProofProvider],
+  ['accountability-message', accountabilityMessageProvider],
 ])
 
 export function getConsequenceProvider(type: string): ConsequenceProvider {

@@ -27,6 +27,8 @@ export interface UserConsequence {
   amount: number
   priority: number
   config: Record<string, unknown>
+  /** Message à un proche : état du consentement du contact */
+  contact?: { email: string, status: 'pending' | 'confirmed' | 'declined', invitedAt: string } | null
   createdAt: string
   updatedAt: string
 }
@@ -56,6 +58,7 @@ export function isCreditsConsequenceType(type: string): boolean {
 
 export function isBehaviorConsequenceType(type: string): boolean {
   return type === 'mandatory-proof'
+    || type === 'accountability-message'
 }
 
 export function formatEuroFromCents(cents: number, languageTag = 'fr-FR'): string {

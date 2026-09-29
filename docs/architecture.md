@@ -280,10 +280,19 @@ Un provider implémente `ConsequenceProvider` (`server/consequences/types.ts`) :
 | `donation` | `providers/donation.ts` | Prélèvement Stripe, puis cumul dans la cagnotte de l’association choisie (`donation_executions`). Un admin reverse ensuite la cagnotte à l’association (`recordAssociationPayout`). | centimes (≥ 100) |
 | `mandatory-proof` | `providers/mandatory-proof.ts` | Crée une `proof_requirement` : la prochaine réussite sur cet objectif exigera une preuve | — |
 | `custom` | `providers/custom.ts` | Notification avec le message choisi par l’utilisateur | — |
+| `accountability-message` | `providers/accountability-message.ts` | Email à un contact de confiance : « X n’a pas tenu son engagement du JJ/MM », avec le message de l’utilisateur (`{nom}`, `{objectif}`, `{date}`). Voir ci-dessous. | — |
 
 Les providers monétaires passent par `chargeUserForConsequence` (`server/utils/consequence-payment.ts`) : ils échouent si Stripe n’est pas configuré sur le serveur ou si l’utilisateur n’a pas de moyen de paiement. Le webhook `server/api/stripe/webhook.post.ts` resynchronise ensuite le statut des paiements.
 
 > **Historique** : `community-pot` (cagnotte globale) a été remplacé par les cagnottes par association. La clé existe encore dans `CONSEQUENCE_PROVIDER_KEYS` et le fichier `providers/community-pot.ts` est toujours là, mais le provider n’est plus enregistré, et le type est désactivé en base (migration `0007`). De même, `streak-reset` a été retiré (migration `0008`), car la perte du streak est automatique.
+
+### Message à un proche (`accountability-message`)
+
+Code : `server/utils/accountability.ts`, `server/utils/mailer.ts` (SMTP via nodemailer), page publique `app/pages/contact/[token].vue`. Table `accountability_contacts` (migration `0020`).
+
+- **Double opt-in** : la config exige `userConsent: true` (schéma zod). À l’enregistrement d’une conséquence active, `ensureAccountabilityContact` crée le contact en `pending` et lui envoie une invitation (au plus une par 24 h). Un contact `declined` est refusé (409), et sans SMTP l’enregistrement échoue (503). Le contact accepte ou refuse sur `/contact/:token`, sans compte ; `confirmed_at` / `declined_at` sont stockés, et chaque réponse est auditée avec l’IP.
+- **Exécution** (worker consequences) : rien ne part si le contact n’est pas `confirmed` (`skipped: contact_not_confirmed` ou `contact_declined`). `reserveDailyMessage` pose `last_message_date` de façon atomique : au plus un message par jour (fuseau de l’utilisateur) et par contact, même si plusieurs objectifs échouent (`skipped: daily_limit`). Si l’envoi échoue, la réservation est libérée pour la tentative suivante du worker.
+- **Désinscription** : chaque email contient le lien de gestion et l’en-tête `List-Unsubscribe`. Le jeton de ce lien est stocké en clair : il doit figurer dans chaque email, et il ne permet que d’accepter ou de refuser ce contact.
 
 ### Ajouter un provider
 

@@ -544,5 +544,42 @@
       "regenerateHint": "Changer de lien ou désactiver le profil rend l'ancien lien inutilisable immédiatement.",
       "error": "Impossible de mettre à jour le profil public"
     }
+  },
+  "accountability": {
+    "setupTitle": "Message à un proche",
+    "setupHint": "Choisissez une personne de confiance. Elle reçoit d'abord une invitation, et aucun message ne part tant qu'elle n'a pas accepté.",
+    "contactEmail": "Email du contact",
+    "contactName": "Prénom du contact",
+    "contactNamePlaceholder": "Optionnel",
+    "message": "Message envoyé après un échec",
+    "messageHint": "Variables : {'{nom}'} (votre nom), {'{objectif}'}, {'{date}'} (JJ/MM). Au plus un message par jour.",
+    "defaultMessage": "{'{nom}'} n'a pas tenu son engagement « {'{objectif}'} » du {'{date}'}.",
+    "consent": "J'accepte qu'un email soit envoyé à ce contact chaque fois que je ne tiens pas un engagement, s'il ou elle l'accepte aussi.",
+    "sendInvitation": "Envoyer l'invitation",
+    "invited": "Invitation envoyée. Les messages partiront une fois que votre contact aura accepté.",
+    "defaultLabel": "après accord du contact",
+    "status": {
+      "pending": "En attente de réponse du contact",
+      "confirmed": "Contact confirmé",
+      "declined": "Le contact a refusé"
+    },
+    "statusHint": {
+      "pending": "Aucun message ne part tant qu'il ou elle n'a pas accepté. Enregistrer à nouveau renvoie l'invitation (une fois par 24 h).",
+      "confirmed": "Un email lui est envoyé après un échec, au plus un par jour.",
+      "declined": "Aucun message ne lui sera envoyé. Choisissez un autre contact."
+    },
+    "page": {
+      "title": "{name} vous choisit comme contact de confiance",
+      "intro": "{name} utilise Focus pour tenir ses engagements. Si vous acceptez, vous recevrez un email lorsqu'il ou elle n'en tient pas un, au plus un par jour. Vous pourrez arrêter à tout moment depuis ce lien.",
+      "accept": "J'accepte",
+      "decline": "Je refuse",
+      "stop": "Ne plus recevoir de messages",
+      "resume": "Recevoir à nouveau les messages",
+      "confirmed": "C'est noté : vous êtes le contact de confiance de {name}.",
+      "declined": "C'est noté : vous ne recevrez aucun message de la part de {name}.",
+      "notFoundTitle": "Lien invalide",
+      "notFound": "Ce lien n'existe pas ou n'est plus valide.",
+      "error": "Impossible d'enregistrer votre réponse, réessayez."
+    }
   }
 }

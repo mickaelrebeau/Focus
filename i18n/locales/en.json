@@ -598,5 +598,42 @@
       "regenerateHint": "Changing the link or turning the profile off makes the old link stop working immediately.",
       "error": "Could not update the public profile"
     }
+  },
+  "accountability": {
+    "setupTitle": "Message to someone you trust",
+    "setupHint": "Pick someone you trust. They first get an invitation, and no message is sent until they accept.",
+    "contactEmail": "Contact's email",
+    "contactName": "Contact's first name",
+    "contactNamePlaceholder": "Optional",
+    "message": "Message sent after a miss",
+    "messageHint": "Variables: {'{nom}'} (your name), {'{objectif}'} (goal), {'{date}'} (DD/MM). At most one message a day.",
+    "defaultMessage": "{'{nom}'} didn't keep their commitment “{'{objectif}'}” on {'{date}'}.",
+    "consent": "I agree that an email is sent to this contact each time I miss a commitment, if they agree too.",
+    "sendInvitation": "Send invitation",
+    "invited": "Invitation sent. Messages will start once your contact accepts.",
+    "defaultLabel": "once your contact agrees",
+    "status": {
+      "pending": "Waiting for your contact",
+      "confirmed": "Contact confirmed",
+      "declined": "Your contact declined"
+    },
+    "statusHint": {
+      "pending": "No message is sent until they accept. Saving again resends the invitation (once every 24 h).",
+      "confirmed": "They get an email after a miss, at most one a day.",
+      "declined": "No message will be sent to them. Pick another contact."
+    },
+    "page": {
+      "title": "{name} picked you as their accountability contact",
+      "intro": "{name} uses Focus to keep their commitments. If you accept, you'll get an email when they miss one, at most one a day. You can stop at any time from this link.",
+      "accept": "I accept",
+      "decline": "No thanks",
+      "stop": "Stop receiving messages",
+      "resume": "Receive messages again",
+      "confirmed": "Done: you're now {name}'s accountability contact.",
+      "declined": "Done: you won't receive any message about {name}.",
+      "notFoundTitle": "Invalid link",
+      "notFound": "This link doesn't exist or is no longer valid.",
+      "error": "Could not save your answer, please try again."
+    }
   }
 }
