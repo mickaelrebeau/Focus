@@ -7,7 +7,7 @@ import StripePaymentSetup from '~/components/consequences/StripePaymentSetup.vue
 import { formatEuroFromCents, useConsequenceStats } from '~/composables/useConsequences'
 import type { AppIconName } from '~/types/app-icon'
 
-const { user, fetchUser, logout, isAdmin } = useAuth()
+const { user, fetchUser, logout, deleteAccount, isAdmin } = useAuth()
 const { isEnabled: userjotEnabled, showFeedback } = useUserjot()
 const pwa = usePWA()
 const { data: goalsData } = useGoals()
@@ -26,6 +26,12 @@ const profileSaved = ref(false)
 const passwordSaved = ref(false)
 const profileError = ref('')
 const passwordError = ref('')
+
+const deleteOpen = ref(false)
+const deleteEmail = ref('')
+const deletePassword = ref('')
+const deleteLoading = ref(false)
+const deleteError = ref('')
 
 const currentPassword = ref('')
 const newPassword = ref('')
@@ -112,6 +118,34 @@ async function saveProfile() {
     profileError.value = error?.data?.message ?? 'Impossible d\'enregistrer les réglages'
   } finally {
     profileLoading.value = false
+  }
+}
+
+const canConfirmDelete = computed(() =>
+  deleteEmail.value.trim().toLowerCase() === user.value?.email.toLowerCase()
+  && (user.value?.hasPassword === false || deletePassword.value.length > 0),
+)
+
+function cancelDelete() {
+  deleteOpen.value = false
+  deleteEmail.value = ''
+  deletePassword.value = ''
+  deleteError.value = ''
+}
+
+async function confirmDelete() {
+  deleteError.value = ''
+  deleteLoading.value = true
+  try {
+    await deleteAccount({
+      confirmEmail: deleteEmail.value,
+      password: user.value?.hasPassword === false ? undefined : deletePassword.value,
+    })
+    await navigateTo({ path: '/connexion', query: { compte: 'supprime' } })
+  } catch (error: any) {
+    deleteError.value = error?.data?.message ?? t('accountData.deleteError')
+  } finally {
+    deleteLoading.value = false
   }
 }
 
@@ -395,6 +429,56 @@ async function changePassword() {
       <AppUiButton variant="secondary" class="mt-4" @click="showFeedback">
         Donner un avis
       </AppUiButton>
+    </AppUiCard>
+
+    <AppUiCard :title="t('accountData.title')" class="mt-4">
+      <p class="text-sm text-app-secondary">{{ t('accountData.intro') }}</p>
+
+      <div class="mt-5 space-y-2">
+        <h3 class="text-sm font-semibold text-app-ink">{{ t('accountData.exportTitle') }}</h3>
+        <p class="text-sm text-app-secondary">{{ t('accountData.exportHint') }}</p>
+        <!-- Lien classique : le navigateur télécharge le fichier avec le cookie de session -->
+        <a href="/api/user/export" download class="app-button-secondary inline-flex">
+          {{ t('accountData.exportButton') }}
+        </a>
+      </div>
+
+      <div class="mt-6 space-y-2 border-t border-app-line pt-5">
+        <h3 class="text-sm font-semibold text-red-500">{{ t('accountData.deleteTitle') }}</h3>
+        <p class="text-sm text-app-secondary">{{ t('accountData.deleteHint') }}</p>
+        <p v-if="isAdmin" class="text-sm text-app-secondary">{{ t('accountData.adminBlocked') }}</p>
+        <AppUiButton
+          v-else-if="!deleteOpen"
+          variant="ghost"
+          class="!px-0 !text-red-500"
+          @click="deleteOpen = true"
+        >
+          {{ t('accountData.deleteStart') }}
+        </AppUiButton>
+        <form v-else class="max-w-lg space-y-4 pt-2" @submit.prevent="confirmDelete">
+          <p class="text-sm font-semibold text-app-ink">{{ t('accountData.exportFirst') }}</p>
+          <AppUiInput
+            v-model="deleteEmail"
+            :label="t('accountData.confirmEmail', { email: user?.email })"
+            type="email"
+            autocomplete="off"
+          />
+          <AppUiInput
+            v-if="user?.hasPassword !== false"
+            v-model="deletePassword"
+            :label="t('accountData.password')"
+            type="password"
+            autocomplete="current-password"
+          />
+          <p v-if="deleteError" class="text-sm text-red-500">{{ deleteError }}</p>
+          <div class="flex flex-wrap items-center gap-3">
+            <AppUiButton type="submit" class="!bg-red-600" :disabled="!canConfirmDelete" :loading="deleteLoading">
+              {{ t('accountData.deleteConfirm') }}
+            </AppUiButton>
+            <AppUiButton variant="ghost" @click="cancelDelete">{{ t('common.cancel') }}</AppUiButton>
+          </div>
+        </form>
+      </div>
     </AppUiCard>
 
     <AppUiCard title="Compte" class="mt-4">

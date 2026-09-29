@@ -77,6 +77,8 @@ export const users = pgTable('users', {
   stripePaymentMethodLast4: text('stripe_payment_method_last4'),
   stripePaymentMethodExpMonth: integer('stripe_payment_method_exp_month'),
   stripePaymentMethodExpYear: integer('stripe_payment_method_exp_year'),
+  // Suppression demandée : compte inaccessible, purge par le worker (0017_account_deletion.sql)
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
@@ -196,7 +198,7 @@ export const validations = pgTable('validations', {
   proofType: proofTypeEnum('proof_type'),
   proofContent: text('proof_content'),
   proofUrl: text('proof_url'),
-  reviewedBy: uuid('reviewed_by').references(() => users.id),
+  reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
   reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
   reviewNote: text('review_note'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -433,7 +435,7 @@ export const notifications = pgTable('notifications', {
 
 export const challenges = pgTable('challenges', {
   id: uuid('id').primaryKey().defaultRandom(),
-  creatorId: uuid('creator_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  creatorId: uuid('creator_id').references(() => users.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   metric: text('metric', { enum: ['perfect_days', 'completed_occurrences'] }).notNull(),
   weekStart: date('week_start').notNull(),
@@ -543,7 +545,7 @@ export const stripePayments = pgTable('stripe_payments', {
 
 export const auditLogs = pgTable('audit_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
-  actorId: uuid('actor_id').references(() => users.id),
+  actorId: uuid('actor_id').references(() => users.id, { onDelete: 'set null' }),
   action: text('action').notNull(),
   entityType: text('entity_type').notNull(),
   entityId: text('entity_id'),

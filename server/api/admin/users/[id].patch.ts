@@ -11,6 +11,17 @@ export default defineEventHandler(async (event) => {
   const db = useDatabase()
 
   const body = await readBody(event)
+
+  // Compte supprimé par son titulaire : le débloquer le rendrait de nouveau actif
+  const [target] = await db
+    .select({ deletedAt: schema.users.deletedAt })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .limit(1)
+  if (target?.deletedAt && body.isBlocked === false) {
+    throw createError({ statusCode: 409, message: 'Compte supprimé : il ne peut pas être débloqué' })
+  }
+
   const [updated] = await db
     .update(schema.users)
     .set({

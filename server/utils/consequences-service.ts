@@ -107,6 +107,19 @@ export async function executeConsequenceHistory(historyId: string) {
     if (row.status === 'completed' || row.status === 'cancelled') return null
     if (row.status === 'processing') return null
 
+    // Compte supprimé entre l'échec et l'exécution : rien ne doit plus être prélevé
+    const [owner] = await tx
+      .select({ deletedAt: schema.users.deletedAt })
+      .from(schema.users)
+      .where(eq(schema.users.id, row.userId))
+    if (owner?.deletedAt) {
+      await tx
+        .update(schema.consequenceHistory)
+        .set({ status: 'cancelled' })
+        .where(eq(schema.consequenceHistory.id, historyId))
+      return null
+    }
+
     await tx
       .update(schema.consequenceHistory)
       .set({ status: 'processing' })

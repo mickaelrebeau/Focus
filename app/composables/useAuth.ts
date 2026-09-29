@@ -74,6 +74,18 @@ export function useAuth() {
     await navigateTo('/connexion')
   }
 
+  // Suppression définitive du compte : la session est révoquée côté serveur
+  async function deleteAccount(body: { confirmEmail: string, password?: string }) {
+    const result = await $fetch<{ purgeAt: string | null }>('/api/user/delete-account', {
+      method: 'POST',
+      body,
+      ...fetchOptions,
+    })
+    await clearOfflineCaches()
+    user.value = null
+    return result
+  }
+
   async function loginWithGoogle() {
     await clearOfflineCaches()
     window.location.href = '/api/auth/google'
@@ -90,6 +102,7 @@ export function useAuth() {
     login,
     register,
     logout,
+    deleteAccount,
     loginWithGoogle,
   }
 }

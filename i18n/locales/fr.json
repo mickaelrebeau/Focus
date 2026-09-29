@@ -48,7 +48,8 @@
       "subtitle": "Accédez à votre espace Focus",
       "submit": "Se connecter",
       "forgotPassword": "Mot de passe oublié ?",
-      "createAccount": "Créer un compte"
+      "createAccount": "Créer un compte",
+      "accountDeleted": "Votre compte a été supprimé. Merci d'avoir utilisé Focus."
     },
     "register": {
       "title": "Créer un compte",
@@ -473,5 +474,21 @@
       "closed": "Ce défi est clôturé.",
       "generic": "Une erreur est survenue. Réessayez."
     }
+  },
+  "accountData": {
+    "title": "Vos données",
+    "intro": "Téléchargez une copie de toutes vos données ou supprimez définitivement votre compte.",
+    "exportTitle": "Exporter mes données",
+    "exportHint": "Fichier JSON : profil, objectifs, échéances, preuves, crédits, conséquences, défis et notifications. Aucun mot de passe, jeton ni identifiant de paiement.",
+    "exportButton": "Télécharger l'export",
+    "deleteTitle": "Supprimer mon compte",
+    "deleteHint": "Irréversible. Votre compte est fermé immédiatement : objectifs arrêtés, conséquences en attente annulées, défis quittés, binôme révoqué, preuves et carte bancaire effacées. Le reste de vos données est purgé définitivement à la fin du délai de conservation de l'instance (30 jours par défaut).",
+    "exportFirst": "Pensez à exporter vos données avant : elles ne pourront pas être récupérées.",
+    "deleteStart": "Supprimer mon compte…",
+    "confirmEmail": "Saisissez votre email ({email}) pour confirmer",
+    "password": "Mot de passe",
+    "deleteConfirm": "Supprimer définitivement",
+    "deleteError": "Impossible de supprimer le compte",
+    "adminBlocked": "Les comptes administrateur ne peuvent pas être supprimés depuis l'application."
   }
 }

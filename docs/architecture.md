@@ -12,6 +12,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Mode pause / vacances](#mode-pause--vacances)
 - [Binôme de responsabilité](#binôme-de-responsabilité)
 - [Défis entre amis](#défis-entre-amis)
+- [Export et suppression de compte](#export-et-suppression-de-compte)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
 - [Notifications push](#notifications-push)
 - [Mode hors ligne (PWA)](#mode-hors-ligne-pwa)
@@ -90,6 +91,8 @@ Un job répétable `tick` est planifié toutes les 15 minutes dans la file `focu
 2. `generateUpcomingOccurrences()` : fenêtre glissante de 30 jours
 3. `processStreaksAfterExpiration()` : [clôture des jours passés](#streak-et-clôture-journalière) pour tous les utilisateurs non bloqués
 4. `runLeaderboardJobs()` : snapshot quotidien du classement, et le lundi, `settlePreviousWeekRewards()` (bonus du top de la semaine écoulée), voir `server/utils/leaderboard.ts`
+5. `closeFinishedChallenges()` : clôture des [défis](#défis-entre-amis) de la semaine écoulée
+6. `purgeDeletedAccounts()` : purge des [comptes supprimés](#export-et-suppression-de-compte) depuis plus de `ACCOUNT_PURGE_DELAY_DAYS` jours
 
 Une erreur dans un tick est journalisée mais ne fait pas échouer le job : le tick suivant repasse sur les mêmes données.
 
@@ -210,6 +213,14 @@ Code : `server/utils/challenges.ts`, `server/api/challenges/*`, pages `app/pages
 - **Classement** calculé à la lecture pendant la semaine, figé à la clôture (`final_score`, `final_rank`, `payout`). Les ex æquo partagent le rang ; seuls prénoms et scores sont exposés.
 - **Clôture** par le worker `deadlines` (`closeFinishedChallenges`) à partir du lundi 12:00 UTC suivant la semaine, quand le dimanche est terminé dans tous les fuseaux. Transaction avec verrou sur le défi, ignorée si `closed_at` est renseigné (idempotente). La cagnotte va aux premiers (partage en cas d’égalité, le reste au premier inscrit, `challenge_payout`). Moins de 2 participants restants : défi annulé, mises remboursées.
 - **Notification** de fin : notification in-app et push `challenge_closed` (préférence `challenge_results`).
+
+## Export et suppression de compte
+
+Droits RGPD d’accès et d’effacement ; rétention et responsabilités de l’hébergeur dans [self-hosting.md](./self-hosting.md#données-personnelles-rgpd).
+
+- **Export** (`GET /api/user/export`, `server/utils/account-export.ts`) : chaque requête sélectionne ses colonnes, puis `redactSecrets()` retire en profondeur toute clé sensible (jetons, empreintes, clés push, identifiants Stripe et Google), y compris dans les champs JSON `metadata` et `config`.
+- **Suppression** (`POST /api/user/delete-account`, `server/utils/account-deletion.ts`) : `softDeleteAccount()` pose `deleted_at` et `is_blocked`. Tout ce qui filtre déjà les comptes bloqués (sessions, classement, streaks, push, tirage « utilisateur au hasard ») l’ignore donc sans code dédié. Elle passe aussi les échéances en attente à `skipped` et les conséquences en attente à `cancelled`, pour qu’aucun échec ni paiement ne suive la demande ; `executeConsequenceHistory()` annule aussi un job arrivé après coup. Preuves S3 et client Stripe sont effacés dans la requête, car les workers n’ont pas ces secrets.
+- **Purge** : `purgeDeletedAccounts()` supprime la ligne `users`, le reste suit par `ON DELETE CASCADE`. Les références qui doivent survivre (auteur d’audit, modérateur, créateur d’un défi) passent à `NULL` (migration `0017_account_deletion.sql`). Toute nouvelle table liée à `users` doit choisir entre `CASCADE` et `SET NULL`, sinon la purge échoue.
 
 ## Pipeline des conséquences
 

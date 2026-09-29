@@ -48,7 +48,8 @@
       "subtitle": "Access your Focus space",
       "submit": "Log in",
       "forgotPassword": "Forgot password?",
-      "createAccount": "Create an account"
+      "createAccount": "Create an account",
+      "accountDeleted": "Your account has been deleted. Thanks for using Focus."
     },
     "register": {
       "title": "Create an account",
@@ -527,5 +528,21 @@
       "closed": "This challenge is closed.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "accountData": {
+    "title": "Your data",
+    "intro": "Download a copy of all your data or permanently delete your account.",
+    "exportTitle": "Export my data",
+    "exportHint": "JSON file: profile, goals, deadlines, proofs, credits, consequences, challenges and notifications. No passwords, tokens or payment identifiers.",
+    "exportButton": "Download export",
+    "deleteTitle": "Delete my account",
+    "deleteHint": "This cannot be undone. Your account is closed right away: goals stopped, pending consequences cancelled, challenges left, partner revoked, proofs and card removed. The rest of your data is permanently purged at the end of the instance's retention period (30 days by default).",
+    "exportFirst": "Export your data first: it cannot be recovered afterwards.",
+    "deleteStart": "Delete my account…",
+    "confirmEmail": "Type your email ({email}) to confirm",
+    "password": "Password",
+    "deleteConfirm": "Delete permanently",
+    "deleteError": "Could not delete the account",
+    "adminBlocked": "Administrator accounts cannot be deleted from the app."
   }
 }
