@@ -16,3 +16,4 @@ export type AppIconName =
   | 'check'
   | 'close'
   | 'menu'
+  | 'lock'

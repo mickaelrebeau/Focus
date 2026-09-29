@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
+const { t } = useI18n()
 const { data: goalsData, isPending: goalsLoading } = useGoals()
 
 const typeLabels: Record<string, string> = {
@@ -57,6 +58,12 @@ const typeLabels: Record<string, string> = {
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <span class="app-chip-neutral">{{ typeLabels[goal.type] ?? goal.type }}</span>
+            <span
+              v-if="goal.dependencyMode === 'hard' && goal.lockState && goal.lockState !== 'unlocked'"
+              class="app-chip-neutral ml-1"
+            >
+              {{ t(`dependencies.list.${goal.lockState}`) }}
+            </span>
             <h3 class="mt-2 truncate text-base font-semibold tracking-tight text-app-ink">
               {{ goal.title }}
             </h3>

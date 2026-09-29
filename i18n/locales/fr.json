@@ -581,5 +581,41 @@
       "notFound": "Ce lien n'existe pas ou n'est plus valide.",
       "error": "Impossible d'enregistrer votre réponse, réessayez."
     }
+  },
+  "dependencies": {
+    "mode": {
+      "hard": "Strict",
+      "hardHint": "Rien n'est à faire (ni ne peut échouer) avant la réussite du prérequis. Si une date passe entre-temps, l'échéance est ramenée au jour du déblocage.",
+      "soft": "Indicatif",
+      "softHint": "L'ordre est seulement affiché : toutes les échéances sont créées normalement."
+    },
+    "form": {
+      "sequential": "Jalons dans l'ordre",
+      "sequentialHint": "Chaque jalon attend la réussite du précédent.",
+      "after": "Débloqué après",
+      "none": "Aucun prérequis",
+      "afterHint": "L'objectif commence une fois celui-ci réussi. Les objectifs récurrents ne peuvent pas servir de prérequis : ils ne sont jamais terminés.",
+      "mode": "Verrouillage"
+    },
+    "list": {
+      "locked": "Verrouillé",
+      "blocked": "Bloqué"
+    },
+    "goal": {
+      "locked": "Verrouillé jusqu'à la réussite de « {title} ».",
+      "lockedSoft": "Recommandé après « {title} ».",
+      "blocked": "Bloqué : « {title} » n'a pas été réussi.",
+      "unlocked": "Débloqué : « {title} » est réussi.",
+      "view": "Voir l'objectif"
+    },
+    "milestone": {
+      "locked": "Verrouillé",
+      "lockedHint": "Après la réussite de l'étape {n}.",
+      "lockedSoft": "Recommandé après l'étape {n}",
+      "blocked": "Bloqué",
+      "blockedHint": "L'étape {n} a échoué."
+    },
+    "unlockAnyway": "Débloquer quand même",
+    "unlockError": "Impossible de débloquer"
   }
 }

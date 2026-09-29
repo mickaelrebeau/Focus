@@ -5,6 +5,8 @@ import { completeOccurrenceSchema, parseBody } from '../../../utils/validation'
 import { rewardCompletion } from '../../../utils/credits'
 import { reevaluateUserDay, syncTodayStreak } from '../../../utils/streaks'
 import { getTodayInTimezone } from '../../../utils/occurrences'
+import { generateUpcomingOccurrences } from '../../../utils/goals-service'
+import { hasDependents } from '../../../utils/dependency-service'
 import { consumeProofRequirement, getPendingProofRequirement } from '../../../consequences/providers/mandatory-proof'
 
 function hasProofPayload(data: {
@@ -78,6 +80,11 @@ export default defineEventHandler(async (event) => {
   await rewardCompletion(user.id, row.goal.rewardCredits, id, row.goal.id)
 
   const timezone = user.timezone ?? 'Europe/Paris'
+  // Réussite d'un prérequis (objectif ou jalon) : générer tout de suite ce qu'elle débloque
+  if (await hasDependents(row.goal.id)) {
+    await generateUpcomingOccurrences(undefined, { userId: user.id })
+  }
+
   // Échéance reportée : sa journée (la veille) peut maintenant être clôturée en réussite
   if (row.occurrence.dueDate !== getTodayInTimezone(timezone)) {
     await reevaluateUserDay(user.id, row.occurrence.dueDate, timezone)
