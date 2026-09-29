@@ -27,6 +27,31 @@ const passwordSaved = ref(false)
 const profileError = ref('')
 const passwordError = ref('')
 
+const config = useRuntimeConfig()
+const publicProfileLoading = ref(false)
+const publicProfileError = ref('')
+const publicLinkCopied = ref(false)
+const publicProfileUrl = computed(() => user.value?.publicSlug ? `${config.public.appUrl}/u/${user.value.publicSlug}` : '')
+
+async function updatePublicProfile(enabled: boolean, regenerate = false) {
+  publicProfileError.value = ''
+  publicLinkCopied.value = false
+  publicProfileLoading.value = true
+  try {
+    await $fetch('/api/user/public-profile', { method: 'PATCH', body: { enabled, regenerate }, credentials: 'include' })
+    await fetchUser()
+  } catch (error: any) {
+    publicProfileError.value = error?.data?.message ?? t('publicProfile.settings.error')
+  } finally {
+    publicProfileLoading.value = false
+  }
+}
+
+async function copyPublicLink() {
+  await navigator.clipboard.writeText(publicProfileUrl.value)
+  publicLinkCopied.value = true
+}
+
 const deleteOpen = ref(false)
 const deleteEmail = ref('')
 const deletePassword = ref('')
@@ -331,6 +356,33 @@ async function changePassword() {
         <p v-if="profileError" class="text-sm text-red-500">{{ profileError }}</p>
       </div>
     </form>
+
+    <AppUiCard id="profil-public" :title="t('publicProfile.settings.title')" class="mt-4">
+      <div class="space-y-4">
+        <AppUiToggle
+          :model-value="Boolean(user?.publicSlug)"
+          :label="t('publicProfile.settings.toggle')"
+          :description="t('publicProfile.settings.hint')"
+          :disabled="publicProfileLoading"
+          @update:model-value="updatePublicProfile($event)"
+        />
+        <div v-if="publicProfileUrl" class="space-y-3">
+          <AppUiInput :model-value="publicProfileUrl" :label="t('publicProfile.settings.link')" disabled />
+          <div class="flex flex-wrap items-center gap-3">
+            <NuxtLink :to="`/u/${user?.publicSlug}`" class="app-button-secondary inline-flex">
+              {{ t('publicProfile.settings.view') }}
+            </NuxtLink>
+            <AppUiButton variant="secondary" @click="copyPublicLink">{{ t('publicProfile.copyLink') }}</AppUiButton>
+            <AppUiButton variant="ghost" :disabled="publicProfileLoading" @click="updatePublicProfile(true, true)">
+              {{ t('publicProfile.settings.regenerate') }}
+            </AppUiButton>
+          </div>
+          <p class="text-xs text-app-secondary">{{ t('publicProfile.settings.regenerateHint') }}</p>
+          <p v-if="publicLinkCopied" class="text-sm text-emerald-600">{{ t('publicProfile.copied') }}</p>
+        </div>
+        <p v-if="publicProfileError" class="text-sm text-red-500">{{ publicProfileError }}</p>
+      </div>
+    </AppUiCard>
 
     <AppUiCard title="Sécurité" class="mt-4">
       <form class="max-w-lg space-y-5" @submit.prevent="changePassword">

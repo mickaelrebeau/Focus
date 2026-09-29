@@ -10,6 +10,7 @@ export interface AuthUser {
   onboardingCompleted: boolean
   leaderboardOptIn?: boolean
   graceMinutes?: number
+  publicSlug?: string | null
   hasPassword?: boolean
   hasPaymentMethod?: boolean
   paymentMethodBrand?: string

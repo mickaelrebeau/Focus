@@ -201,6 +201,7 @@ export async function buildAccountExport(userId: string) {
       timezone: user.timezone,
       leaderboardOptIn: user.leaderboardOptIn,
       graceMinutes: user.graceMinutes,
+      publicProfileSlug: user.publicSlug,
       onboardingCompleted: user.onboardingCompleted,
       // Des valeurs, pas des clés : redactSecrets retirerait une clé « password »
       loginMethods: [user.passwordHash && 'password', user.googleId && 'google'].filter(Boolean),

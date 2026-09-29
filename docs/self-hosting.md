@@ -202,6 +202,8 @@ Ce qui reste après la purge, sans lien avec la personne :
 - les validations qu’elle a modérées, si elle était administratrice (modérateur à `NULL`) ;
 - les sauvegardes de la base : elles suivent **votre** politique de rétention. Documentez-la, et ne restaurez pas une sauvegarde sans repurger les comptes supprimés depuis.
 
+**Profil public.** Désactivé par défaut pour chaque compte. Une fois activé par l'utilisateur, la page `/u/:slug` montre à quiconque a le lien le nom d'affichage, la série et les badges, rien d'autre. Elle est marquée `noindex` ; le lien s'invalide dès que l'utilisateur le change ou désactive le profil.
+
 Chez Stripe, les paiements déjà effectués restent dans votre compte Stripe, qui les conserve pour ses propres obligations légales.
 
 Les comptes administrateur ne peuvent pas se supprimer depuis l’app : retirez d’abord le rôle (et changez `ADMIN_EMAIL`), ou supprimez le compte en base.
