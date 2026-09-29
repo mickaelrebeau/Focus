@@ -8,6 +8,7 @@ import { processStreaksAfterExpiration } from '../utils/streaks'
 import { runLeaderboardJobs } from '../utils/leaderboard'
 import { processPushReminders } from '../utils/push'
 import { closeFinishedChallenges } from '../utils/challenges'
+import { purgeDeletedAccounts } from '../utils/account-deletion'
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
 
@@ -24,7 +25,8 @@ async function runTick() {
     const leaderboard = await runLeaderboardJobs()
     // Après la clôture des journées (streaks) : scores définitifs de la semaine
     const challenges = await closeFinishedChallenges()
-    console.log('[Worker] Done:', { expired, generated, streaks, leaderboard, challenges })
+    const accounts = await purgeDeletedAccounts()
+    console.log('[Worker] Done:', { expired, generated, streaks, leaderboard, challenges, accounts })
   } catch (error) {
     console.error('[Worker] Tick failed:', error)
     throw error

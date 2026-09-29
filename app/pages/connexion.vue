@@ -5,6 +5,7 @@ const route = useRoute()
 const email = ref('')
 const password = ref('')
 const error = ref('')
+const accountDeleted = computed(() => route.query.compte === 'supprime')
 const loading = ref(false)
 const { login } = useAuth()
 const { t } = useI18n()
@@ -46,6 +47,9 @@ async function handleLogin() {
       </div>
       <h1 class="focus-heading-lg text-center">{{ t('auth.login.title') }}</h1>
       <p class="focus-body mt-2 text-center">{{ t('auth.login.subtitle') }}</p>
+      <p v-if="accountDeleted" role="status" class="mt-6 rounded-lg bg-focus-gray-50 px-4 py-3 text-center text-sm text-focus-gray-700">
+        {{ t('auth.login.accountDeleted') }}
+      </p>
 
       <div class="mt-8">
         <GoogleAuthButton />

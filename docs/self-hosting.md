@@ -14,6 +14,7 @@ Ce guide liste, étape par étape, ce qu’il faut pour faire tourner votre prop
   - [7. Stripe (optionnel)](#7-stripe-optionnel)
   - [8. Notifications push (optionnel)](#8-notifications-push-optionnel)
   - [9. Vérifications finales](#9-vérifications-finales)
+- [Données personnelles (RGPD)](#données-personnelles-rgpd)
 - [Référence des variables](#référence-des-variables)
 - [Limites connues](#limites-connues)
 
@@ -74,7 +75,7 @@ En local, `docker compose up -d` fournit les deux (voir le [README](../README.md
 
 Les deux workers se lancent depuis le **dépôt complet** (ils s’exécutent avec `tsx`, pas depuis `.output`). Ils ont besoin de `DATABASE_URL` et `REDIS_URL`, et lisent aussi un fichier `.env` dans le répertoire courant s’il existe.
 
-- [ ] **deadlines** : `pnpm worker`. Un passage au démarrage, puis toutes les 15 minutes : expiration des échéances, génération des 30 prochains jours, clôture des jours passés (streaks), classement quotidien et bonus du lundi.
+- [ ] **deadlines** : `pnpm worker`. Un passage au démarrage, puis toutes les 15 minutes : expiration des échéances, génération des 30 prochains jours, clôture des jours passés (streaks), classement quotidien et bonus du lundi, purge des comptes supprimés (voir [RGPD](#données-personnelles-rgpd)).
 - [ ] **consequences** : `pnpm worker:consequences`. Exécute les conséquences mises en file lors d’un échec (5 en parallèle, 3 tentatives). Il a besoin de `STRIPE_SECRET_KEY` si Stripe est activé. Au démarrage, il reprend les conséquences restées en attente.
 - [ ] Un seul exemplaire de chaque worker suffit. Un verrou Redis évite de toute façon un double traitement des échéances.
 
@@ -173,10 +174,37 @@ Sur iPhone et iPad, les notifications ne fonctionnent que si Focus est installé
 | `VAPID_SUBJECT` | Push | `VAPID_SUBJECT` | Contact de l’instance (`mailto:` ou URL), `APP_URL` par défaut |
 | `REGISTER_RATE_LIMIT` | — | `REGISTER_RATE_LIMIT` | Inscriptions par heure et par IP (10 par défaut) |
 | `LOGIN_RATE_LIMIT` | — | `LOGIN_RATE_LIMIT` | Tentatives de connexion par quart d’heure et par IP (20 par défaut) |
+| `DELETE_ACCOUNT_RATE_LIMIT` | — | `DELETE_ACCOUNT_RATE_LIMIT` | Tentatives de suppression de compte par quart d’heure et par compte (5 par défaut) |
+| `ACCOUNT_PURGE_DELAY_DAYS` | — | `ACCOUNT_PURGE_DELAY_DAYS` | Jours entre la suppression d’un compte et sa purge en base (30 par défaut, `0` = au passage suivant). Lue par le worker deadlines |
 | `USERJOT_PROJECT_ID` | — | `NUXT_PUBLIC_USERJOT_PROJECT_ID` | Widget de feedback [UserJot](https://userjot.com) |
 | `USERJOT_SECRET_KEY` | — | `NUXT_USERJOT_SECRET_KEY` | Identification signée des utilisateurs UserJot |
 
 `SESSION_SECRET`, présent dans `.env.example`, n’est pas utilisé par le code actuel : les sessions sont des jetons aléatoires stockés en base.
+
+## Données personnelles (RGPD)
+
+En auto-hébergement, **vous êtes responsable du traitement** des données de votre instance. Focus fournit les outils du droit d’accès et du droit à l’effacement ; l’information des utilisateurs (mentions légales, politique de confidentialité, base légale) reste à votre charge.
+
+**Export (droit d’accès et portabilité).** Réglages → Vos données → « Télécharger l’export » (`GET /api/user/export`) produit un fichier JSON avec le profil, le portefeuille, les objectifs et jalons, les échéances, les validations et preuves, le ledger de crédits, les conséquences configurées et leur historique, streaks, classement, pauses, binômes, défis, dons, paiements, notifications et appareils push. Il ne contient ni empreinte de mot de passe, ni jeton de session ou d’invitation, ni clé push, ni identifiant Stripe ou Google, ni l’identité des autres utilisateurs (binôme, destinataire d’un transfert, modérateur). Chaque export est tracé dans le journal d’audit.
+
+**Suppression (droit à l’effacement).** Réglages → Vos données → « Supprimer mon compte », confirmé par l’email du compte et le mot de passe (l’email seul pour un compte Google sans mot de passe). La suppression est irréversible pour l’utilisateur et se fait en deux temps :
+
+1. **Immédiatement** : le compte est bloqué et marqué supprimé (`users.deleted_at`), toutes ses sessions sont révoquées, ses objectifs désactivés, ses échéances en attente passées « skipped » et ses conséquences en attente annulées (aucun paiement ne part après la demande). Il quitte ses défis en cours, son binôme est révoqué, ses abonnements push sont supprimés, ses photos de preuve sont effacées du bucket S3 et son client Stripe est supprimé avec ses moyens de paiement. Il disparaît du classement et des tirages « utilisateur au hasard ».
+2. **Après `ACCOUNT_PURGE_DELAY_DAYS` jours** (30 par défaut) : le worker deadlines supprime la ligne `users`, et avec elle, par cascade, toutes les données rattachées au compte.
+
+Pendant ce délai, les données restent en base (inaccessibles depuis l’app) : il laisse le temps de traiter une contestation ou un paiement en cours. Un administrateur ne peut pas débloquer un compte supprimé. Pour purger sans attendre, mettez `ACCOUNT_PURGE_DELAY_DAYS=0` sur le worker deadlines.
+
+Ce qui reste après la purge, sans lien avec la personne :
+
+- le journal d’audit (`audit_logs`) : l’auteur passe à `NULL`, l’identifiant technique du compte reste dans `entity_id` ;
+- les défis qu’elle a créés, pour les autres participants (organisateur à `NULL`) ;
+- les mouvements de crédits des **autres** utilisateurs qui la concernaient (transferts reçus, gains de défis) ;
+- les validations qu’elle a modérées, si elle était administratrice (modérateur à `NULL`) ;
+- les sauvegardes de la base : elles suivent **votre** politique de rétention. Documentez-la, et ne restaurez pas une sauvegarde sans repurger les comptes supprimés depuis.
+
+Chez Stripe, les paiements déjà effectués restent dans votre compte Stripe, qui les conserve pour ses propres obligations légales.
+
+Les comptes administrateur ne peuvent pas se supprimer depuis l’app : retirez d’abord le rôle (et changez `ADMIN_EMAIL`), ou supprimez le compte en base.
 
 ## Limites connues
 

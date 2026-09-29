@@ -194,7 +194,10 @@ async function findByToken(token: string) {
 export async function getInvitation(token: string) {
   const challenge = await findByToken(token)
   const db = useDatabase()
-  const [creator] = await db.select({ displayName: schema.users.displayName }).from(schema.users).where(eq(schema.users.id, challenge.creatorId)).limit(1)
+  // Créateur purgé (compte supprimé) : le défi reste, sans nom d'organisateur
+  const [creator] = challenge.creatorId
+    ? await db.select({ displayName: schema.users.displayName }).from(schema.users).where(eq(schema.users.id, challenge.creatorId)).limit(1)
+    : []
   const [counted] = await db
     .select({ participants: sql<number>`count(*)::int` })
     .from(schema.challengeParticipants)

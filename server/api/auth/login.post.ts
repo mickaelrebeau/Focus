@@ -32,6 +32,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
   }
 
+  if (user.user.deletedAt) {
+    throw createError({ statusCode: 403, message: 'Ce compte a été supprimé' })
+  }
+
   if (user.user.isBlocked) {
     throw createError({ statusCode: 403, message: 'Compte suspendu' })
   }

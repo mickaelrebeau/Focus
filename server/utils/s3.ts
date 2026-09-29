@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { DeleteObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 
 const MAX_PROOF_BYTES = 5 * 1024 * 1024
 
@@ -60,4 +60,30 @@ export async function uploadProofImage(userId: string, data: Buffer, contentType
     key,
     url: buildPublicUrl(key),
   }
+}
+
+/** Supprime toutes les preuves d'un utilisateur (suppression de compte). Sans S3 configuré : rien à faire. */
+export async function deleteUserProofs(userId: string) {
+  const config = useRuntimeConfig()
+  if (!config.s3Bucket || !config.s3Endpoint || !config.s3AccessKey || !config.s3SecretKey) return 0
+
+  const client = getS3Client()
+  let deleted = 0
+  let continuationToken: string | undefined
+
+  do {
+    const page = await client.send(new ListObjectsV2Command({
+      Bucket: config.s3Bucket,
+      Prefix: `proofs/${userId}/`,
+      ContinuationToken: continuationToken,
+    }))
+    const keys = (page.Contents ?? []).flatMap(item => item.Key ? [{ Key: item.Key }] : [])
+    if (keys.length) {
+      await client.send(new DeleteObjectsCommand({ Bucket: config.s3Bucket, Delete: { Objects: keys, Quiet: true } }))
+      deleted += keys.length
+    }
+    continuationToken = page.IsTruncated ? page.NextContinuationToken : undefined
+  } while (continuationToken)
+
+  return deleted
 }
