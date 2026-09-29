@@ -169,6 +169,7 @@ function openComplete(id: string) {
             v-for="occ in selectedDayOccurrences"
             :key="occ.id"
             :occurrence="occ"
+            :postpone-remaining="occurrencesData?.postpone?.remaining ?? 0"
             @complete="openComplete"
           />
         </div>

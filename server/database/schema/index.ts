@@ -177,6 +177,8 @@ export const occurrences = pgTable('occurrences', {
   dueAt: timestamp('due_at', { withTimezone: true }).notNull(),
   status: occurrenceStatusEnum('status').notNull().default('pending'),
   weekKey: text('week_key'),
+  // Heure limite avant un report d'un jour (0018_postponements.sql), null sinon
+  originalDueAt: timestamp('original_due_at', { withTimezone: true }),
   processedAt: timestamp('processed_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
@@ -205,6 +207,18 @@ export const validations = pgTable('validations', {
 }, (table) => [
   index('validations_status_idx').on(table.status),
   index('validations_user_id_idx').on(table.userId),
+])
+
+export const occurrencePostponements = pgTable('occurrence_postponements', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  occurrenceId: uuid('occurrence_id').notNull().references(() => occurrences.id, { onDelete: 'cascade' }).unique(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  weekStart: date('week_start').notNull(),
+  originalDueAt: timestamp('original_due_at', { withTimezone: true }).notNull(),
+  newDueAt: timestamp('new_due_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('occurrence_postponements_user_week_unique').on(table.userId, table.weekStart),
 ])
 
 export const userDailyResults = pgTable('user_daily_results', {

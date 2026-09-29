@@ -410,19 +410,17 @@ export async function processStreaksForUser(userId: string, timezone: string) {
     if (existing?.status === 'success' || existing?.status === 'failed') continue
 
     if (evaluation.status === 'neutral') {
-      // Jour passé mais échéance encore dans son délai de grâce (ex. 23:59 + 60 min, vu à 00:30) :
-      // on attend la fin de la grâce, l'expiration normale clôturera alors le jour.
-      if (graceMinutes > 0) {
-        const pending = await db
-          .select({ dueAt: schema.occurrences.dueAt })
-          .from(schema.occurrences)
-          .where(and(
-            eq(schema.occurrences.userId, userId),
-            eq(schema.occurrences.dueDate, dueDate),
-            eq(schema.occurrences.status, 'pending'),
-          ))
-        if (pending.some(occurrence => !isExpired(occurrence.dueAt, graceMinutes, now))) continue
-      }
+      // Jour passé mais échéance encore faisable : dans son délai de grâce (ex. 23:59 + 60 min,
+      // vu à 00:30) ou reportée d'un jour. On attend : l'expiration normale clôturera le jour.
+      const pending = await db
+        .select({ dueAt: schema.occurrences.dueAt })
+        .from(schema.occurrences)
+        .where(and(
+          eq(schema.occurrences.userId, userId),
+          eq(schema.occurrences.dueDate, dueDate),
+          eq(schema.occurrences.status, 'pending'),
+        ))
+      if (pending.some(occurrence => !isExpired(occurrence.dueAt, graceMinutes, now))) continue
       await closePendingDayAsFailed(userId, dueDate, timezone)
     } else {
       await updateStreakForDate(userId, dueDate, timezone)

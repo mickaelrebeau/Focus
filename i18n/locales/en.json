@@ -98,7 +98,12 @@
       "failed": "Failed",
       "skipped": "Paused"
     },
-    "validate": "Check in {title}"
+    "validate": "Check in {title}",
+    "postpone": "Postpone one day",
+    "postponeHint": "1 postponement per week: the deadline moves to tomorrow, same time.",
+    "postponeConfirm": "Confirm",
+    "postponed": "Postponed one day",
+    "postponeError": "Could not postpone this deadline"
   },
   "complete": {
     "title": "Check in",
@@ -544,5 +549,22 @@
     "deleteConfirm": "Delete permanently",
     "deleteError": "Could not delete the account",
     "adminBlocked": "Administrator accounts cannot be deleted from the app."
+  },
+  "dueTimes": {
+    "suggested": "Suggested times",
+    "forCategory": "For “{category}”",
+    "slots": {
+      "morning": "Morning",
+      "midday": "Midday",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "night": "Night"
+    },
+    "statsTitle": "Your success rate by time slot",
+    "statsScopeCategory": "on your “{category}” goals, last {days} days",
+    "statsScopeAll": "on all your goals, last {days} days",
+    "suggestion": "Suggestion: {time} ({slot}, {rate}% success)",
+    "notEnoughData": "Not enough history yet to compare your time slots.",
+    "samples": "{count} deadline | {count} deadline | {count} deadlines"
   }
 }

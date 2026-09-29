@@ -263,7 +263,10 @@ async function handleSubmit() {
         <AppUiInput v-if="recurrenceType === 'weekly_count'" v-model="timesPerWeek" label="Fois par semaine" type="number" />
       </div>
 
-      <AppUiInput v-if="goalType !== 'project'" v-model="dueTime" :label="t('templates.dueTime')" type="time" required />
+      <template v-if="goalType !== 'project'">
+        <AppUiInput v-model="dueTime" :label="t('templates.dueTime')" type="time" required />
+        <DueTimeSuggestions v-model="dueTime" :category="category" />
+      </template>
 
       <div v-if="goalType === 'project'" class="space-y-4">
         <div v-for="(m, i) in milestones" :key="i" class="app-sheet space-y-2 p-4">

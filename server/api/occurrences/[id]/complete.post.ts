@@ -3,7 +3,8 @@ import { getUserFromEvent, requireAuth } from '../../../utils/auth'
 import { useDatabase, schema } from '../../../database'
 import { completeOccurrenceSchema, parseBody } from '../../../utils/validation'
 import { rewardCompletion } from '../../../utils/credits'
-import { syncTodayStreak } from '../../../utils/streaks'
+import { reevaluateUserDay, syncTodayStreak } from '../../../utils/streaks'
+import { getTodayInTimezone } from '../../../utils/occurrences'
 import { consumeProofRequirement, getPendingProofRequirement } from '../../../consequences/providers/mandatory-proof'
 
 function hasProofPayload(data: {
@@ -77,6 +78,10 @@ export default defineEventHandler(async (event) => {
   await rewardCompletion(user.id, row.goal.rewardCredits, id, row.goal.id)
 
   const timezone = user.timezone ?? 'Europe/Paris'
+  // Échéance reportée : sa journée (la veille) peut maintenant être clôturée en réussite
+  if (row.occurrence.dueDate !== getTodayInTimezone(timezone)) {
+    await reevaluateUserDay(user.id, row.occurrence.dueDate, timezone)
+  }
   const streakResult = await syncTodayStreak(user.id, timezone)
 
   return {

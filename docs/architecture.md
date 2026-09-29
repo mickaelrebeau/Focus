@@ -12,6 +12,7 @@ Ce document décrit le flux métier de Focus pour les nouveaux contributeurs : c
 - [Mode pause / vacances](#mode-pause--vacances)
 - [Binôme de responsabilité](#binôme-de-responsabilité)
 - [Défis entre amis](#défis-entre-amis)
+- [Heure limite : créneaux et report](#heure-limite-créneaux-et-report)
 - [Export et suppression de compte](#export-et-suppression-de-compte)
 - [Pipeline des conséquences](#pipeline-des-conséquences)
 - [Notifications push](#notifications-push)
@@ -135,7 +136,7 @@ sequenceDiagram
   - sinon, la clôture des jours passés n’est rejouée qu’une fois par minute et par utilisateur (marqueur Redis `sync-deadlines:last:<userId>`, `SYNC_THROTTLE_SECONDS`) ;
   - un verrou Redis `lock:sync-deadlines:<userId>` empêche deux synchronisations concurrentes du même utilisateur : la seconde lecture répond sans synchroniser ;
   - si Redis est indisponible, la synchronisation a lieu quand même (voir « Concurrence »). Chaque opération Redis de ce chemin est bornée à 500 ms, car le client attend sinon indéfiniment la reconnexion.
-- **Délai de grâce** : `fetchExpiredOccurrences` compare `due_at + grace_minutes` à maintenant, pour le tick comme pour la lecture. La clôture des jours passés (`processStreaksForUser`) ne clôt pas en échec un jour dont une échéance est encore dans sa grâce, par exemple une échéance à 23:59 avec 60 min de grâce, vue à 00:30.
+- **Délai de grâce** : `fetchExpiredOccurrences` compare `due_at + grace_minutes` à maintenant, pour le tick comme pour la lecture. La clôture des jours passés (`processStreaksForUser`) ne clôt pas en échec un jour dont une échéance `pending` n’a pas encore expiré : encore dans sa grâce (une échéance à 23:59 avec 60 min de grâce, vue à 00:30) ou [reportée d’un jour](#heure-limite-créneaux-et-report).
 - **Concurrence** : chaque échéance est reverrouillée (`FOR UPDATE`) et son statut revérifié dans une transaction. Si les deux chemins tombent sur la même échéance, un seul la passe en `failed` et déclenche les conséquences.
 
 ## Streak et clôture journalière
@@ -179,7 +180,7 @@ Déclencheurs :
 
 - **Worker** : `processStreaksAfterExpiration` à chaque tick, pour tous les utilisateurs.
 - **Lecture API** : via `syncUserDeadlines`, pour l’utilisateur courant.
-- **Réussite** : `syncTodayStreak` après chaque `complete`. La réponse contient le streak seulement si la journée devient parfaite, ce qui déclenche l’animation côté client.
+- **Réussite** : `syncTodayStreak` après chaque `complete`, plus `reevaluateUserDay` sur la date de l’échéance quand ce n’est pas aujourd’hui (échéance reportée). La réponse contient le streak seulement si la journée devient parfaite, ce qui déclenche l’animation côté client.
 - **Échec** : `reevaluateUserDay` après chaque expiration ou rejet de validation.
 
 Toutes les dates « jour » sont calculées dans le fuseau de l’utilisateur (`users.timezone`, via `getTodayInTimezone`).
@@ -213,6 +214,13 @@ Code : `server/utils/challenges.ts`, `server/api/challenges/*`, pages `app/pages
 - **Classement** calculé à la lecture pendant la semaine, figé à la clôture (`final_score`, `final_rank`, `payout`). Les ex æquo partagent le rang ; seuls prénoms et scores sont exposés.
 - **Clôture** par le worker `deadlines` (`closeFinishedChallenges`) à partir du lundi 12:00 UTC suivant la semaine, quand le dimanche est terminé dans tous les fuseaux. Transaction avec verrou sur le défi, ignorée si `closed_at` est renseigné (idempotente). La cagnotte va aux premiers (partage en cas d’égalité, le reste au premier inscrit, `challenge_payout`). Moins de 2 participants restants : défi annulé, mises remboursées.
 - **Notification** de fin : notification in-app et push `challenge_closed` (préférence `challenge_results`).
+
+## Heure limite : créneaux et report
+
+- **Créneaux et presets** (`shared/due-time-slots.ts`, partagé client / serveur) : cinq créneaux (matin dès 05:00, midi 11:00, après-midi 14:00, soir 18:00, nuit 22:00) et des heures proposées par catégorie, reconnues par mots-clés en français et en anglais, sans accents ni casse. Un test vérifie que chaque catégorie du catalogue de modèles a ses presets. Le formulaire de création les affiche sous l’heure limite (`app/components/DueTimeSuggestions.vue`).
+- **Réussite par créneau** (`GET /api/time-slots?category=`, `server/utils/time-slots.ts`) : échéances `completed` / `failed` des 90 derniers jours, classées selon l’heure prévue **avant report** (`coalesce(original_due_at, due_at)`), dans le fuseau de l’utilisateur. Un taux n’apparaît qu’à partir de 5 échéances dans le créneau, et une suggestion qu’avec au moins deux créneaux comparables : le meilleur taux, à l’heure qui y a le plus souvent réussi. Les statistiques se limitent à la catégorie saisie quand elle suffit à une suggestion, sinon elles portent sur tous les objectifs.
+- **Report d’un jour** (`POST /api/occurrences/:id/postpone`, `server/utils/postpone.ts`) : une fois par semaine ISO (lundi dans le fuseau de l’utilisateur), sur une échéance `pending` pas encore expirée (heure limite + grâce) et jamais reportée. `due_at` avance de 24 h, l’heure d’origine va dans `original_due_at` ; **`due_date` ne change pas**. L’échéance reste donc rattachée à son jour pour le streak, les défis et le bilan, et la génération des échéances (unicité `goal_id, due_date, milestone_id`) ne la recrée pas. Le jour reste ouvert jusqu’à la nouvelle heure limite, puis l’expiration normale s’applique. Comme le report est refusé après expiration, aucune conséquence n’a pu partir : il ne peut ni annuler ni doubler une sanction. Le quota tient à la contrainte `UNIQUE (user_id, week_start)` de `occurrence_postponements` (migration `0018`), sûre même en cas de requêtes simultanées. Chaque report est aussi tracé dans `audit_logs` (`occurrence.postpone`) et figure dans l’export RGPD.
+- **Affichage** : le filtre `today` inclut les échéances d’hier reportées, et le rappel push avant échéance repart pour la nouvelle heure limite (clé de déduplication distincte).
 
 ## Export et suppression de compte
 
